@@ -1,0 +1,35 @@
+/* HEADER ICONS */
+
+.header-icon-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #0b3c5d;
+  transition: color 0.2s ease, transform 0.2s ease;
+}
+
+.header-icon-btn:hover {
+  color: #0c86d1;
+  transform: translateY(-1px);
+}
+
+.header-icon {
+  width: 22px;
+  height: 22px;
+}
+
+.header-cart-badge {
+  position: absolute;
+  top: -6px;
+  right: -8px;
+  background: #0c86d1;
+  color: #ffffff;
+  font-size: 11px;
+  height: 18px;
+  min-width: 18px;
+  border-radius: 999px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 600;
+}

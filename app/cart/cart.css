@@ -1,0 +1,76 @@
+.cart_quantity{
+  height: 2rem;
+}
+
+
+.cart_quantity .quantity-input{
+  padding: 0px !important;
+} 
+
+
+.cart-drawer {
+  position: relative; 
+}
+
+.cart-row-remove {
+  background: #fffafa;
+  border-color: #f4d4d4 !important;
+}
+
+.cart-row-low-stock {
+  background: #fffcf4;
+  border-color: #f1e2bb !important;
+}
+
+.cart-row-notice {
+  display: flex;
+  align-items: center;
+  margin-bottom: 0.9rem;
+  padding: 0.55rem 0.75rem;
+  border-radius: 6px;
+  border-left: 3px solid transparent;
+  background: #f8fafc;
+}
+
+.cart-row-notice-remove {
+  color: #9f1239;
+  border-left-color: #be123c;
+  background: #fff1f2;
+}
+
+.cart-row-notice-low-stock {
+  color: #92400e;
+  border-left-color: #b45309;
+  background: #fff7ed;
+}
+
+.cart-row-notice-error {
+  color: #991b1b;
+  border-left-color: #b91c1c;
+  background: #fef2f2;
+}
+
+.cart-overlay {
+  position: absolute;
+  inset: 0;                        
+  background: rgba(255,255,255,0.6);
+  backdrop-filter: blur(1px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 10;
+  border-radius: inherit;
+}
+
+.cart-spinner {
+  width: 28px;
+  height: 28px;
+  border: 2.5px solid #e0e0e0;
+  border-top-color: #4a90d9;
+  border-radius: 50%;
+  animation: spin 0.7s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}

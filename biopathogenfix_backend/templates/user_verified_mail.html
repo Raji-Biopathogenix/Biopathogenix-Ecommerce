@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Email Verified – Activation Pending</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600&family=DM+Mono:wght@400;500&display=swap');
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      background-color: #f0f2f5;
+      font-family: 'DM Sans', sans-serif;
+      color: #1a1a2e;
+      padding: 40px 16px;
+    }
+
+    .wrapper {
+      max-width: 580px;
+      margin: 0 auto;
+    }
+
+    .header {
+      background: #0f172a;
+      border-radius: 12px 12px 0 0;
+      padding: 32px 40px;
+      text-align: center;
+    }
+
+    .header .logo {
+      font-family: 'DM Mono', monospace;
+      font-size: 13px;
+      letter-spacing: 3px;
+      color: #94a3b8;
+      text-transform: uppercase;
+      margin-bottom: 6px;
+    }
+
+    .header h1 {
+      font-size: 22px;
+      font-weight: 600;
+      color: #f8fafc;
+      letter-spacing: -0.3px;
+    }
+
+    .badge {
+      display: inline-block;
+      background: #22c55e;
+      color: #fff;
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      padding: 4px 12px;
+      border-radius: 20px;
+      margin-top: 12px;
+    }
+
+    .body {
+      background: #ffffff;
+      padding: 40px;
+      border-left: 1px solid #e2e8f0;
+      border-right: 1px solid #e2e8f0;
+    }
+
+    .body p {
+      font-size: 15px;
+      line-height: 1.7;
+      color: #475569;
+      margin-bottom: 20px;
+    }
+
+    .status-box {
+      background: #f0fdf4;
+      border: 1px solid #bbf7d0;
+      border-left: 4px solid #22c55e;
+      border-radius: 8px;
+      padding: 18px 20px;
+      margin-bottom: 28px;
+    }
+
+    .status-box .status-title {
+      font-size: 14px;
+      font-weight: 600;
+      color: #15803d;
+      margin-bottom: 4px;
+    }
+
+    .status-box .status-desc {
+      font-size: 13px;
+      color: #4ade80;
+      color: #166534;
+      margin: 0;
+    }
+
+    .steps {
+      margin-bottom: 28px;
+    }
+
+    .steps .step-label {
+      font-family: 'DM Mono', monospace;
+      font-size: 11px;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      color: #94a3b8;
+      margin-bottom: 14px;
+    }
+
+    .step {
+      display: flex;
+      align-items: flex-start;
+      gap: 14px;
+      padding: 12px 0;
+      border-bottom: 1px solid #f1f5f9;
+    }
+
+    .step:last-child {
+      border-bottom: none;
+    }
+
+    .step-num {
+      width: 28px;
+      height: 28px;
+      min-width: 28px;
+      border-radius: 50%;
+      font-size: 12px;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .step-num.done {
+      background: #22c55e;
+      color: #fff;
+    }
+
+    .step-num.pending {
+      background: #fef9c3;
+      color: #a16207;
+      border: 1px solid #fde047;
+    }
+
+    .step-num.upcoming {
+      background: #f1f5f9;
+      color: #94a3b8;
+    }
+
+    .step-text .title {
+      font-size: 14px;
+      font-weight: 600;
+      color: #1e293b;
+      margin-bottom: 2px;
+    }
+
+    .step-text .desc {
+      font-size: 13px;
+      color: #94a3b8;
+      margin: 0;
+    }
+
+    .body p:last-child {
+      margin-bottom: 0;
+    }
+
+    .footer {
+      background: #f8fafc;
+      border: 1px solid #e2e8f0;
+      border-top: none;
+      border-radius: 0 0 12px 12px;
+      padding: 20px 40px;
+      text-align: center;
+    }
+
+    .footer p {
+      font-size: 12px;
+      color: #94a3b8;
+      line-height: 1.6;
+    }
+  </style>
+</head>
+<body>
+  <div class="wrapper">
+
+    <div class="header">
+      <div class="logo">BioPathogenix</div>
+      <h1>Email Verified Successfully</h1>
+      <span class="badge">✓ Verified</span>
+    </div>
+
+    <div class="body">
+      <p>Hello {{ first_name }},</p>
+
+      <div class="status-box">
+        <div class="status-title">Your email has been verified!</div>
+        <div class="status-desc">Our admin team has been notified and will activate your account shortly.</div>
+      </div>
+
+      <p>Thank you for verifying your email address. Your account is currently under review. Here's where you are in the process:</p>
+
+      <div class="steps">
+        <div class="step-label">Account Setup Progress</div>
+
+        <div class="step">
+          <div class="step-num done">✓</div>
+          <div class="step-text">
+            <div class="title">Email Verified</div>
+            <div class="desc">Your email address has been confirmed.</div>
+          </div>
+        </div>
+
+        <div class="step">
+          <div class="step-num pending">2</div>
+          <div class="step-text">
+            <div class="title">Admin Review</div>
+            <div class="desc">Our team is reviewing your account — usually within 24 hours.</div>
+          </div>
+        </div>
+
+        <div class="step">
+          <div class="step-num upcoming">3</div>
+          <div class="step-text">
+            <div class="title">Account Activated</div>
+            <div class="desc">You'll receive a confirmation email once your account is live.</div>
+          </div>
+        </div>
+      </div>
+
+      <p>If you have any questions or need assistance, feel free to reach out to our support team.</p>
+    </div>
+
+    <div class="footer">
+      <p>This is an automated notification from BioPathogenix.<br/>Please do not reply to this email.</p>
+    </div>
+
+  </div>
+</body>
+</html>

@@ -1,0 +1,279 @@
+{% extends "admin/change_list.html" %}
+{% load i18n %}
+
+{% block content %}
+<div id="kb-upload-section" style="
+  background:#f8f9fa;
+  border:1px solid #dee2e6;
+  border-radius:8px;
+  padding:20px 24px;
+  margin-bottom:24px;
+">
+  <h2 style="margin:0 0 4px;font-size:16px;font-weight:600;color:#333;">
+    Upload Files to Knowledge Base
+  </h2>
+  <p style="margin:0 0 16px;font-size:13px;color:#666;">
+    Supported formats: .txt, .md, .pdf, .docx, .csv &nbsp;|&nbsp; You can drag a whole folder.
+  </p>
+
+  <div id="kb-drop-zone" style="
+    border:2px dashed #adb5bd;
+    border-radius:8px;
+    padding:36px 20px;
+    text-align:center;
+    cursor:pointer;
+    transition:border-color .2s,background .2s;
+    background:#fff;
+    position:relative;
+  ">
+    <div style="font-size:36px;margin-bottom:8px;">📂</div>
+    <p style="margin:0 0 8px;font-size:15px;color:#495057;font-weight:500;">
+      Drag &amp; drop files or a folder here
+    </p>
+    <p style="margin:0 0 12px;font-size:13px;color:#868e96;">or</p>
+    <label for="kb-file-input" style="
+      display:inline-block;
+      padding:8px 18px;
+      background:#417690;
+      color:#fff;
+      border-radius:4px;
+      cursor:pointer;
+      font-size:13px;
+      font-weight:500;
+    ">Browse Files</label>
+    <input id="kb-file-input" type="file" multiple
+           accept=".txt,.md,.text,.rst,.pdf,.docx,.csv"
+           style="display:none;">
+  </div>
+
+  <div id="kb-file-list" style="margin-top:12px;display:none;">
+    <p style="font-size:13px;color:#495057;font-weight:500;margin:0 0 6px;">
+      Files queued: <span id="kb-file-count">0</span>
+    </p>
+    <ul id="kb-file-names" style="
+      margin:0;padding:0 0 0 18px;
+      font-size:12px;color:#666;
+      max-height:120px;overflow-y:auto;
+    "></ul>
+  </div>
+
+  <div style="margin-top:14px;display:flex;gap:10px;align-items:center;">
+    <button id="kb-upload-btn" type="button" style="
+      padding:8px 20px;
+      background:#28a745;
+      color:#fff;
+      border:none;
+      border-radius:4px;
+      cursor:pointer;
+      font-size:13px;
+      font-weight:500;
+      display:none;
+    ">Upload &amp; Create Entries</button>
+    <button id="kb-clear-btn" type="button" style="
+      padding:8px 14px;
+      background:#6c757d;
+      color:#fff;
+      border:none;
+      border-radius:4px;
+      cursor:pointer;
+      font-size:13px;
+      display:none;
+    ">Clear</button>
+    <span id="kb-upload-status" style="font-size:13px;"></span>
+  </div>
+
+  <div id="kb-results" style="margin-top:14px;display:none;">
+    <table style="width:100%;border-collapse:collapse;font-size:13px;">
+      <thead>
+        <tr style="background:#e9ecef;">
+          <th style="padding:6px 10px;text-align:left;border:1px solid #dee2e6;">File</th>
+          <th style="padding:6px 10px;text-align:left;border:1px solid #dee2e6;">Status</th>
+          <th style="padding:6px 10px;text-align:left;border:1px solid #dee2e6;">Detail</th>
+        </tr>
+      </thead>
+      <tbody id="kb-results-body"></tbody>
+    </table>
+  </div>
+</div>
+
+{{ block.super }}
+
+<script>
+(function () {
+  const dropZone   = document.getElementById('kb-drop-zone');
+  const fileInput  = document.getElementById('kb-file-input');
+  const fileList   = document.getElementById('kb-file-list');
+  const fileCount  = document.getElementById('kb-file-count');
+  const fileNames  = document.getElementById('kb-file-names');
+  const uploadBtn  = document.getElementById('kb-upload-btn');
+  const clearBtn   = document.getElementById('kb-clear-btn');
+  const statusEl   = document.getElementById('kb-upload-status');
+  const resultsDiv = document.getElementById('kb-results');
+  const resultsBody= document.getElementById('kb-results-body');
+
+  let pendingFiles = [];
+
+  /* ── CSRF ── */
+  function getCsrf() {
+    const match = document.cookie.match(/csrftoken=([^;]+)/);
+    return match ? match[1] : '';
+  }
+
+  /* ── Collect files from a FileSystemEntry recursively ── */
+  function collectFromEntry(entry) {
+    return new Promise(resolve => {
+      if (entry.isFile) {
+        entry.file(f => resolve([f]), () => resolve([]));
+      } else if (entry.isDirectory) {
+        const reader = entry.createReader();
+        const all = [];
+        function read() {
+          reader.readEntries(async entries => {
+            if (!entries.length) { resolve(all); return; }
+            for (const e of entries) {
+              const files = await collectFromEntry(e);
+              all.push(...files);
+            }
+            read();
+          }, () => resolve(all));
+        }
+        read();
+      } else {
+        resolve([]);
+      }
+    });
+  }
+
+  /* ── Update the queued file list UI ── */
+  function refreshFileUI() {
+    if (!pendingFiles.length) {
+      fileList.style.display = 'none';
+      uploadBtn.style.display = 'none';
+      clearBtn.style.display  = 'none';
+      return;
+    }
+    fileList.style.display = 'block';
+    uploadBtn.style.display = 'inline-block';
+    clearBtn.style.display  = 'inline-block';
+    fileCount.textContent = pendingFiles.length;
+    fileNames.innerHTML = pendingFiles
+      .map(f => `<li>${f.name}</li>`)
+      .join('');
+  }
+
+  /* ── Drag & drop handlers ── */
+  dropZone.addEventListener('dragover', e => {
+    e.preventDefault();
+    dropZone.style.borderColor = '#417690';
+    dropZone.style.background  = '#e8f4f8';
+  });
+
+  dropZone.addEventListener('dragleave', () => {
+    dropZone.style.borderColor = '#adb5bd';
+    dropZone.style.background  = '#fff';
+  });
+
+  dropZone.addEventListener('drop', async e => {
+    e.preventDefault();
+    dropZone.style.borderColor = '#adb5bd';
+    dropZone.style.background  = '#fff';
+
+    const items = Array.from(e.dataTransfer.items || []);
+    const collected = [];
+
+    for (const item of items) {
+      if (item.kind !== 'file') continue;
+      const entry = item.webkitGetAsEntry ? item.webkitGetAsEntry() : null;
+      if (entry) {
+        const files = await collectFromEntry(entry);
+        collected.push(...files);
+      } else {
+        const f = item.getAsFile();
+        if (f) collected.push(f);
+      }
+    }
+
+    pendingFiles.push(...collected.filter(f => isSupportedExt(f.name)));
+    refreshFileUI();
+  });
+
+  /* ── File input browse ── */
+  dropZone.addEventListener('click', e => {
+    if (e.target.tagName !== 'LABEL' && e.target.tagName !== 'INPUT') {
+      fileInput.click();
+    }
+  });
+
+  fileInput.addEventListener('change', () => {
+    const selected = Array.from(fileInput.files).filter(f => isSupportedExt(f.name));
+    pendingFiles.push(...selected);
+    fileInput.value = '';
+    refreshFileUI();
+  });
+
+  /* ── Clear ── */
+  clearBtn.addEventListener('click', () => {
+    pendingFiles = [];
+    resultsDiv.style.display = 'none';
+    statusEl.textContent = '';
+    refreshFileUI();
+  });
+
+  /* ── Upload ── */
+  uploadBtn.addEventListener('click', async () => {
+    if (!pendingFiles.length) return;
+
+    uploadBtn.disabled = true;
+    statusEl.style.color = '#417690';
+    statusEl.textContent = `Uploading ${pendingFiles.length} file(s)…`;
+    resultsDiv.style.display = 'none';
+    resultsBody.innerHTML = '';
+
+    const fd = new FormData();
+    for (const f of pendingFiles) fd.append('files', f);
+
+    try {
+      const res = await fetch('upload-files/', {
+        method: 'POST',
+        headers: { 'X-CSRFToken': getCsrf() },
+        body: fd,
+      });
+      const data = await res.json();
+      renderResults(data.results || []);
+      pendingFiles = [];
+      refreshFileUI();
+      statusEl.textContent = '';
+    } catch (err) {
+      statusEl.style.color = '#dc3545';
+      statusEl.textContent = 'Upload failed: ' + err.message;
+    } finally {
+      uploadBtn.disabled = false;
+    }
+  });
+
+  /* ── Render results table ── */
+  function renderResults(results) {
+    resultsDiv.style.display = 'block';
+    resultsBody.innerHTML = results.map(r => {
+      const ok = r.status === 'ok';
+      const color = ok ? '#28a745' : '#dc3545';
+      const detail = ok
+        ? `Created entry #${r.id} — <em>${r.title}</em>`
+        : (r.message || 'Unknown error');
+      return `<tr>
+        <td style="padding:5px 10px;border:1px solid #dee2e6;">${r.file}</td>
+        <td style="padding:5px 10px;border:1px solid #dee2e6;color:${color};font-weight:600;">
+          ${ok ? '✓ OK' : '✗ Error'}
+        </td>
+        <td style="padding:5px 10px;border:1px solid #dee2e6;">${detail}</td>
+      </tr>`;
+    }).join('');
+  }
+
+  /* ── Helpers ── */
+  function isSupportedExt(name) {
+    return /\.(txt|md|text|rst|pdf|docx|csv)$/i.test(name);
+  }
+})();
+</script>
+{% endblock %}

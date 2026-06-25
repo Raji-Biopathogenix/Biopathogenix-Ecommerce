@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Order Confirmation</title>
+</head>
+<body style="font-family: Arial, sans-serif; color: #222;">
+    <div style="max-width: 600px; margin: auto; border: 1px solid #eaeaea; border-radius: 8px; padding: 32px;">
+        <div style="text-align: center;">
+            <img src="{{ logo_url }}" alt="BioPathogenix Logo" style="max-width: 200px; margin-bottom: 24px;" />
+            <h2>Thank you for your order</h2>
+        </div>
+        <p>Hi {{ user_name }},</p>
+        <p>We've received your order and it's currently being processed. Here are your order details:</p>
+        <h3>Order Summary</h3>
+        <p><strong>Order #:</strong> {{ order_number }}<br>
+           <strong>Date:</strong> {{ order_date }}</p>
+        <table width="100%" cellpadding="8" cellspacing="0" border="1" style="border-collapse: collapse;">
+            <thead>
+                <tr>
+                    <th>Product</th>
+                    <th>Quantity</th>
+                    <th>Price</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for item in order_items %}
+                <tr>
+                    <td>{{ item.product_name }}</td>
+                    <td>{{ item.quantity }}</td>
+                    <td>${{ item.unit_price }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        <p><strong>Subtotal:</strong> ${{ subtotal }}<br>
+           <strong>Shipping:</strong> ${{ shipping_cost }}<br>
+           <strong>Tax:</strong> ${{ tax_amount }}<br>
+           <strong>Total:</strong> ${{ total }}<br>
+           <strong>Payment method:</strong> {{ payment_method }}</p>
+        <h4>Billing address</h4>
+        <p>{{ billing_address }}</p>
+        <h4>Shipping address</h4>
+        <p>{{ shipping_address }}</p>
+        <p style="margin-top: 32px;">If you have any questions, please contact us at <a href="mailto:order@biopathogenix.com">order@biopathogenix.com</a>.</p>
+        <p style="color: #888; font-size: 12px;">This is an automated email. Please do not reply to this message.</p>
+    </div>
+</body>
+</html>

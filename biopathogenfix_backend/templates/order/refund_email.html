@@ -1,0 +1,126 @@
+<!-- templates/emails/refund_email.html -->
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Refund Confirmed</title>
+</head>
+<body style="margin:0;padding:0;background:#f4f4f4;font-family:Arial,sans-serif;">
+
+  <table width="100%" cellpadding="0" cellspacing="0">
+    <tr>
+      <td align="center" style="padding:40px 16px;">
+
+        <table width="580" cellpadding="0" cellspacing="0"
+               style="background:#fff;border-radius:12px;overflow:hidden;">
+
+          <!-- Header -->
+          <tr>
+            <td style="background:#1a3a2a;padding:40px;text-align:center;">
+              <h1 style="color:#fff;font-size:24px;margin:0;">Refund Confirmed ✓</h1>
+              <p style="color:rgba(255,255,255,0.7);margin:8px 0 0;">
+                Order #{{ order.id }} &middot; {{ refunded_at|date:"F j, Y" }}
+              </p>
+            </td>
+          </tr>
+
+          <!-- Amount -->
+          <tr>
+            <td style="background:#f0fdf4;padding:24px 40px;
+                       border-bottom:1px solid #dcfce7;text-align:center;">
+              <p style="color:#16a34a;font-size:12px;
+                        text-transform:uppercase;letter-spacing:1px;margin:0 0 4px;">
+                Refund Amount
+              </p>
+              <p style="color:#15803d;font-size:42px;font-weight:700;margin:0;">
+                ${{ refund_amount }}
+              </p>
+            </td>
+          </tr>
+
+          <!-- Body -->
+          <tr>
+            <td style="padding:36px 40px;">
+
+              <p style="font-size:16px;color:#111;margin:0 0 10px;">
+                Hi {{ customer_name }},
+              </p>
+              <p style="font-size:14px;color:#555;line-height:1.7;margin:0 0 28px;">
+                Your refund for <strong>Order #{{ order.id }}</strong> has been
+                successfully processed. It will appear in your account within
+                <strong>3–7 business days</strong>.
+              </p>
+
+              <!-- Details -->
+              <p style="font-size:11px;font-weight:700;color:#999;
+                        text-transform:uppercase;letter-spacing:1.5px;margin:0 0 12px;">
+                Refund Details
+              </p>
+              <table width="100%" cellpadding="0" cellspacing="0"
+                     style="border:1px solid #e5e5e5;border-radius:8px;overflow:hidden;">
+                <tr>
+                  <td style="padding:12px 16px;font-size:13px;color:#666;
+                             border-bottom:1px solid #f0f0f0;">Order</td>
+                  <td style="padding:12px 16px;font-size:13px;color:#111;
+                             font-weight:600;text-align:right;
+                             border-bottom:1px solid #f0f0f0;">#{{ order.id }}</td>
+                </tr>
+                <tr style="background:#fafafa;">
+                  <td style="padding:12px 16px;font-size:13px;color:#666;
+                             border-bottom:1px solid #f0f0f0;">Amount</td>
+                  <td style="padding:12px 16px;font-size:13px;color:#16a34a;
+                             font-weight:700;text-align:right;
+                             border-bottom:1px solid #f0f0f0;">${{ refund_amount }}</td>
+                </tr>
+                <tr>
+                  <td style="padding:12px 16px;font-size:13px;color:#666;
+                             border-bottom:1px solid #f0f0f0;">Date</td>
+                  <td style="padding:12px 16px;font-size:13px;color:#111;
+                             font-weight:600;text-align:right;
+                             border-bottom:1px solid #f0f0f0;">
+                    {{ refunded_at|date:"M d, Y" }}
+                  </td>
+                </tr>
+                {% if refund_reference %}
+                <tr style="background:#fafafa;">
+                  <td style="padding:12px 16px;font-size:13px;color:#666;
+                             border-bottom:1px solid #f0f0f0;">Reference</td>
+                  <td style="padding:12px 16px;font-size:12px;color:#111;
+                             font-family:monospace;text-align:right;
+                             border-bottom:1px solid #f0f0f0;">{{ refund_reference }}</td>
+                </tr>
+                {% endif %}
+                <tr {% if not refund_reference %}style="background:#fafafa;"{% endif %}>
+                  <td style="padding:12px 16px;font-size:13px;color:#666;">
+                    Payment Method
+                  </td>
+                  <td style="padding:12px 16px;font-size:13px;color:#111;
+                             font-weight:600;text-align:right;">
+                    {{ payment_method }}
+                  </td>
+                </tr>
+              </table>
+
+            </td>
+          </tr>
+
+          <!-- Footer -->
+          <tr>
+            <td style="padding:24px 40px;border-top:1px solid #f0f0f0;
+                       text-align:center;">
+              <p style="font-size:12px;color:#aaa;margin:0;">
+                {{ company_name }} &middot; {{ company_address }}<br>
+                Questions? <a href="mailto:{{ support_email }}"
+                              style="color:#555;">{{ support_email }}</a>
+              </p>
+            </td>
+          </tr>
+
+        </table>
+      </td>
+    </tr>
+  </table>
+
+</body>
+</html>
