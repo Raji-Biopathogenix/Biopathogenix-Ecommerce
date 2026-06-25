@@ -41,4 +41,5 @@ yarn-error.log*
 next-env.d.ts
 
 
-/biopathgenfix_backend/logs/*.log
+/biopathogenfix_backend/logs/*.log
+/biopathogenfix_backend/staticfiles/
