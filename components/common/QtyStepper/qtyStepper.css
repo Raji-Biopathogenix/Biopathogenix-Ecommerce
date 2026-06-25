@@ -1,0 +1,19 @@
+.quantity-input {
+  -moz-appearance: textfield;
+  padding: 8px 12px;
+  border: 1px solid #ccc;
+  outline: none;
+  text-align: center;
+}
+
+.quantity-input:focus,
+.quantity-input:hover {
+  border-color: transparent;  
+  box-shadow: none;
+}
+
+.quantity-input::-webkit-outer-spin-button,
+.quantity-input::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}

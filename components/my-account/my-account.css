@@ -1,0 +1,266 @@
+/* ================= MY ACCOUNT PAGE ONLY ================= */
+
+.my-account-page {
+  background: #ffffff;
+  padding: 64px 0;
+}
+
+.my-account-page .account-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 24px;
+}
+
+.my-account-page .account-title {
+  font-size: 42px;
+  font-weight: 600;
+  color: #003b5c;
+  margin-bottom: 48px;
+}
+
+.my-account-page .account-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  column-gap: 80px;
+}
+
+@media (max-width: 1024px) {
+  .my-account-page .account-grid {
+    grid-template-columns: 1fr;
+    row-gap: 64px;
+  }
+}
+
+.my-account-page .account-card {
+  max-width: 520px;
+}
+
+/* Section Titles */
+.my-account-page .account-section-title {
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  margin-bottom: 16px;
+  color: #111827;
+}
+
+/* Inputs */
+.my-account-page .form-group {
+  margin-bottom: 14px;
+}
+
+.my-account-page .form-group label {
+  display: block;
+  font-size: 11px;
+  font-weight: 600;
+  color: #374151;
+  margin-bottom: 0.1rem;
+}
+
+.my-account-page .form-group input,
+.my-account-page .form-group select {
+  width: 100%;
+  height: 34px;
+  border: 1px solid #d9e6ef;
+  border-radius: 2px;
+  padding: 0 10px;
+  font-size: 13px;
+  outline: none;
+  background: #ffffff;
+}
+
+.my-account-page .form-group input:focus,
+.my-account-page .form-group select:focus {
+  border-color: #0b78d1;
+}
+
+.my-account-page .form-group input.field-error-input,
+.my-account-page .form-group select.field-error-input {
+  border-color: #e05566;
+  background: #fff6f7;
+}
+
+.my-account-page .form-field-error {
+  margin-top: 8px;
+  font-size: 14px;
+  color: #ffffff;
+  background: #e05566;
+  padding: 10px 12px;
+  border-radius: 2px;
+  position: relative;
+  line-height: 1.35;
+}
+
+.my-account-page .form-field-error::before {
+  content: "";
+  position: absolute;
+  left: 18px;
+  top: -7px;
+  border-left: 7px solid transparent;
+  border-right: 7px solid transparent;
+  border-bottom: 7px solid #e05566;
+}
+
+/* Google Button */
+.my-account-page .google-btn {
+  width: 260px;
+  height: 34px;
+  border: 1px solid #cfd9e2;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  font-size: 12px;
+  margin-bottom: 20px;
+  cursor: pointer;
+  background: #ffffff;
+}
+
+.my-account-page .google-btn:hover {
+  background: #f9fafb;
+}
+
+/* Buttons */
+.my-account-page .primary-btn {
+  margin-top: 16px;
+  border: 1px solid #cfd9e2;
+  padding: 6px 24px;
+  font-size: 12px;
+  background: #ffffff;
+  cursor: pointer;
+}
+
+.my-account-page .primary-btn:hover {
+  background: #f3f4f6;
+}
+
+/* Helpers */
+.my-account-page .remember-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  margin-bottom: 10px;
+}
+
+.my-account-page .forgot-link {
+  font-size: 12px;
+  color: #2563eb;
+  cursor: pointer;
+}
+
+.my-account-page .forgot-link:hover {
+  text-decoration: underline;
+}
+
+.my-account-page .helper-text {
+  font-size: 12px;
+  color: #6b7280;
+  margin-bottom: 12px;
+}
+
+.my-account-page .privacy-text {
+  font-size: 16px;
+  line-height: 1.4;
+  color: #6b7280;
+  margin-top: 14px;
+}
+
+.my-account-page .privacy-text span {
+  color: #2563eb;
+  cursor: pointer;
+  text-decoration: underline;
+}
+
+
+/* ================= LOST PASSWORD ================= */
+
+.my-account-page .lost-description {
+  max-width: 920px;
+  font-size: 17px;
+  line-height: 1.6;
+  color: #083b5c;
+  margin-bottom: 32px;
+}
+
+.my-account-page .lost-form-wrapper {
+  max-width: 100%;
+}
+
+.my-account-page .lost-label {
+  display: block;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  color: #6b7c8f;
+  margin-bottom: 6px;
+}
+
+.my-account-page .lost-label span {
+  color: #e11d48;
+}
+
+.my-account-page .lost-input {
+  width: 100%;
+  height: 46px;
+  border: 1px solid #e4eff8;
+  padding: 0 14px;
+  font-size: 14px;
+  outline: none;
+  margin-bottom: 18px;
+}
+
+.my-account-page .lost-input:focus {
+  border-color: #0c86d1;
+}
+
+.my-account-page .lost-btn {
+  background: #eceff2;
+  color: #0b2f4a;
+  font-size: 13px;
+  padding: 11px 28px;
+  border-radius: 2px;
+  font-weight: 600;
+  transition: 0.2s ease;
+}
+
+.my-account-page .lost-btn:hover {
+  background: #e2e6ea;
+}
+
+.my-account-page .lost-btn:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+}
+
+.my-account-page .lost-actions {
+  display: flex;
+  gap: 12px;
+  margin-bottom: 18px;
+}
+
+.my-account-page .lost-message {
+  margin-top: 8px;
+  font-size: 13px;
+  color: #0f5132;
+  background: #d1e7dd;
+  border: 1px solid #badbcc;
+  padding: 10px 12px;
+  border-radius: 2px;
+}
+
+.my-account-page .lost-error {
+  margin-top: 8px;
+  font-size: 13px;
+  color: #842029;
+  background: #f8d7da;
+  border: 1px solid #f5c2c7;
+  padding: 10px 12px;
+  border-radius: 2px;
+}
+
+.required_fields{
+  color: #e11d48;
+  font-size: 1rem;
+  vertical-align: middle;
+}

@@ -1,0 +1,15 @@
+Dear Team,
+
+A new Validation Services contact request has been submitted. Please find the details below:
+
+Name: {{ name }}
+Email Address: {{ email }}
+Phone Number: {{ phone }}
+Laboratory: {{ laboratory }}
+Validating For: {{ validating_for }}
+Additional Notes: {{ additional_notes }}
+
+Please review the request and follow up as needed.
+
+Best regards,
+BioPathogenix
