@@ -20,6 +20,8 @@ from django.conf import settings
 from django.conf.urls.static import static
 from django.views.static import serve
 
+admin.site.enable_nav_sidebar = True
+
 
 def cached_media_serve(request, path):
     response = serve(request, path, document_root=settings.MEDIA_ROOT)
