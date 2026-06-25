@@ -1,0 +1,100 @@
+@import url("https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&display=swap");
+@import "tailwindcss";
+
+:root {
+  --background: #ffffff;
+  --foreground: #171717;
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --font-sans: var(--font-geist-sans);
+  --font-mono: var(--font-geist-mono);
+}
+
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+  font-family: Arial, Helvetica, sans-serif;
+}
+
+.bpx-chat-panel,
+.bpx-chat-panel * {
+  font-family: "IBM Plex Sans", "Segoe UI", sans-serif;
+}
+
+.bpx-chat-panel {
+  animation: bpx-chat-in 220ms ease-out;
+}
+
+@keyframes bpx-chat-in {
+  from {
+    opacity: 0;
+    transform: translateY(12px) scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+/* Force CMS-rendered HTML to use dark text on all browsers including iOS Safari */
+.cms-content * {
+  color: #0d1f3c !important;
+  -webkit-text-fill-color: #0d1f3c !important;
+}
+
+.spec-section p,
+.spec-section a {
+  color: #143a67 !important;
+  text-decoration: none !important;
+  pointer-events: none;
+}
+
+.spec-section.product-overview {
+  padding: 40px 0;
+  font-family: Arial, Helvetica, sans-serif;
+  line-height: 1.6;
+}
+
+.spec-section.product-overview h2 {
+  font-size: 52px;
+  line-height: 1.1;
+  margin: 0 0 28px 0;
+  font-weight: 700;
+  color: #143a67;
+}
+
+.spec-section.product-overview > div {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  align-items: start;
+  gap: 0;
+}
+
+.spec-section.product-overview .spec-left {
+  padding-right: 60px;
+  border-right: 2px solid #d0dce8;
+}
+
+.spec-section.product-overview .spec-right {
+  padding-left: 60px;
+}
+
+.spec-section.product-overview .spec-footer {
+  margin: 32px 0 0 0;
+  font-weight: 700;
+}
+
+/* 
+.landing-content h1 {
+  @apply text-[2.8rem] font-extrabold text-white leading-tight mb-5;
+}
+.landing-content p {
+  @apply text-[0.95rem] text-white/85 leading-relaxed max-w-[620px] mb-8;
+}
+.landing-content strong {
+  @apply font-bold text-white;
+} */

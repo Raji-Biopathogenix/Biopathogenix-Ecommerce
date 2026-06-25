@@ -1,0 +1,13 @@
+New Custom Target Request
+
+Name: {{ name }}
+Email: {{ email }}
+Organization / Lab: {{ organization_lab }}
+Panel Type: {{ panel_type }}
+Uploaded Target File: {{ uploaded_file_name }}{% if uploaded_file_size != "N/A" %} ({{ uploaded_file_size }}){% endif %}
+
+Targets:
+{{ targets }}
+
+Notes:
+{{ notes }}

@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Return Request – Order #{{ order.id }}</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f4f4f4;
+      padding: 32px 16px;
+      color: #333333;
+    }
+
+    .wrapper {
+      max-width: 600px;
+      margin: 0 auto;
+      background-color: #ffffff;
+      border-radius: 8px;
+      overflow: hidden;
+      border: 1px solid #e0e0e0;
+    }
+
+    .header {
+      background-color: #1a1a2e;
+      padding: 28px 32px;
+      text-align: center;
+    }
+
+    .header h1 {
+      color: #ffffff;
+      font-size: 20px;
+      font-weight: 700;
+      letter-spacing: 0.5px;
+    }
+
+    .header p {
+      color: #a0a8c0;
+      font-size: 13px;
+      margin-top: 4px;
+    }
+
+    .badge {
+      display: inline-block;
+      margin-top: 12px;
+      background-color: #e74c3c;
+      color: #ffffff;
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      padding: 4px 12px;
+      border-radius: 20px;
+    }
+
+    .body {
+      padding: 32px;
+    }
+
+    .greeting {
+      font-size: 15px;
+      color: #444;
+      margin-bottom: 20px;
+      line-height: 1.6;
+    }
+
+    .section-title {
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: #999;
+      margin-bottom: 10px;
+    }
+
+    .info-card {
+      background-color: #f9f9fb;
+      border: 1px solid #ebebeb;
+      border-radius: 6px;
+      padding: 16px 20px;
+      margin-bottom: 20px;
+    }
+
+    .info-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      padding: 7px 0;
+      border-bottom: 1px solid #f0f0f0;
+      font-size: 13.5px;
+    }
+
+    .info-row:last-child {
+      border-bottom: none;
+    }
+
+    .info-label {
+      color: #888;
+      font-weight: 500;
+      min-width: 140px;
+    }
+
+    .info-value {
+      color: #222;
+      font-weight: 600;
+      text-align: right;
+    }
+
+    .info-value.highlight {
+      color: #e74c3c;
+    }
+
+    .info-value.success {
+      color: #27ae60;
+    }
+
+    .reason-box {
+      background-color: #fff8f8;
+      border-left: 3px solid #e74c3c;
+      border-radius: 0 6px 6px 0;
+      padding: 14px 16px;
+      font-size: 14px;
+      color: #555;
+      line-height: 1.6;
+      margin-bottom: 20px;
+    }
+
+    .deadline-banner {
+      background-color: #fff3cd;
+      border: 1px solid #ffc107;
+      border-radius: 6px;
+      padding: 12px 16px;
+      font-size: 13px;
+      color: #856404;
+      margin-bottom: 20px;
+      text-align: center;
+    }
+
+    .deadline-banner strong {
+      display: block;
+      font-size: 14px;
+      margin-bottom: 2px;
+    }
+
+    .action-btn {
+      display: block;
+      width: 100%;
+      background-color: #1a1a2e;
+      color: #ffffff;
+      text-align: center;
+      padding: 14px;
+      border-radius: 6px;
+      font-size: 14px;
+      font-weight: 700;
+      text-decoration: none;
+      margin-top: 8px;
+      letter-spacing: 0.3px;
+    }
+
+    .divider {
+      border: none;
+      border-top: 1px solid #ebebeb;
+      margin: 24px 0;
+    }
+
+    .footer {
+      background-color: #f9f9fb;
+      border-top: 1px solid #ebebeb;
+      padding: 20px 32px;
+      text-align: center;
+    }
+
+    .footer p {
+      font-size: 12px;
+      color: #aaa;
+      line-height: 1.7;
+    }
+
+    .footer strong {
+      color: #777;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="wrapper">
+
+    <div class="header">
+      <h1>{{ company_name }}</h1>
+      <p>Order Management System</p>
+      <span class="badge">Return Request</span>
+    </div>
+
+    <div class="body">
+
+      <p class="greeting">
+        Dear Admin, <br/><br/>
+        A return request has been submitted by a customer. Please review the details below and take action within <strong>24 hours</strong>.
+      </p>
+
+      <p class="section-title">Order Details</p>
+      <div class="info-card">
+        <div class="info-row">
+          <span class="info-label">Order ID</span>
+          <span class="info-value">#{{ order.id }}</span>
+        </div>
+        <div class="info-row">
+          <span class="info-label">Order Date</span>
+          <span class="info-value">{{ order.created_at|date:"F d, Y" }}</span>
+        </div>
+        <div class="info-row">
+          <span class="info-label">Amount Paid</span>
+          <span class="info-value">₹{{ order.amount }}</span>
+        </div>
+        <div class="info-row">
+          <span class="info-label">Payment Method</span>
+          <span class="info-value">{{ order.payment_method|capfirst }}</span>
+        </div>
+        <div class="info-row">
+          <span class="info-label">Order Status</span>
+          <span class="info-value success">{{ order.status|capfirst }}</span>
+        </div>
+        <div class="info-row">
+          <span class="info-label">Return Deadline</span>
+          <span class="info-value highlight">{{ return_deadline|date:"F d, Y" }}</span>
+        </div>
+      </div>
+
+      <p class="section-title">Customer Details</p>
+      <div class="info-card">
+        <div class="info-row">
+          <span class="info-label">Full Name</span>
+          <span class="info-value">{{ user.get_full_name }}</span>
+        </div>
+        <div class="info-row">
+          <span class="info-label">Email</span>
+          <span class="info-value">{{ user.email }}</span>
+        </div>
+        <div class="info-row">
+          <span class="info-label">Phone</span>
+          <span class="info-value">{{ user.phone }}</span>
+        </div>
+      </div>
+
+      <p class="section-title">Reason for Return</p>
+      <div class="reason-box">
+        {{ reason }}
+      </div>
+
+      <div class="deadline-banner">
+        <strong>Action Required by {{ return_deadline|date:"F d, Y" }}</strong>
+        This return request must be reviewed within 24 hours of receipt.
+      </div>
+
+      <hr class="divider" />
+
+      <a href="{{ admin_order_url }}" class="action-btn">
+        Review Return Request;
+      </a>
+
+    </div>
+
+    <div class="footer">
+      <p>
+        This is an automated email from <strong>{{ company_name }}</strong>.<br/>
+        Please do not reply directly to this email.<br/>
+        &copy; {{ current_year }} {{ company_name }}. All rights reserved.
+      </p>
+    </div>
+
+  </div>
+
+</body>
+</html>

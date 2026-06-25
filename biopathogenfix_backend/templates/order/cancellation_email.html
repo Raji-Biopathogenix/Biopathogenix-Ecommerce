@@ -1,0 +1,217 @@
+<!-- templates/emails/cancellation_email.html -->
+<!DOCTYPE html>
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="x-apple-disable-message-reformatting">
+  <title>Order Cancelled — #{{ order.id }}</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body, table, td, a { -webkit-text-size-adjust: 100%; -ms-text-size-adjust: 100%; }
+    table, td { mso-table-lspace: 0pt; mso-table-rspace: 0pt; }
+    body { background-color: #f4f4f4; font-family: Arial, sans-serif; }
+    @media screen and (max-width: 600px) {
+      .email-container { width: 100% !important; }
+      .hero-pad  { padding: 36px 24px !important; }
+      .body-pad  { padding: 28px 24px !important; }
+      .footer-pad{ padding: 20px 24px !important; }
+    }
+  </style>
+</head>
+<body style="margin:0;padding:0;background-color:#f4f4f4;">
+
+{# Preview text #}
+<div style="display:none;max-height:0;overflow:hidden;mso-hide:all;">
+  Your Order #{{ order.id }} has been cancelled. We're sorry to see it go.
+  &#847;&zwnj;&nbsp;&#847;&zwnj;&nbsp;&#847;&zwnj;&nbsp;
+</div>
+
+<table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%"
+       style="background-color:#f4f4f4;">
+<tr><td align="center" style="padding:40px 16px;">
+
+  <table class="email-container" role="presentation" cellspacing="0" cellpadding="0"
+         border="0" width="580" style="margin:0 auto;">
+
+    {# LOGO #}
+    <tr>
+      <td align="center" style="padding:0 0 24px 0;">
+        <table role="presentation" cellspacing="0" cellpadding="0" border="0">
+          <tr>
+            <td style="padding:10px 22px;background:#1a1a1a;border-radius:8px;">
+              <span style="font-family:Arial,sans-serif;font-size:15px;font-weight:700;
+                           color:#ffffff;letter-spacing:2px;text-transform:uppercase;">
+                {{ company_name }}
+              </span>
+            </td>
+          </tr>
+        </table>
+      </td>
+    </tr>
+
+    {# MAIN CARD  #}
+    <tr>
+      <td style="background:#ffffff;border-radius:16px;overflow:hidden;
+                 box-shadow:0 4px 24px rgba(0,0,0,0.07);">
+
+        {# HERO  #}
+        <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%">
+          <tr>
+            <td class="hero-pad"
+                style="background:linear-gradient(135deg,#1a1a1a 0%,#3a1a1a 100%);
+                       padding:48px;text-align:center;">
+
+              {# Icon #}
+              <table role="presentation" cellspacing="0" cellpadding="0"
+                     border="0" align="center">
+                <tr>
+                  <td style="width:68px;height:68px;background:rgba(255,255,255,0.1);
+                             border-radius:50%;text-align:center;vertical-align:middle;">
+                    <span style="font-size:28px;line-height:68px;display:block;">✕</span>
+                  </td>
+                </tr>
+              </table>
+
+              <div style="height:18px;"></div>
+
+              <h1 style="font-family:Arial,sans-serif;font-size:26px;font-weight:700;
+                         color:#ffffff;margin:0;line-height:1.2;">
+                Order Cancelled
+              </h1>
+              <p style="font-family:Arial,sans-serif;font-size:14px;
+                        color:rgba(255,255,255,0.6);margin:10px 0 0;">
+                Order #{{ order.id }} &nbsp;&middot;&nbsp; {{ cancelled_at|date:"F j, Y" }}
+              </p>
+            </td>
+          </tr>
+        </table>
+
+        {#  BODY  #}
+        <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%">
+          <tr>
+            <td class="body-pad" style="padding:36px 48px;">
+
+              {# Greeting #}
+              <p style="font-family:Arial,sans-serif;font-size:16px;font-weight:700;
+                        color:#111;margin:0 0 10px;">
+                Hi {{ customer_name }},
+              </p>
+              <p style="font-family:Arial,sans-serif;font-size:14px;color:#555;
+                        line-height:1.7;margin:0 0 28px;">
+                We're writing to confirm that your
+                <strong style="color:#111;">Order #{{ order.id }}</strong>
+                has been successfully cancelled.
+                {% if cancel_notes %}
+                  <br><br>
+                  <em style="color:#777;">Note: {{ cancel_notes }}</em>
+                {% endif %}
+              </p>
+
+              {# ── CANCELLATION DETAILS ── #}
+              <p style="font-family:Arial,sans-serif;font-size:10px;font-weight:700;
+                        color:#999;text-transform:uppercase;letter-spacing:2px;
+                        margin:0 0 12px;">
+                Cancellation Details
+              </p>
+              <table role="presentation" cellspacing="0" cellpadding="0" border="0"
+                     width="100%"
+                     style="border:1px solid #e5e5e5;border-radius:10px;overflow:hidden;">
+                <tr>
+                  <td style="padding:12px 16px;font-family:Arial,sans-serif;font-size:13px;
+                             color:#666;border-bottom:1px solid #f0f0f0;">
+                    Order Number
+                  </td>
+                  <td style="padding:12px 16px;font-family:Arial,sans-serif;font-size:13px;
+                             color:#111;font-weight:700;text-align:right;
+                             border-bottom:1px solid #f0f0f0;">
+                    #{{ order.id }}
+                  </td>
+                </tr>
+                <tr style="background:#fafafa;">
+                  <td style="padding:12px 16px;font-family:Arial,sans-serif;font-size:13px;
+                             color:#666;border-bottom:1px solid #f0f0f0;">
+                    Cancelled On
+                  </td>
+                  <td style="padding:12px 16px;font-family:Arial,sans-serif;font-size:13px;
+                             color:#111;font-weight:700;text-align:right;
+                             border-bottom:1px solid #f0f0f0;">
+                    {{ cancelled_at|date:"M d, Y" }}
+                  </td>
+                </tr>
+                
+                <tr style="background:#fafafa;">
+                  <td style="padding:12px 16px;font-family:Arial,sans-serif;font-size:13px;
+                             color:#666;">
+                    Order Total
+                  </td>
+                  <td style="padding:12px 16px;font-family:Arial,sans-serif;font-size:13px;
+                             color:#111;font-weight:700;text-align:right;">
+                    ${{ order.total_amount }}
+                  </td>
+                </tr>
+              </table>
+
+              
+
+             
+
+              <div style="height:32px;"></div>
+              <table role="presentation" cellspacing="0" cellpadding="0"
+                     border="0" align="center" width="100%">
+                <tr>
+                  <td align="center">
+                    <table role="presentation" cellspacing="0" cellpadding="0" border="0">
+                      <tr>
+                        <td style="background:#1a1a1a;border-radius:8px;">
+                          <a href="{{ shop_url }}"
+                             style="display:inline-block;font-family:Arial,sans-serif;
+                                    font-size:14px;font-weight:700;color:#ffffff;
+                                    text-decoration:none;padding:13px 32px;">
+                            Continue Shopping &rarr;
+                          </a>
+                        </td>
+                      </tr>
+                    </table>
+                  </td>
+                </tr>
+              </table>
+
+              {# Contact #}
+              <div style="height:24px;"></div>
+              <p style="font-family:Arial,sans-serif;font-size:13px;
+                        color:#888;text-align:center;margin:0;">
+                Questions? Email us at
+                <a href="mailto:{{ support_email }}"
+                   style="color:#111;font-weight:700;text-decoration:none;">
+                  {{ support_email }}
+                </a>
+              </p>
+
+            </td>
+          </tr>
+        </table>
+
+      </td>
+    </tr>
+
+    {# FOOTER #}
+    <tr>
+      <td class="footer-pad" style="padding:24px 48px;text-align:center;">
+        <p style="font-family:Arial,sans-serif;font-size:12px;
+                  color:#aaa;line-height:1.7;margin:0 0 8px;">
+          {{ company_name }} &nbsp;&middot;&nbsp; {{ company_address }}
+        </p>
+        <p style="font-family:Arial,sans-serif;font-size:12px;color:#aaa;margin:0;">
+          You received this because you placed an order with us.
+        </p>
+      </td>
+    </tr>
+
+  </table>
+</td></tr>
+</table>
+
+</body>
+</html>

@@ -1,0 +1,8 @@
+A new Assay Development inquiry has been submitted.
+
+Name: {{ name }}
+Work Email: {{ work_email }}
+Organization / Lab: {{ organization_lab }}
+Help Needed: {{ help_type }}
+Additional Details: {{ additional_details }}
+

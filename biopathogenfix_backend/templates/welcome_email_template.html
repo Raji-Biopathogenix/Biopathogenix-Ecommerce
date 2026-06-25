@@ -1,0 +1,29 @@
+<!-- templates/emails/welcome.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Welcome to BioPathogenix</title>
+</head>
+<body style="font-family: 'Arial', sans-serif;">
+  <div style="background-color: #f4f4f4; padding: 20px; text-align: center;">
+    <img
+      src="{{ logo_url }}"
+      alt="BioPathogenix"
+      style="max-width: 220px; height: auto; display: block; margin: 0 auto 12px;"
+    />
+    <h2 style="color: #333;">Welcome to BioPathogenix</h2>
+  </div>
+  <div style="padding: 20px;">
+    <p>Dear {{ first_name }} {{ last_name }},</p>
+    <p>{{ msg }}</p>
+    <p>Your login credentials:</p>
+    <p>Email: {{ email }}</p>
+    <p>Password: {{ password }}</p>
+    <p>If you have any questions or need assistance, don't hesitate to contact our support team.</p>
+    <p>Best regards,<br>BioPathogenix Team</p>
+  </div>
+  <div style="background-color: #333; color: #fff; padding: 10px; text-align: center;">
+    &copy; 2026 BioPathogenix. All rights reserved.
+  </div>
+</body>
+</html>

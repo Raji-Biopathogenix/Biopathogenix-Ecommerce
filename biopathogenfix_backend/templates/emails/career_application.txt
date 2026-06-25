@@ -1,0 +1,13 @@
+New Career Application
+
+Role: {{ role_title }}
+Applicant Name: {{ full_name }}
+Email: {{ email }}
+Phone: {{ phone }}
+LinkedIn: {{ linkedin_url }}
+Submitted At: {{ submitted_at }}
+
+Message:
+{{ message }}
+
+Resume is attached to this email.
