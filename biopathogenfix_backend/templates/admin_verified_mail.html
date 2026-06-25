@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>New User Verification – Admin Action Required</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600&family=DM+Mono:wght@400;500&display=swap');
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      background-color: #f0f2f5;
+      font-family: 'DM Sans', sans-serif;
+      color: #1a1a2e;
+      padding: 40px 16px;
+    }
+
+    .wrapper {
+      max-width: 580px;
+      margin: 0 auto;
+    }
+
+    .header {
+      background: #0f172a;
+      border-radius: 12px 12px 0 0;
+      padding: 32px 40px;
+      text-align: center;
+    }
+
+    .header .logo {
+      font-family: 'DM Mono', monospace;
+      font-size: 13px;
+      letter-spacing: 3px;
+      color: #94a3b8;
+      text-transform: uppercase;
+      margin-bottom: 6px;
+    }
+
+    .header h1 {
+      font-size: 22px;
+      font-weight: 600;
+      color: #f8fafc;
+      letter-spacing: -0.3px;
+    }
+
+    .badge {
+      display: inline-block;
+      background: #ef4444;
+      color: #fff;
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      padding: 4px 12px;
+      border-radius: 20px;
+      margin-top: 12px;
+    }
+
+    .body {
+      background: #ffffff;
+      padding: 40px;
+      border-left: 1px solid #e2e8f0;
+      border-right: 1px solid #e2e8f0;
+    }
+
+    .body p {
+      font-size: 15px;
+      line-height: 1.7;
+      color: #475569;
+      margin-bottom: 24px;
+    }
+
+    .user-card {
+      background: #f8fafc;
+      border: 1px solid #e2e8f0;
+      border-radius: 10px;
+      padding: 20px 24px;
+      margin-bottom: 28px;
+    }
+
+    .user-card .label {
+      font-family: 'DM Mono', monospace;
+      font-size: 11px;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      color: #94a3b8;
+      margin-bottom: 14px;
+    }
+
+    .user-card .row {
+      display: flex;
+      justify-content: space-between;
+      padding: 8px 0;
+      border-bottom: 1px solid #e2e8f0;
+      font-size: 14px;
+    }
+
+    .user-card .row:last-child {
+      border-bottom: none;
+    }
+
+    .user-card .row .key {
+      color: #94a3b8;
+      font-weight: 500;
+    }
+
+    .user-card .row .val {
+      color: #1e293b;
+      font-weight: 500;
+    }
+
+    .btn-activate {
+      display: block;
+      width: 100%;
+      background: #0f172a;
+      color: #f8fafc;
+      text-align: center;
+      padding: 16px;
+      border-radius: 8px;
+      font-size: 15px;
+      font-weight: 600;
+      letter-spacing: 0.3px;
+      text-decoration: none;
+      margin-bottom: 16px;
+    }
+
+    .btn-activate:hover {
+      background: #1e293b;
+    }
+
+    .note {
+      font-size: 13px !important;
+      color: #94a3b8 !important;
+      text-align: center;
+      margin-bottom: 0 !important;
+    }
+
+    .footer {
+      background: #f8fafc;
+      border: 1px solid #e2e8f0;
+      border-top: none;
+      border-radius: 0 0 12px 12px;
+      padding: 20px 40px;
+      text-align: center;
+    }
+
+    .footer p {
+      font-size: 12px;
+      color: #94a3b8;
+      line-height: 1.6;
+    }
+  </style>
+</head>
+<body>
+  <div class="wrapper">
+
+    <div class="header">
+      <div class="logo">BioPathogenix</div>
+      <h1>Admin Action Required</h1>
+      <span class="badge">Account Activation</span>
+    </div>
+
+    <div class="body">
+      <p>Hello Admin,</p>
+      <p>
+        A new user has successfully verified their email address and is awaiting account activation.
+        Please review the details below and activate their account.
+      </p>
+
+      <div class="user-card">
+        <div class="label">User Details</div>
+        <div class="row">
+          <span class="key">Full Name</span>
+          <span class="val">{{ first_name }} {{ last_name }}</span>
+        </div>
+        <div class="row">
+          <span class="key">Email</span>
+          <span class="val">{{ email }}</span>
+        </div>
+        <div class="row">
+          <span class="key">Verified At</span>
+          <span class="val">{{ verified_at }}</span>
+        </div>
+      </div>
+
+      <a href="{{activation_link}}" class="btn-activate">Activate User Account</a>
+      <p class="note">Or copy this link: {{ activation_link }}</p>
+    </div>
+
+    <div class="footer">
+      <p>This is an automated notification from BioPathogenix.<br/>Please do not reply to this email.</p>
+    </div>
+
+  </div>
+</body>
+</html>

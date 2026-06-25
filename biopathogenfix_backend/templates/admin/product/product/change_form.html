@@ -1,0 +1,18 @@
+{% extends "admin/change_form.html" %}
+
+{% block extrahead %}
+  {{ block.super }}
+  <script id="variants-data-json" type="application/json">{{ variants_json|default:"[]"|safe }}</script>
+  <script id="selected-options-json" type="application/json">{{ selected_json|default:"[]"|safe }}</script>
+  <script id="all-variants-json" type="application/json">{{ all_variants_json|default:"{}"|safe }}</script>
+  <script id="category-descendants-json" type="application/json">{{ category_descendants_json|default:"{}"|safe }}</script>
+  <script id="existing-skus-json" type="application/json">{{ existing_skus_json|default:"[]"|safe }}</script>
+  <script>
+    // Keep legacy window globals available for any older admin JS still in the browser cache.
+    window.VARIANTS_DATA = JSON.parse(document.getElementById("variants-data-json")?.textContent || "[]");
+    window.SELECTED_OPTIONS = JSON.parse(document.getElementById("selected-options-json")?.textContent || "[]");
+    window.ALL_VARIANTS_DATA = JSON.parse(document.getElementById("all-variants-json")?.textContent || "{}");
+    window.CATEGORY_DESCENDANTS = JSON.parse(document.getElementById("category-descendants-json")?.textContent || "{}");
+    window.EXISTING_SKUS = JSON.parse(document.getElementById("existing-skus-json")?.textContent || "[]");
+  </script>
+{% endblock %}

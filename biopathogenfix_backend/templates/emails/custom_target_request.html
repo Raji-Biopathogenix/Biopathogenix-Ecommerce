@@ -1,0 +1,15 @@
+<!doctype html>
+<html>
+  <body style="font-family: Arial, sans-serif; color: #0b2e59;">
+    <h2>New Custom Target Request</h2>
+    <p><strong>Name:</strong> {{ name }}</p>
+    <p><strong>Email:</strong> {{ email }}</p>
+    <p><strong>Organization / Lab:</strong> {{ organization_lab }}</p>
+    <p><strong>Panel Type:</strong> {{ panel_type }}</p>
+    <p><strong>Uploaded Target File:</strong> {{ uploaded_file_name }}{% if uploaded_file_size != "N/A" %} ({{ uploaded_file_size }}){% endif %}</p>
+    <p><strong>Targets:</strong></p>
+    <p style="white-space: pre-wrap;">{{ targets }}</p>
+    <p><strong>Notes:</strong></p>
+    <p style="white-space: pre-wrap;">{{ notes }}</p>
+  </body>
+</html>
