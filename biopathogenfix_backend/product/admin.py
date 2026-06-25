@@ -799,10 +799,9 @@ class ProductSKUOptionInline(admin.TabularInline):
 @admin.register(ProductSKU)
 class ProductSKUAdmin(admin.ModelAdmin):
     inlines         = [ProductSKUOptionInline]
-    list_display    = ['id','product', 'sku_code', 'price', 'stock','low_stock_threshold', 'is_active', 'created_at']
+    list_display    = ['id', 'product', 'sku_code', 'price', 'stock', 'low_stock_threshold', 'is_active', 'created_at']
     list_filter     = ['is_active', 'created_at']
     search_fields   = ['sku_code', 'product__name']
-    list_editable   = ['price', 'stock','low_stock_threshold', 'is_active']
     readonly_fields = ['product', 'created_at']
 
     def get_queryset(self, request):
