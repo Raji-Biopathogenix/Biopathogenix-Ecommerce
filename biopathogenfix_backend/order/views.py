@@ -187,20 +187,12 @@ def _handle_card_payment(request, data, user, amount, idempotency_key,cartItems)
             "retry": True,
         }, status=500)
 
-    # Step 1: Get valid QB access token 
+    # Step 1: Get valid QB access token (non-blocking — order proceeds even if QB is unavailable)
+    access_token = None
     try:
         access_token = get_valid_qb_token()
     except Exception as e:
-        error_msg = str(e)
-        if "QB_REFRESH_EXPIRED" in error_msg:
-            # Admin needs to re-authorize — this should never reach end users in production
-            logger.critical("QB refresh token expired — admin action required")
-            return Response({
-                "status":"error",
-                "message": "Payment service is currently unavailable. Please try again later or contact support.",
-                "retry": False,
-            }, status=503)
-        return Response({ "status":"error", "message": error_msg, "retry": True }, status=503)
+        logger.warning(f"QB token unavailable at checkout — invoice sync skipped: {e}")
 
     print("received the access token")
 
@@ -306,20 +298,12 @@ def _handle_invoice_payment(request, data, user, amount, idempotency_key,cartIte
     """
     logger.info(f"Invoice order created | user={user.id} | amount={amount}")
 
-    # Step 1: Get valid QB access token 
+    # Step 1: Get valid QB access token (non-blocking — order proceeds even if QB is unavailable)
+    access_token = None
     try:
         access_token = get_valid_qb_token()
     except Exception as e:
-        error_msg = str(e)
-        if "QB_REFRESH_EXPIRED" in error_msg:
-            # Admin needs to re-authorize — this should never reach end users in production
-            logger.critical("QB refresh token expired — admin action required")
-            return Response({
-                "status":"error",
-                "message": "Payment service is currently unavailable. Please try again later or contact support.",
-                "retry": False,
-            }, status=503)
-        return Response({ "status":"error", "message": error_msg, "retry": True }, status=503)
+        logger.warning(f"QB token unavailable at invoice checkout — invoice sync skipped: {e}")
 
     print("received the access token")
 
