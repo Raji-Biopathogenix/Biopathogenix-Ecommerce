@@ -1,7 +1,7 @@
 import logging
 from rest_framework import status
 from rest_framework.decorators import api_view, permission_classes
-from rest_framework.permissions import IsAuthenticated
+from rest_framework.permissions import IsAuthenticated, AllowAny
 from rest_framework.response import Response
 
 from payments.stripe_utils import ensure_stripe_configured, get_stripe_client, get_stripe_publishable_key
@@ -267,6 +267,7 @@ def save_payment_method(request):
 
 
 @api_view(["GET"])
+@permission_classes([AllowAny])
 def stripe_config(request):
     """
     Public Stripe configuration endpoint.
