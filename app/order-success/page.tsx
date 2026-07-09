@@ -170,9 +170,9 @@ export default function OrderSuccessPage() {
         </div>
 
         <div className="space-y-3">
-          {order.items.map((item) => (
+          {order.items.map((item, index) => (
             <div
-              key={`${order.id}-${item.product_name}`}
+              key={`${order.id}-${item.product_name}-${index}`}
               className="flex items-center justify-between rounded-2xl border border-[#e6eef5] bg-[#fafbfe] p-4"
             >
               <p className="font-medium text-[#0b2e59]">{item.product_name}</p>
