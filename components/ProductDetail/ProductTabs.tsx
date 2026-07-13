@@ -26,9 +26,11 @@ export default function ProductTabs({ prdData }: { prdData: any }) {
       <div className="flex items-center gap-8 px-4  border-b border-gray-200 shadow-sm">
         {tabs.map(tab => {
             let display = true
-            if(tab?.id === "recommendations" && prdData?.recommended_products?.length == 0 ){
+            if(tab?.id === "recommendations" && !prdData?.recommended_products?.length ){
                 display = false
-            }else if(tab?.id === "faq" && prdData?.prd_faqs?.length == 0 ){
+            }else if(tab?.id === "faq" && !prdData?.prd_faqs?.length ){
+                display = false
+            }else if(tab?.id === "documents" && !prdData?.documents?.length ){
                 display = false
             }
 

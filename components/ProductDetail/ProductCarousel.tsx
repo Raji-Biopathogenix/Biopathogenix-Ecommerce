@@ -54,7 +54,7 @@ function useVisibleCount(product_visible_count:number): number {
 
 
 const ProductCarousel: React.FC<ProductCarouselProps> = ({
-  products,
+  products = [],
   is_detailpage = false,
   showViewMoreCard = false,
   category_slug,
