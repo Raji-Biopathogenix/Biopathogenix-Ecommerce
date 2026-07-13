@@ -16,7 +16,7 @@ interface DocumentsTabProps {
   documents: Document[]
 }
 
-export default function ProductDocuments({ documents }: DocumentsTabProps) {
+export default function ProductDocuments({ documents = [] }: DocumentsTabProps) {
   const [searchQuery, setSearchQuery] = useState("")
   const [searchInput, setSearchInput] = useState("")
 
