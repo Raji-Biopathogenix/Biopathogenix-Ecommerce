@@ -13,7 +13,7 @@ interface FAQProps {
   faqs: FAQ[]
 }
 
-export default function ProductFaqs({ faqs }: FAQProps) {
+export default function ProductFaqs({ faqs = [] }: FAQProps) {
   const [openId, setOpenId] = useState<number | null>(null)
 
   const toggle = (id: number) => {
