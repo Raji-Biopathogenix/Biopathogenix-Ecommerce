@@ -1,6 +1,12 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
+  async redirects() {
+    return [
+      { source: "/admin", destination: "https://api.biopathogenix.com/admin/", permanent: false },
+      { source: "/admin/:path*", destination: "https://api.biopathogenix.com/admin/:path*", permanent: false },
+    ];
+  },
   images: {
     formats: ['image/avif', 'image/webp'],
     remotePatterns: [
