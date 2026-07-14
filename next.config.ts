@@ -1,13 +1,6 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  async rewrites() {
-    return [
-      { source: "/admin", destination: "https://api.biopathogenix.com/admin" },
-      { source: "/admin/:path*", destination: "https://api.biopathogenix.com/admin/:path*" },
-      { source: "/static/:path*", destination: "https://api.biopathogenix.com/static/:path*" },
-    ];
-  },
   images: {
     formats: ['image/avif', 'image/webp'],
     remotePatterns: [
