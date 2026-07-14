@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import Link from "next/link";
 import "../../../components/my-account/my-account.css";
 import { fetchJson } from "@/lib/api";
 
@@ -20,6 +21,7 @@ export default function LostPasswordPage() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [message, setMessage] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [isResetComplete, setIsResetComplete] = useState(false);
 
   const handleSendOtp = async () => {
     setMessage(null);
@@ -80,6 +82,7 @@ export default function LostPasswordPage() {
       setOtp("");
       setPassword("");
       setConfirmPassword("");
+      setIsResetComplete(true);
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : "Failed to reset password.";
       setError(errorMessage);
@@ -100,78 +103,93 @@ export default function LostPasswordPage() {
         </p>
 
         <div className="lost-form-wrapper">
-          <label className="lost-label">
-            USERNAME OR EMAIL <span>*</span>
-          </label>
-
-          <input
-            type="text"
-            className="lost-input"
-            required
-            value={email}
-            onChange={(event) => setEmail(event.target.value)}
-            placeholder="you@example.com"
-          />
-
-          <div className="lost-actions">
-            <button
-              className="lost-btn"
-              onClick={handleSendOtp}
-              disabled={isSending}
-              type="button"
-            >
-              {isSending ? "SENDING..." : isOtpSent ? "RESEND OTP" : "SEND OTP"}
-            </button>
-          </div>
-
-          {isOtpSent && (
+          {isResetComplete ? (
+            <>
+              <div className="lost-message">
+                {message || "Your password has been reset successfully."}
+              </div>
+              <p>
+                <Link href="/my-account" className="lost-btn" style={{ display: "inline-block", textDecoration: "none", textAlign: "center" }}>
+                  GO TO LOGIN
+                </Link>
+              </p>
+            </>
+          ) : (
             <>
               <label className="lost-label">
-                OTP CODE <span>*</span>
+                USERNAME OR EMAIL <span>*</span>
               </label>
+
               <input
                 type="text"
                 className="lost-input"
-                value={otp}
-                onChange={(event) => setOtp(event.target.value)}
-                placeholder="Enter the code from your email"
-              />
-
-              <label className="lost-label">
-                NEW PASSWORD <span>*</span>
-              </label>
-              <input
-                type="password"
-                className="lost-input"
-                value={password}
-                onChange={(event) => setPassword(event.target.value)}
-              />
-
-              <label className="lost-label">
-                CONFIRM PASSWORD <span>*</span>
-              </label>
-              <input
-                type="password"
-                className="lost-input"
-                value={confirmPassword}
-                onChange={(event) => setConfirmPassword(event.target.value)}
+                required
+                value={email}
+                onChange={(event) => setEmail(event.target.value)}
+                placeholder="you@example.com"
               />
 
               <div className="lost-actions">
                 <button
                   className="lost-btn"
-                  onClick={handleResetPassword}
-                  disabled={isSubmitting}
+                  onClick={handleSendOtp}
+                  disabled={isSending}
                   type="button"
                 >
-                  {isSubmitting ? "RESETTING..." : "RESET PASSWORD"}
+                  {isSending ? "SENDING..." : isOtpSent ? "RESEND OTP" : "SEND OTP"}
                 </button>
               </div>
+
+              {isOtpSent && (
+                <>
+                  <label className="lost-label">
+                    OTP CODE <span>*</span>
+                  </label>
+                  <input
+                    type="text"
+                    className="lost-input"
+                    value={otp}
+                    onChange={(event) => setOtp(event.target.value)}
+                    placeholder="Enter the code from your email"
+                  />
+
+                  <label className="lost-label">
+                    NEW PASSWORD <span>*</span>
+                  </label>
+                  <input
+                    type="password"
+                    className="lost-input"
+                    value={password}
+                    onChange={(event) => setPassword(event.target.value)}
+                  />
+
+                  <label className="lost-label">
+                    CONFIRM PASSWORD <span>*</span>
+                  </label>
+                  <input
+                    type="password"
+                    className="lost-input"
+                    value={confirmPassword}
+                    onChange={(event) => setConfirmPassword(event.target.value)}
+                  />
+
+                  <div className="lost-actions">
+                    <button
+                      className="lost-btn"
+                      onClick={handleResetPassword}
+                      disabled={isSubmitting}
+                      type="button"
+                    >
+                      {isSubmitting ? "RESETTING..." : "RESET PASSWORD"}
+                    </button>
+                  </div>
+                </>
+              )}
+
+              {message && <div className="lost-message">{message}</div>}
+              {error && <div className="lost-error">{error}</div>}
             </>
           )}
-
-          {/* {message && <div className="lost-message">{message}</div>}
-          {error && <div className="lost-error">{error}</div>} */}
         </div>
 
       </div>
