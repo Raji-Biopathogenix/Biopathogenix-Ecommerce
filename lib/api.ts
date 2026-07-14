@@ -19,7 +19,16 @@ export async function fetchJson<T>(path: string, options: FetchOptions = {}): Pr
   });
 
   if (!response.ok) {
-    throw new Error(`Request failed: ${response.status}`);
+    let message = `Request failed: ${response.status}`;
+    try {
+      const data = await response.clone().json();
+      if (data && typeof data === "object") {
+        message = data.error || data.message || data.detail || message;
+      }
+    } catch {
+      // response body wasn't JSON; keep the generic status message
+    }
+    throw new Error(message);
   }
 
   return response.json() as Promise<T>;
