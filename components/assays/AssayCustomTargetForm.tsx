@@ -91,7 +91,7 @@ export default function AssayCustomTargetForm({ config }: Props) {
             Request custom targets for {config.label}
           </h2>
           <p className="mt-4 leading-relaxed text-[#526b7c]">
-            Share the organism names, gene targets, or panel idea. Paste the list here or upload a target sheet. The request goes to info@biopathogenix.com, with rajeswari.gopu@biopathogenix.com copied.
+            Share the organism names, gene targets, or panel idea. Paste the list here or upload a target sheet.
           </p>
         </div>
 

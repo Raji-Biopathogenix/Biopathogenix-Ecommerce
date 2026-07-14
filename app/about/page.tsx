@@ -90,7 +90,7 @@ export default function AboutPage() {
             </p>
 
             <Link
-              href="/contact"
+              href="/about/contact"
               className="inline-flex items-center gap-2 bg-[#003B5C] text-white px-6 py-3 rounded-md hover:bg-[#022c44] transition"
             >
               Contact Us →

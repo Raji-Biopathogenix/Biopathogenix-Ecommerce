@@ -26,6 +26,7 @@ CUSTOM_TARGET_RECIPIENTS = [
 ]
 CUSTOM_TARGET_CC_RECIPIENTS = [
     "rajeswari.gopu@biopathogenix.com",
+    "support@biopathogenix.com",
 ]
 CUSTOM_TARGET_ALLOWED_FILE_EXTENSIONS = {"xlsx", "xls", "pdf", "doc", "docx", "csv"}
 CUSTOM_TARGET_MAX_FILE_SIZE = 3 * 1024 * 1024

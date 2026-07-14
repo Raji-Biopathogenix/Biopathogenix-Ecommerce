@@ -19,8 +19,12 @@ logger = logging.getLogger(__name__)
 
 def _get_recipients(form_type: str) -> list[str]:
     """Return the correct recipient list based on form type."""
-    if form_type in ("sales_quote",):
-        raw = os.environ.get("ORDER_TO_EMAIL") or getattr(settings, "ORDER_TO_EMAIL", "order@biopathogenix.com")
+    if form_type in ("sales_quote", "contact"):
+        raw = (
+            os.environ.get("ORDER_TO_EMAIL")
+            or getattr(settings, "ORDER_TO_EMAIL", "")
+            or "order@biopathogenix.com"
+        )
     elif form_type in ("validation_service",):
         raw = os.environ.get("VALIDATION_TO_EMAIL") or getattr(settings, "VALIDATION_TO_EMAIL", "validation@biopathogenix.com")
     else:
