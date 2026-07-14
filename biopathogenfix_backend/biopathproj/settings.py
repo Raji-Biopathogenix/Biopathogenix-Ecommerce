@@ -34,6 +34,16 @@ DEBUG = os.getenv('DEBUG', 'True').lower() in ('1', 'true', 'yes')
 
 ALLOWED_HOSTS = os.getenv('ALLOWED_HOSTS', 'localhost,127.0.0.1').split(',')
 
+# Railway (and most cloud hosts) terminate HTTPS at a proxy and forward plain
+# HTTP internally — without this, Django thinks every request is insecure,
+# which breaks CSRF checks (Origin header says https, Django expects http).
+SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
+
+CSRF_TRUSTED_ORIGINS = os.getenv(
+    'CSRF_TRUSTED_ORIGINS',
+    'https://bio.biopathogenix.com,https://api.biopathogenix.com,https://*.up.railway.app,https://*.vercel.app'
+).split(',')
+
 
 def _env_bool(name: str, default: str = "False") -> bool:
     return os.getenv(name, default).lower() in ("1", "true", "yes", "on")
