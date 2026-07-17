@@ -178,9 +178,7 @@ sub_category_slug }: ProductCardProps) {
          </h3> </Link> 
 
           <div className="flex min-h-7 items-center gap-2 mb-4">
-            {shouldHidePrice ? (
-              <span className="text-base font-bold text-[#0b2e59]">Login to view price</span>
-            ) : (
+            {shouldHidePrice ? null : (
               <>
                 <span className="text-xl font-bold text-[#0b2e59]">${effectivePrice.toFixed(2)}</span>
                 {originalPrice && originalPrice > effectivePrice ? (
