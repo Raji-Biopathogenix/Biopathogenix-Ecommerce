@@ -18,12 +18,14 @@ interface OrderEditModalProps {
 }
 
 const STATUS_OPTIONS = [
-    { label: "Processing", value: "processing", color: "bg-amber-50 text-amber-700 border-amber-200" },
-    { label: "Shipped", value: "shipped", color: "bg-blue-50 text-blue-700 border-blue-200" },
-    { label: "Out for Delivery", value: "out_for_delivery", color: "bg-purple-50 text-purple-700 border-purple-200" },
-    { label: "Delivered", value: "delivered", color: "bg-green-50 text-green-700 border-green-200" },
-    { label: "Paid", value: "paid", color: "bg-teal-50 text-teal-700 border-teal-200" },
-    { label: "Cancelled", value: "cancelled", color: "bg-red-50 text-red-700 border-red-200" },
+    { label: "Processing", value: "processing" },
+    { label: "Partially Shipped", value: "partially_shipped" },
+    { label: "Shipped", value: "shipped" },
+    { label: "Partially Delivered", value: "partially_delivered" },
+    { label: "Delivered", value: "delivered" },
+    { label: "Returned", value: "returned" },
+    { label: "Completed", value: "completed" },
+    { label: "Cancelled", value: "cancelled" },
 ];
 
 export default function AdminOrderEditModal({ order, onRefresh, onClose, onSubmit }: OrderEditModalProps) {
@@ -38,6 +40,9 @@ export default function AdminOrderEditModal({ order, onRefresh, onClose, onSubmi
     const isTxnValid = transactionId.trim().length >= 4;
     const [showReturnModal, setShowReturnModal] = useState(false);
 
+    const [selectedStatus, setSelectedStatus] = useState<string>(order.status);
+    const [statusLoading, setStatusLoading] = useState<boolean>(false);
+
 
 
     const handleSubmit = async () => {
@@ -48,6 +53,17 @@ export default function AdminOrderEditModal({ order, onRefresh, onClose, onSubmi
             onClose();
         } finally {
             setLoading(false);
+        }
+    };
+
+    const handleStatusSubmit = async () => {
+        if (selectedStatus === order.status) return;
+        setStatusLoading(true);
+        try {
+            await onSubmit({ orderId: order.id, status: selectedStatus as OrderShipment["status"] });
+            onRefresh(order);
+        } finally {
+            setStatusLoading(false);
         }
     };
 
@@ -90,6 +106,35 @@ export default function AdminOrderEditModal({ order, onRefresh, onClose, onSubmi
 
 
                 <ModalHeader order={order} onRefresh={onRefresh} setShowReturnModal={setShowReturnModal} />
+
+                <div className="px-5 pb-1 flex flex-col gap-1.5">
+                    <label htmlFor="order_status" className="text-xs font-medium text-gray-600">
+                        Order Status
+                    </label>
+                    <div className="flex gap-2">
+                        <select
+                            id="order_status"
+                            value={selectedStatus}
+                            onChange={(e) => setSelectedStatus(e.target.value)}
+                            className="flex-1 h-11 px-3 text-sm text-gray-800 bg-white border
+                                       border-gray-200 rounded-lg outline-none focus:border-gray-400"
+                        >
+                            {STATUS_OPTIONS.map((opt) => (
+                                <option key={opt.value} value={opt.value}>{opt.label}</option>
+                            ))}
+                        </select>
+                        <button
+                            onClick={handleStatusSubmit}
+                            disabled={selectedStatus === order.status || statusLoading}
+                            className="px-4 py-2 text-sm font-medium rounded-lg bg-green-50 text-green-600
+                                       border border-green-200 hover:opacity-90 disabled:opacity-40
+                                       disabled:cursor-not-allowed transition-opacity"
+                        >
+                            {statusLoading ? "Updating…" : "Update status"}
+                        </button>
+                    </div>
+                    <p className="text-xs text-gray-400">Use this to correct the status manually if something went wrong.</p>
+                </div>
 
                 {order?.payment_method !== "card" && <div className="p-5 flex flex-col gap-4">
                     <div className="flex flex-col gap-1.5">
