@@ -10,7 +10,7 @@ from rest_framework.exceptions import ValidationError
 from django.core.mail import EmailMessage
 from django.template.loader import render_to_string
 from django.conf import settings
-from datetime import datetime
+from datetime import datetime, timezone as dt_timezone
 from cart.services import UPSService
 from services.emailService import send_graph_email
 from rest_framework.pagination import PageNumberPagination
@@ -1014,7 +1014,12 @@ class RefundOrderView(APIView):
             order.is_partially_refunded = is_partially_refunded
             order.refund_status = str(stripe_status).lower()
             order.refund_amount = data['refund_amount']
-            order.refunded_at = stripe_created
+            # Stripe returns `created` as a Unix epoch int, but refunded_at is a
+            # DateTimeField -- assigning the raw int crashes on save().
+            order.refunded_at = (
+                datetime.fromtimestamp(stripe_created, tz=dt_timezone.utc)
+                if stripe_created else timezone.now()
+            )
             order.refunded_by = request.user
             order.refund_notes = data.get('refund_notes', '')
             order.refund_reference = data.get('refund_reference', '') or stripe_refund_id
