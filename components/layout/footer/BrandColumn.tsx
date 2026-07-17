@@ -12,7 +12,7 @@ export default function BrandColumn() {
 
             {/* Description */}
             <p className="text-[16px] leading-[1.7] text-[#0b2e59] mb-10">
-                Based in Nicholasville, KY, BioPathogenix provides laboratories with
+                BioPathogenix, based in Nicholasville, KY, provides laboratories with
                 quality wholesale supplies for qPCR.
             </p>
 
