@@ -227,7 +227,7 @@ EMAIL_HOST_PASSWORD = os.environ.get("EMAIL_HOST_PASSWORD", "Ras05143")  # set t
 DEFAULT_FROM_EMAIL = os.environ.get("DEFAULT_FROM_EMAIL", EMAIL_HOST_USER)
 CAREERS_RECIPIENT_EMAIL = os.environ.get("CAREERS_RECIPIENT_EMAIL", "careers@biopathogenix.com")
 EMAIL_TIMEOUT = int(os.environ.get("EMAIL_TIMEOUT", 20))
-WELCOME_LOGO_URL = os.environ.get("WELCOME_LOGO_URL","http://localhost:3000/images/logo/BioPathogenix-Horizontal-1.svg")
+WELCOME_LOGO_URL = os.environ.get("WELCOME_LOGO_URL","https://bio.biopathogenix.com/images/logo/BioPathogenix-Horizontal-1.svg")
 # Guard against enabling both TLS and SSL at the same time.
 if EMAIL_USE_TLS and EMAIL_USE_SSL:
     EMAIL_USE_SSL = False
