@@ -1,6 +1,6 @@
 import logging
 import uuid
-from decimal import Decimal
+from decimal import Decimal, InvalidOperation
 from django.db import transaction as db_transaction
 from rest_framework import status
 from rest_framework.decorators import api_view, permission_classes
@@ -12,6 +12,7 @@ from django.template.loader import render_to_string
 from django.conf import settings
 from datetime import datetime
 from cart.services import UPSService
+from services.emailService import send_graph_email
 from rest_framework.pagination import PageNumberPagination
 from django.db.models import Count, Sum, Q, F
 from .models import Order,OrderItem,OrderVariants,OrderStatusUpdate,Shipment
@@ -576,16 +577,19 @@ def _create_order(
     bcc_email = ["scope@biopathogenix.com"]
     from_email = getattr(settings, 'DEFAULT_FROM_EMAIL', 'noreply@biopathogenix.com')
     html_message = render_to_string('emails/order_confirmation_email.html', context)
-    email = EmailMessage(
-        subject=subject,
-        body=html_message,
-        from_email=from_email,
-        to=to_email,
-        bcc=bcc_email,
-    )
-    email.content_subtype = 'html'
     try:
-        email.send(fail_silently=False)
+        if getattr(settings, 'GRAPH_ENABLED', False):
+            send_graph_email(to_email, subject, html_body=html_message, from_email=from_email, cc_list=bcc_email)
+        else:
+            email = EmailMessage(
+                subject=subject,
+                body=html_message,
+                from_email=from_email,
+                to=to_email,
+                bcc=bcc_email,
+            )
+            email.content_subtype = 'html'
+            email.send(fail_silently=False)
         logger.info(f"Order confirmation email sent to {to_email} (bcc: {bcc_email}) for order {order.id}")
     except Exception as e:
         logger.error(f"Failed to send order confirmation email for order {order.id}: {e}")
@@ -747,15 +751,18 @@ def orderReturnRequestView(request):
     bcc_email = ["scope@biopathogenix.com"]
     from_email = getattr(settings, 'DEFAULT_FROM_EMAIL', 'noreply@biopathogenix.com')
 
-    email = EmailMultiAlternatives(
-        subject= subject,
-        body= text_content,
-        bcc =bcc_email,
-        from_email = from_email,
-        to = [order.user.email],
-    )
-    email.attach_alternative(html_content, "text/html")
-    email.send()
+    if getattr(settings, 'GRAPH_ENABLED', False):
+        send_graph_email([order.user.email], subject, html_body=html_content, text_body=text_content, from_email=from_email, cc_list=bcc_email)
+    else:
+        email = EmailMultiAlternatives(
+            subject= subject,
+            body= text_content,
+            bcc =bcc_email,
+            from_email = from_email,
+            to = [order.user.email],
+        )
+        email.attach_alternative(html_content, "text/html")
+        email.send()
 
     return Response({
         "status": "success",
@@ -790,15 +797,18 @@ def AdminorderReturnRequestView(request):
         bcc_email = ["scope@biopathogenix.com"]
         from_email = getattr(settings, 'DEFAULT_FROM_EMAIL', 'noreply@biopathogenix.com')
 
-        email = EmailMultiAlternatives(
-            subject = subject,
-            body = text_content,
-            from_email = from_email,
-            bcc = bcc_email,
-            to = [order.user.email],
-        )
-        email.attach_alternative(html_content, "text/html")
-        email.send()    
+        if getattr(settings, 'GRAPH_ENABLED', False):
+            send_graph_email([order.user.email], subject, html_body=html_content, text_body=text_content, from_email=from_email, cc_list=bcc_email)
+        else:
+            email = EmailMultiAlternatives(
+                subject = subject,
+                body = text_content,
+                from_email = from_email,
+                bcc = bcc_email,
+                to = [order.user.email],
+            )
+            email.attach_alternative(html_content, "text/html")
+            email.send()
     return Response({
         "status": "success",
         "message": "Status has been updated!",
@@ -813,27 +823,22 @@ def AdminorderReturnRequestView(request):
 @permission_classes([IsAuthenticated])
 def AdminorderUpdateView(request):
     print("request.data",request.data)
-    orderData=Order.objects.filter(id=request.data['orderId']).first()
+    orderData = Order.objects.filter(id=request.data.get('orderId')).first()
+    if not orderData:
+        return Response({"status": "error", "message": "Order not found"}, status=status.HTTP_404_NOT_FOUND)
 
-    orderData.status = request.data['status']
-    orderData.transaction_id = request.data['transactionId'] if 'transactionId' in request.data else None
+    new_status = request.data.get('status')
+    if new_status:
+        orderData.status = new_status
+    if 'transactionId' in request.data:
+        orderData.transaction_id = request.data['transactionId']
     orderData.save()
-
-    if request.data['status'] == "shipped" :
-    # and not orderData.shipment_id:
-        success, message  = ups.create_shipment(orderData)
-
-        # orderData.tracking_number = result['tracking_number']
-        # orderData.shipment_id = result['shipment_id']
-        # orderData.save()
-
-
 
     searilizer = AllOrderSerializer(orderData,  context={'request': request})
 
     return Response({
-        "status": "success" if success else "error",
-        "message": message,
+        "status": "success",
+        "message": "Status has been updated!",
         "result": {"data": searilizer.data}
     }, status=status.HTTP_200_OK)
 
@@ -850,10 +855,19 @@ class CreateOutboundShipmentView(APIView):
         item_ids = request.data.get('item_ids', [])
         if not item_ids:
             return Response({'error': 'item_ids is required'},status=status.HTTP_400_BAD_REQUEST)
-        
-                
+
+
         package = _build_package_from_order_items(item_ids)
 
+        weight_override = request.data.get('weight_lb')
+        if weight_override not in (None, ''):
+            try:
+                weight_override = Decimal(str(weight_override))
+            except InvalidOperation:
+                return Response({'error': 'weight_lb must be a number'}, status=status.HTTP_400_BAD_REQUEST)
+            if weight_override <= 0:
+                return Response({'error': 'weight_lb must be greater than zero'}, status=status.HTTP_400_BAD_REQUEST)
+            package['weight_lb'] = weight_override
 
         suc,ups_response =  ups.create_shipment(order,package)
         if suc:

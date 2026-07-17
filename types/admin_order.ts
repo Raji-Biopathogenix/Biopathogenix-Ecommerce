@@ -101,7 +101,8 @@ export interface AllOrderPayload{
 
 export interface orderEditPayload{
     orderId: number;
-    transactionId: string;
+    transactionId?: string;
+    status?: OrderStatus;
 }
 
 
@@ -199,6 +200,7 @@ export interface ReturnResponse {
 
 export interface CreateShipmentPayload {
   item_ids: number[];
+  weight_lb?: number;
 }
 
 

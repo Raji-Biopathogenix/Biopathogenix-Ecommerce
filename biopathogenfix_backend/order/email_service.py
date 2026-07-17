@@ -8,6 +8,7 @@ from django.utils import timezone
 from config.settings import configSettings
 from datetime import datetime
 from users.models import CustomUser
+from services.emailService import send_graph_email
 
 logger = logging.getLogger(__name__)
 
@@ -49,15 +50,21 @@ def send_order_status_email(order, previous_status: str | None = None, notes: st
             + f"{context['company_name']}"
         )
 
-        email = EmailMultiAlternatives(
-            subject=f"Order #{context['order_number']} Updated to {context['current_status_display']}",
-            body=text_content,
-            from_email=f"{configSettings.COMPANY_NAME} <{configSettings.DEFAULT_FROM_EMAIL}>",
-            to=_get_order_recipients(order),
-            reply_to=[configSettings.SUPPORT_EMAIL],
-        )
-        email.attach_alternative(html_content, 'text/html')
-        email.send(fail_silently=False)
+        subject = f"Order #{context['order_number']} Updated to {context['current_status_display']}"
+        from_email = f"{configSettings.COMPANY_NAME} <{configSettings.DEFAULT_FROM_EMAIL}>"
+        to_list = _get_order_recipients(order)
+        if getattr(settings, 'GRAPH_ENABLED', False):
+            send_graph_email(to_list, subject, html_body=html_content, text_body=text_content, from_email=from_email)
+        else:
+            email = EmailMultiAlternatives(
+                subject=subject,
+                body=text_content,
+                from_email=from_email,
+                to=to_list,
+                reply_to=[configSettings.SUPPORT_EMAIL],
+            )
+            email.attach_alternative(html_content, 'text/html')
+            email.send(fail_silently=False)
 
         logger.info("Order status email sent for order #%s", order.id)
         return True
@@ -124,16 +131,21 @@ def send_refund_email(order, refund_data: dict) -> bool:
             f"— Order #{order.id}"
         )
 
-        # Send 
-        email = EmailMultiAlternatives(
-            subject = subject,
-            body = text_content,
-            from_email = f"{configSettings.COMPANY_NAME} <{configSettings.DEFAULT_FROM_EMAIL}>",
-            to = _get_order_recipients(order),
-            reply_to = [configSettings.SUPPORT_EMAIL],
-        )
-        email.attach_alternative(html_content, 'text/html')
-        email.send(fail_silently=False)
+        # Send
+        from_email = f"{configSettings.COMPANY_NAME} <{configSettings.DEFAULT_FROM_EMAIL}>"
+        to_list = _get_order_recipients(order)
+        if getattr(settings, 'GRAPH_ENABLED', False):
+            send_graph_email(to_list, subject, html_body=html_content, text_body=text_content, from_email=from_email)
+        else:
+            email = EmailMultiAlternatives(
+                subject = subject,
+                body = text_content,
+                from_email = from_email,
+                to = to_list,
+                reply_to = [configSettings.SUPPORT_EMAIL],
+            )
+            email.attach_alternative(html_content, 'text/html')
+            email.send(fail_silently=False)
 
         logger.info(f"Refund email sent for order #{order.id} to {order.user.email}")
         return True
@@ -190,15 +202,21 @@ def send_cancellation_email(order, cancel_data: dict) -> bool:
             f"— {configSettings.COMPANY_NAME}"
         )
 
-        email = EmailMultiAlternatives(
-            subject    = f"Order #{order.id} Cancelled — {configSettings.COMPANY_NAME}",
-            body       = text_content,
-            from_email = f"{configSettings.COMPANY_NAME} <{configSettings.DEFAULT_FROM_EMAIL}>",
-            to         = _get_order_recipients(order),
-            reply_to   = [configSettings.SUPPORT_EMAIL],
-        )
-        email.attach_alternative(html_content, 'text/html')
-        email.send(fail_silently=False)
+        subject = f"Order #{order.id} Cancelled — {configSettings.COMPANY_NAME}"
+        from_email = f"{configSettings.COMPANY_NAME} <{configSettings.DEFAULT_FROM_EMAIL}>"
+        to_list = _get_order_recipients(order)
+        if getattr(settings, 'GRAPH_ENABLED', False):
+            send_graph_email(to_list, subject, html_body=html_content, text_body=text_content, from_email=from_email)
+        else:
+            email = EmailMultiAlternatives(
+                subject    = subject,
+                body       = text_content,
+                from_email = from_email,
+                to         = to_list,
+                reply_to   = [configSettings.SUPPORT_EMAIL],
+            )
+            email.attach_alternative(html_content, 'text/html')
+            email.send(fail_silently=False)
 
         logger.info(
             f"Cancellation email sent for order #{order.id} "
