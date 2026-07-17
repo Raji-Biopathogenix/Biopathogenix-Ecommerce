@@ -17,6 +17,10 @@ interface OrderEditModalProps {
     onRefresh: (order: OrderShipment) => void;
 }
 
+// "Cancelled" is deliberately excluded here -- cancelling an order has its
+// own dedicated flow (the Cancel/Refund modal -> CancelOrderView) that
+// captures a reason, marks items cancelled, and emails the customer. Setting
+// status to "cancelled" through this generic dropdown would skip all of that.
 const STATUS_OPTIONS = [
     { label: "Processing", value: "processing" },
     { label: "Partially Shipped", value: "partially_shipped" },
@@ -25,7 +29,6 @@ const STATUS_OPTIONS = [
     { label: "Delivered", value: "delivered" },
     { label: "Returned", value: "returned" },
     { label: "Completed", value: "completed" },
-    { label: "Cancelled", value: "cancelled" },
 ];
 
 export default function AdminOrderEditModal({ order, onRefresh, onClose, onSubmit }: OrderEditModalProps) {

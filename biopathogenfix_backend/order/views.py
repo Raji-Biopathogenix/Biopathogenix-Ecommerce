@@ -829,6 +829,15 @@ def AdminorderUpdateView(request):
 
     new_status = request.data.get('status')
     if new_status:
+        if new_status in Order.EMAIL_EXCLUDED_STATUS_NOTIFICATIONS:
+            return Response({
+                "status": "error",
+                "message": (
+                    f"Use the Cancel/Refund action for '{new_status}' -- "
+                    "it captures a reason and notifies the customer. This "
+                    "generic status update does not."
+                ),
+            }, status=status.HTTP_400_BAD_REQUEST)
         orderData.status = new_status
     if 'transactionId' in request.data:
         orderData.transaction_id = request.data['transactionId']

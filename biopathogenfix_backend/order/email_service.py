@@ -54,7 +54,9 @@ def send_order_status_email(order, previous_status: str | None = None, notes: st
         from_email = f"{configSettings.COMPANY_NAME} <{configSettings.DEFAULT_FROM_EMAIL}>"
         to_list = _get_order_recipients(order)
         if getattr(settings, 'GRAPH_ENABLED', False):
-            send_graph_email(to_list, subject, html_body=html_content, text_body=text_content, from_email=from_email)
+            # Graph's sendMail wants a bare mailbox address, not a "Name <email>"
+            # string -- that display-name format is only valid for the SMTP From header.
+            send_graph_email(to_list, subject, html_body=html_content, text_body=text_content, from_email=configSettings.DEFAULT_FROM_EMAIL)
         else:
             email = EmailMultiAlternatives(
                 subject=subject,
@@ -135,7 +137,7 @@ def send_refund_email(order, refund_data: dict) -> bool:
         from_email = f"{configSettings.COMPANY_NAME} <{configSettings.DEFAULT_FROM_EMAIL}>"
         to_list = _get_order_recipients(order)
         if getattr(settings, 'GRAPH_ENABLED', False):
-            send_graph_email(to_list, subject, html_body=html_content, text_body=text_content, from_email=from_email)
+            send_graph_email(to_list, subject, html_body=html_content, text_body=text_content, from_email=configSettings.DEFAULT_FROM_EMAIL)
         else:
             email = EmailMultiAlternatives(
                 subject = subject,
@@ -206,7 +208,7 @@ def send_cancellation_email(order, cancel_data: dict) -> bool:
         from_email = f"{configSettings.COMPANY_NAME} <{configSettings.DEFAULT_FROM_EMAIL}>"
         to_list = _get_order_recipients(order)
         if getattr(settings, 'GRAPH_ENABLED', False):
-            send_graph_email(to_list, subject, html_body=html_content, text_body=text_content, from_email=from_email)
+            send_graph_email(to_list, subject, html_body=html_content, text_body=text_content, from_email=configSettings.DEFAULT_FROM_EMAIL)
         else:
             email = EmailMultiAlternatives(
                 subject    = subject,
