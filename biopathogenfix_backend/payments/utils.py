@@ -173,10 +173,11 @@ def tokenize_card(access_token: str, card_data: dict) -> str:  #Not in Use
 
     QB Tokens API is PCI-DSS compliant — card data is never stored anywhere.
     """
+    config   = QBConfig.get()
+    base_url = get_qb_base_url(config)
 
-    # "https://api.intuit.com/quickbooks/v4/payments/tokens"  ===> Live payments  api
     response = requests.post(
-        "https://sandbox.api.intuit.com/quickbooks/v4/payments/tokens",
+        f"{base_url}/quickbooks/v4/payments/tokens",
         headers={
             "Authorization": f"Bearer {access_token}",
             "Content-Type":  "application/json",
@@ -215,17 +216,18 @@ def charge_card(access_token: str,card_data: dict , amount: float, idempotency_k
     Raises ConnectionError for gateway issues.
     """
     # "Request-Id":    idempotency_key,  # QB uses this for idempotency
-    # "postalCode": "94086", 
-    # "country": "US", 
-    # "region": "CA", 
-    # "streetAddress": "1130 Kifer Rd", 
+    # "postalCode": "94086",
+    # "country": "US",
+    # "region": "CA",
+    # "streetAddress": "1130 Kifer Rd",
     # "city": "Sunnyvale"
 
+    config   = QBConfig.get()
+    base_url = get_qb_base_url(config)
 
     try:
-        # "https://api.intuit.com/quickbooks/v4/payments/tokens", ===> Live payments  api
         response = requests.post(
-        "https://sandbox.api.intuit.com/quickbooks/v4/payments/charges",
+        f"{base_url}/quickbooks/v4/payments/charges",
         headers={
             "Authorization": f"Bearer {access_token}",
             "Content-Type":"application/json",
@@ -321,9 +323,10 @@ def _void_charge(access_token: str, charge_id: str) -> None:
     This returns money to the customer immediately.
     """
     try:
-        #https://api.intuit.com/quickbooks/v4/payments/charges/{charge_id}/void
+        config   = QBConfig.get()
+        base_url = get_qb_base_url(config)
         response = requests.post(
-            f"https://sandbox.api.intuit.com/quickbooks/v4/payments/charges/{charge_id}/void",
+            f"{base_url}/quickbooks/v4/payments/charges/{charge_id}/void",
             headers={
                 "Authorization": f"Bearer {access_token}",
                 "Content-Type":  "application/json",
