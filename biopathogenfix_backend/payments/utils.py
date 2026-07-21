@@ -446,14 +446,39 @@ def get_or_create_qb_customer(access_token: str, realm_id: str, base_url: str, o
 
 
 
-def _build_invoice_line_items(order, orderItems: list) -> list:
+def get_or_create_qb_item(access_token: str, realm_id: str, base_url: str) -> str:
+    """
+    Finds an active Product/Service Item in QB to use as the line ItemRef.
+    QuickBooks requires every SalesItemLineDetail line to reference an
+    Item that exists in the company — without one, invoice creation
+    fails with a generic "Object Not Found / inactive" fault.
+    """
+    response = requests.get(
+        f"{base_url}/v3/company/{realm_id}/query",
+        headers={
+            "Authorization": f"Bearer {access_token}",
+            "Accept":        "application/json",
+        },
+        params={"query": "SELECT * FROM Item WHERE Active = true MAXRESULTS 1"},
+        timeout=15,
+    )
+    items = response.json().get("QueryResponse", {}).get("Item", [])
+    if not items:
+        raise Exception(
+            "No active Product/Service Item found in QuickBooks. "
+            "Create at least one Item (Sales -> Products and Services) before invoicing."
+        )
+    return items[0]["Id"]
+
+
+def _build_invoice_line_items(order, orderItems: list, item_id: str) -> list:
     """
     Builds QB invoice line items from order items.
     Includes products, shipping, and tax as separate lines.
     """
     line_items = []
 
-    #  Product lines 
+    #  Product lines
     for i, item in enumerate(orderItems, start=1):
         line_amount = float(item.unit_price) * int(item.quantity)
         line_items.append({
@@ -465,10 +490,11 @@ def _build_invoice_line_items(order, orderItems: list) -> list:
             "SalesItemLineDetail": {
                 "Qty":       int(item.quantity),
                 "UnitPrice": float(item.unit_price),
+                "ItemRef":   { "value": item_id },
             },
         })
 
-    #  Shipping line 
+    #  Shipping line
     if float(order.shipping_cost) > 0:
         line_items.append({
             "LineNum":     len(line_items) + 1,
@@ -478,10 +504,11 @@ def _build_invoice_line_items(order, orderItems: list) -> list:
             "SalesItemLineDetail": {
                 "Qty":       1,
                 "UnitPrice": float(order.shipping_cost),
+                "ItemRef":   { "value": item_id },
             },
         })
 
-    #  Tax line 
+    #  Tax line
     if float(order.tax_amount) > 0:
         line_items.append({
             "LineNum":     len(line_items) + 1,
@@ -491,6 +518,7 @@ def _build_invoice_line_items(order, orderItems: list) -> list:
             "SalesItemLineDetail": {
                 "Qty":       1,
                 "UnitPrice": float(order.tax_amount),
+                "ItemRef":   { "value": item_id },
             },
         })
 
@@ -586,8 +614,9 @@ def create_qb_invoice(access_token: str, order, orderItems: list, payment_method
     else:
         customer_id = user.quickbook_customer_id
 
-    # Step 2: Build line items 
-    line_items = _build_invoice_line_items(order, orderItems)
+    # Step 2: Build line items
+    item_id = get_or_create_qb_item(access_token, realm_id, base_url)
+    line_items = _build_invoice_line_items(order, orderItems, item_id)
 
     # Step 3: Build invoice payload 
     invoice_payload = {
