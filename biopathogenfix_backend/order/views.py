@@ -167,76 +167,69 @@ def CheckoutView(request):
 
 def _handle_card_payment(request, data, user, amount, idempotency_key,cartItems):
     """
-    Full card payment flow:
-    1. Verify successful Stripe payment
-    2. Get valid QB token (auto-refreshed) for invoice sync
+    Full card payment flow (QuickBooks Payments):
+    1. Get valid QB token (auto-refreshed)
+    2. Charge card via QB Payments API
     3. Create order atomically
     """
-    try:
-        stripe_result = verify_checkout_payment_intent(
-            payment_intent_id=(data.get("stripe_payment_intent_id") or "").strip(),
-            expected_amount=amount,
-            user=user,
-        )
-    except ValueError as e:
-        return Response({"status":"error", "message": str(e), "retry": True}, status=402)
-    except Exception as e:
-        logger.error(f"Unexpected Stripe verification error: {e}")
-        return Response({
-            "status":"error",
-            "message": "Payment verification failed. Please try again.",
-            "retry": True,
-        }, status=500)
+    # --- Stripe path (commented out in favor of QuickBooks Payments) ---
+    # try:
+    #     stripe_result = verify_checkout_payment_intent(
+    #         payment_intent_id=(data.get("stripe_payment_intent_id") or "").strip(),
+    #         expected_amount=amount,
+    #         user=user,
+    #     )
+    # except ValueError as e:
+    #     return Response({"status":"error", "message": str(e), "retry": True}, status=402)
+    # except Exception as e:
+    #     logger.error(f"Unexpected Stripe verification error: {e}")
+    #     return Response({
+    #         "status":"error",
+    #         "message": "Payment verification failed. Please try again.",
+    #         "retry": True,
+    #     }, status=500)
+    #
+    # access_token = None
+    # try:
+    #     access_token = get_valid_qb_token()
+    # except Exception as e:
+    #     logger.warning(f"QB token unavailable at checkout — invoice sync skipped: {e}")
+    #
+    # transaction_id = stripe_result.get("transaction_id")
+    # card_last4     = stripe_result.get("card_last4", "")
+    # card_brand     = stripe_result.get("card_brand", "")
+    # card_name      = stripe_result.get("card_name", "") or data.get("card_name", "")
+    #
+    # logger.info(
+    #     f"Stripe Payment CAPTURED | transaction_id={transaction_id} | "
+    #     f"user={user.id} | amount={amount}"
+    # )
+    #
+    # return _create_order(
+    #     data=data,
+    #     user=user,
+    #     transaction_id=transaction_id,
+    #     idempotency_key=idempotency_key,
+    #     amount=amount,
+    #     payment_method="card",
+    #     card_last4=card_last4,
+    #     card_brand=card_brand,
+    #     card_name=card_name,
+    #     status="confirmed",
+    #     cartItems=cartItems,
+    #     access_token=access_token
+    # )
 
-    # Step 1: Get valid QB access token (non-blocking — order proceeds even if QB is unavailable)
-    access_token = None
+    # Step 1: Get valid QB access token — required to charge via QB Payments
     try:
         access_token = get_valid_qb_token()
     except Exception as e:
-        logger.warning(f"QB token unavailable at checkout — invoice sync skipped: {e}")
-
-    print("received the access token")
-
-    transaction_id = stripe_result.get("transaction_id")
-    card_last4     = stripe_result.get("card_last4", "")
-    card_brand     = stripe_result.get("card_brand", "")
-    card_name      = stripe_result.get("card_name", "") or data.get("card_name", "")
-
-    logger.info(
-        f"Stripe Payment CAPTURED | transaction_id={transaction_id} | "
-        f"user={user.id} | amount={amount}"
-    )
-
-    return _create_order(
-        data=data,
-        user=user,
-        transaction_id=transaction_id,
-        idempotency_key=idempotency_key,
-        amount=amount,
-        payment_method="card",
-        card_last4=card_last4,
-        card_brand=card_brand,
-        card_name=card_name,
-        status="confirmed",
-        cartItems=cartItems,
-        access_token=access_token
-    )
-
-    # # Step 2: Tokenize card (card data → QB token)   ===> We don't required this step
-    # try:
-    #     card_token = tokenize_card(access_token, data)
-    # except ValueError as e:
-    #     return Response({  "status":"error", "message":  str(e), "retry": True }, status=400)
-    # except Exception as e:
-    #     logger.error(f"Card tokenization unexpected error: {e}")
-    #     return Response({
-    #         "status":"error",
-    #         "message":  "Unable to process card. Please try again.",
-    #         "retry": True,
-    #     }, status=400)
-
-    # print("received card_token")
-
+        logger.error(f"QB token unavailable at checkout — cannot process card payment: {e}")
+        return Response({
+            "status": "error",
+            "message": "Payment service is currently unavailable. Please try again shortly.",
+            "retry": True,
+        }, status=503)
 
     use_same = data.get("use_same_address", data.get("useSameAddress", True))
     billing_address = {
