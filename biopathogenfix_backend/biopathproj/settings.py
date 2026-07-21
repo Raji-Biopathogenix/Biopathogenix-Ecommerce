@@ -326,7 +326,12 @@ STORAGES = {
 
 
 MEDIA_URL = '/media/'
-MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+# Railway injects RAILWAY_VOLUME_MOUNT_PATH automatically once a Volume is
+# attached to this service -- write media there so uploads survive redeploys
+# (the container's own filesystem is wiped on every deploy). Falls back to a
+# local folder when no volume is attached (e.g. local dev).
+_railway_volume_path = os.environ.get('RAILWAY_VOLUME_MOUNT_PATH')
+MEDIA_ROOT = os.path.join(_railway_volume_path, 'media') if _railway_volume_path else os.path.join(BASE_DIR, 'media')
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 SIMPLE_JWT = {
     'ACCESS_TOKEN_LIFETIME': timedelta(minutes=3600), 
