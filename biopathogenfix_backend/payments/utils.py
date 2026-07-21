@@ -448,10 +448,13 @@ def get_or_create_qb_customer(access_token: str, realm_id: str, base_url: str, o
 
 def get_or_create_qb_item(access_token: str, realm_id: str, base_url: str) -> str:
     """
-    Finds an active Product/Service Item in QB to use as the line ItemRef.
-    QuickBooks requires every SalesItemLineDetail line to reference an
-    Item that exists in the company — without one, invoice creation
-    fails with a generic "Object Not Found / inactive" fault.
+    Finds an active, sellable Product/Service Item in QB to use as the
+    line ItemRef. QuickBooks requires every SalesItemLineDetail line to
+    reference an Item that exists in the company — without one, invoice
+    creation fails with a generic "Object Not Found / inactive" fault.
+
+    "Category" and "Group" type items are excluded — they look active
+    but cannot be used as a direct line ItemRef.
     """
     response = requests.get(
         f"{base_url}/v3/company/{realm_id}/query",
@@ -459,16 +462,25 @@ def get_or_create_qb_item(access_token: str, realm_id: str, base_url: str) -> st
             "Authorization": f"Bearer {access_token}",
             "Accept":        "application/json",
         },
-        params={"query": "SELECT * FROM Item WHERE Active = true MAXRESULTS 1"},
+        params={"query": "SELECT * FROM Item WHERE Active = true MAXRESULTS 20"},
         timeout=15,
     )
     items = response.json().get("QueryResponse", {}).get("Item", [])
-    if not items:
+    sellable = [i for i in items if i.get("Type") not in ("Category", "Group")]
+
+    if not sellable:
+        logger.error(f"QB Item query returned no sellable items: {items}")
         raise Exception(
-            "No active Product/Service Item found in QuickBooks. "
+            "No active, sellable Product/Service Item found in QuickBooks. "
             "Create at least one Item (Sales -> Products and Services) before invoicing."
         )
-    return items[0]["Id"]
+
+    chosen = sellable[0]
+    logger.info(
+        f"QB Item selected for invoice lines: {chosen.get('Id')} "
+        f"({chosen.get('Name')}, type={chosen.get('Type')})"
+    )
+    return chosen["Id"]
 
 
 def _build_invoice_line_items(order, orderItems: list, item_id: str) -> list:
