@@ -50,8 +50,20 @@ def validate_checkout_payload(data: dict) -> None:
     if not data.get("idempotency_key"):
         raise ValidationError("Idempotency key is required.")
 
-    # Card payment specific fields 
+    # Card payment specific fields
     if data.get("payment_method") == "card":
-        if not str(data.get("stripe_payment_intent_id", "")).strip():
-            raise ValidationError("Stripe payment reference is required.")
+        # --- Stripe path (commented out in favor of QuickBooks Payments) ---
+        # if not str(data.get("stripe_payment_intent_id", "")).strip():
+        #     raise ValidationError("Stripe payment reference is required.")
+
+        required_card_fields = [
+            ("card_name",      "Cardholder name"),
+            ("card_number",    "Card number"),
+            ("card_exp_month", "Card expiration month"),
+            ("card_exp_year",  "Card expiration year"),
+            ("card_cvv",       "Card security code"),
+        ]
+        for field, label in required_card_fields:
+            if not str(data.get(field, "")).strip():
+                raise ValidationError(f"{label} is required.")
 

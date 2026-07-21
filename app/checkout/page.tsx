@@ -3,16 +3,17 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { Elements } from "@stripe/react-stripe-js";
+// --- Stripe path (commented out in favor of QuickBooks Payments) ---
+// import { Elements } from "@stripe/react-stripe-js";
 
 import InformationTab from "@/components/checkout/InformationTab";
 import ShippingTab from "@/components/checkout/shippingTab";
 import PaymentTab from "@/components/checkout/paymentTab";
 import OrderSummary from "@/components/checkout/OrderSummary";
-import { StripeCardInputRef } from "@/components/checkout/StripeCardInput";
+// import { StripeCardInputRef } from "@/components/checkout/StripeCardInput";
 import { useAuth } from "@/context/AuthContext";
 import { useToast } from "@/context/ToastContext";
-import { stripePromise } from "@/lib/stripe";
+// import { stripePromise } from "@/lib/stripe";
 import { CartServices } from "@/services/cartServices";
 import { CheckoutServices } from "@/services/CheckoutServices";
 import { PaymentMethodServices, SavedPaymentMethod } from "@/services/paymentMethodServices";
@@ -27,6 +28,7 @@ import {
   AppError,
   CheckoutErrors,
   CheckoutPayload,
+  QbCardData,
 } from "@/types/checkout";
 import {
   addressesMatch,
@@ -101,7 +103,8 @@ type Step = "information" | "shipping" | "payment" | "fatal";
 export default function CheckoutPage() {
   const router = useRouter();
   const idempotencyKey = useRef(generateIdempotencyKey());
-  const stripeCardRef = useRef<StripeCardInputRef>(null);
+  // --- Stripe path (commented out in favor of QuickBooks Payments) ---
+  // const stripeCardRef = useRef<StripeCardInputRef>(null);
   const { setShowMainPageLoader, tmpId, user, dispatch,reducerState } = useAuth();
   const { setToastNotification } = useToast();
   const [currentStep, setCurrentStep] = useState<Step>("information");
@@ -110,9 +113,16 @@ export default function CheckoutPage() {
   const [couponAmount, setCouponAmount] = useState<number>(0)
   const [enableProceedBtn, setEnableProceedBtn] = useState(true)
   const [freeShipping, setFreeShipping] = useState(false)
-  const [stripeCardHolder, setStripeCardHolder] = useState("");
-  const [isStripeCardComplete, setIsStripeCardComplete] = useState(false);
-  const [stripeCardError, setStripeCardError] = useState<string | undefined>();
+  // const [stripeCardHolder, setStripeCardHolder] = useState("");
+  // const [isStripeCardComplete, setIsStripeCardComplete] = useState(false);
+  // const [stripeCardError, setStripeCardError] = useState<string | undefined>();
+  const [qbCardData, setQbCardData] = useState<QbCardData>({
+    cardNumber: "",
+    expMonth: "",
+    expYear: "",
+    cvv: "",
+    cardHolder: "",
+  });
   const [savedShippingAddresses, setSavedShippingAddresses] = useState<SavedAddress[]>([]);
   const [savedBillingAddresses, setSavedBillingAddresses] = useState<SavedAddress[]>([]);
   const [selectedSavedShippingAddressId, setSelectedSavedShippingAddressId] = useState("");
@@ -658,35 +668,32 @@ export default function CheckoutPage() {
       return;
     }
 
-    const effectiveCountryCode =
-      countries.find((item) => `${item.id}` === `${effectiveBilling.country}`)?.code ||
-      effectiveBilling.country_code ||
-      "US";
+    // Used by the commented-out Stripe confirmation call below.
+    // const effectiveCountryCode =
+    //   countries.find((item) => `${item.id}` === `${effectiveBilling.country}`)?.code ||
+    //   effectiveBilling.country_code ||
+    //   "US";
 
     if (form.payment_method === "card") {
-      if (selectedSavedPaymentMethodId) {
-        const selectedMethod = savedPaymentMethods.find((method) => method.id === selectedSavedPaymentMethodId);
-        if (!selectedMethod) {
-          setError({ message: "Please select a saved payment method.", retry: false });
-          setLoading(false);
-          return;
-        }
-      } else {
-        if (!stripeCardHolder.trim()) {
-          setError({ message: "Cardholder name is required.", retry: false });
-          setLoading(false);
-          return;
-        }
-        if (!isStripeCardComplete) {
-          setError({ message: stripeCardError || "Please complete your card details.", retry: false });
-          setLoading(false);
-          return;
-        }
-        if (!stripeCardRef.current) {
-          setError({ message: "Stripe card form is not ready. Please refresh and try again.", retry: false });
-          setLoading(false);
-          return;
-        }
+      if (!qbCardData.cardHolder.trim()) {
+        setError({ message: "Cardholder name is required.", retry: false });
+        setLoading(false);
+        return;
+      }
+      if (!qbCardData.cardNumber.replace(/\D/g, "")) {
+        setError({ message: "Card number is required.", retry: false });
+        setLoading(false);
+        return;
+      }
+      if (!qbCardData.expMonth || !qbCardData.expYear) {
+        setError({ message: "Card expiration date is required.", retry: false });
+        setLoading(false);
+        return;
+      }
+      if (!qbCardData.cvv.trim()) {
+        setError({ message: "Card security code is required.", retry: false });
+        setLoading(false);
+        return;
       }
     }
 
@@ -711,34 +718,43 @@ export default function CheckoutPage() {
       idempotency_key: idempotencyKey.current,
     };
 
+    // --- Stripe path (commented out in favor of QuickBooks Payments) ---
+    // if (form.payment_method === "card") {
+    //   try {
+    //     const paymentIntent = await PaymentMethodServices.createCheckoutPaymentIntent({
+    //       amount: total,
+    //       idempotency_key: idempotencyKey.current,
+    //       save_payment_method: !selectedSavedPaymentMethodId && savePaymentMethod,
+    //       payment_method_id: selectedSavedPaymentMethodId || undefined,
+    //     });
+    //
+    //     const confirmation = await stripeCardRef.current!.confirmCheckoutPayment({
+    //       clientSecret: paymentIntent.client_secret,
+    //       cardHolderName:
+    //         stripeCardHolder.trim() ||
+    //         savedPaymentMethods.find((method) => method.id === selectedSavedPaymentMethodId)?.name ||
+    //         `${form.shipping.first_name} ${form.shipping.last_name}`.trim(),
+    //       country: effectiveCountryCode,
+    //       postalCode: effectiveBilling.postal_code,
+    //       paymentMethodId: selectedSavedPaymentMethodId || undefined,
+    //     });
+    //
+    //     payload.stripe_payment_intent_id = confirmation.paymentIntentId;
+    //     payload.save_payment_method = !selectedSavedPaymentMethodId && savePaymentMethod;
+    //     payload.saved_payment_method_id = selectedSavedPaymentMethodId || undefined;
+    //   } catch (err: unknown) {
+    //     setError({ message: getErrorMessage(err), retry: false });
+    //     setLoading(false);
+    //     return;
+    //   }
+    // }
+
     if (form.payment_method === "card") {
-      try {
-        const paymentIntent = await PaymentMethodServices.createCheckoutPaymentIntent({
-          amount: total,
-          idempotency_key: idempotencyKey.current,
-          save_payment_method: !selectedSavedPaymentMethodId && savePaymentMethod,
-          payment_method_id: selectedSavedPaymentMethodId || undefined,
-        });
-
-        const confirmation = await stripeCardRef.current!.confirmCheckoutPayment({
-          clientSecret: paymentIntent.client_secret,
-          cardHolderName:
-            stripeCardHolder.trim() ||
-            savedPaymentMethods.find((method) => method.id === selectedSavedPaymentMethodId)?.name ||
-            `${form.shipping.first_name} ${form.shipping.last_name}`.trim(),
-          country: effectiveCountryCode,
-          postalCode: effectiveBilling.postal_code,
-          paymentMethodId: selectedSavedPaymentMethodId || undefined,
-        });
-
-        payload.stripe_payment_intent_id = confirmation.paymentIntentId;
-        payload.save_payment_method = !selectedSavedPaymentMethodId && savePaymentMethod;
-        payload.saved_payment_method_id = selectedSavedPaymentMethodId || undefined;
-      } catch (err: unknown) {
-        setError({ message: getErrorMessage(err), retry: false });
-        setLoading(false);
-        return;
-      }
+      payload.card_name = qbCardData.cardHolder.trim();
+      payload.card_number = qbCardData.cardNumber.replace(/\D/g, "");
+      payload.card_exp_month = qbCardData.expMonth;
+      payload.card_exp_year = qbCardData.expYear;
+      payload.card_cvv = qbCardData.cvv;
     }
 
     try {
@@ -905,8 +921,9 @@ export default function CheckoutPage() {
     }
   }
 
+  // --- Stripe path (commented out in favor of QuickBooks Payments) ---
+  // <Elements stripe={stripePromise}> used to wrap the JSX below.
   return (
-    <Elements stripe={stripePromise}>
     <main className="max-w-6xl mx-auto px-6 py-12">
       {loading && (
         <div className="fixed inset-0 z-50 flex items-start justify-center px-4 pt-24">
@@ -1052,13 +1069,8 @@ export default function CheckoutPage() {
               goBackToShipping={goBackToShipping}
               handleFormChange={handleFormChange}
               handleBillingChange={handleBillingChange}
-              stripeCardRef={stripeCardRef}
-              stripeCardHolder={stripeCardHolder}
-              setStripeCardHolder={setStripeCardHolder}
-              onStripeCardChange={(complete, errorMessage) => {
-                setIsStripeCardComplete(complete);
-                setStripeCardError(errorMessage);
-              }}
+              qbCardData={qbCardData}
+              setQbCardData={setQbCardData}
               savedPaymentMethods={savedPaymentMethods}
               paymentMethodsLoading={paymentMethodsLoading}
               paymentMethodsError={paymentMethodsError}
@@ -1093,7 +1105,6 @@ export default function CheckoutPage() {
         />
       </div>
     </main>
-    </Elements>
   );
 }
 

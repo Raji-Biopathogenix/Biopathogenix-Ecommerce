@@ -1,10 +1,10 @@
-import { RefObject } from "react";
-
 import { State, Country } from "@/types";
 import SavedAddressSelect from "@/components/address/SavedAddressSelect";
-import { AddressErrors, CheckoutPayload } from "@/types/checkout";
+import { AddressErrors, CheckoutPayload, QbCardData } from "@/types/checkout";
 import { PaymentIcons } from "@/components/app_icons/app_icons";
-import StripeCardInput, { StripeCardInputRef } from "@/components/checkout/StripeCardInput";
+// --- Stripe path (commented out in favor of QuickBooks Payments) ---
+// import StripeCardInput, { StripeCardInputRef } from "@/components/checkout/StripeCardInput";
+import QbCardInput from "@/components/checkout/QbCardInput";
 import { SavedAddress } from "@/services/addressServices";
 import { SavedPaymentMethod } from "@/services/paymentMethodServices";
 
@@ -28,10 +28,13 @@ interface PaymentTabProps {
   handleBillingChange: (
     field: keyof CheckoutPayload["billing"],
   ) => (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => void;
-  stripeCardRef: RefObject<StripeCardInputRef | null>;
-  stripeCardHolder: string;
-  setStripeCardHolder: (value: string) => void;
-  onStripeCardChange: (complete: boolean, error?: string) => void;
+  // --- Stripe path (commented out in favor of QuickBooks Payments) ---
+  // stripeCardRef: RefObject<StripeCardInputRef | null>;
+  // stripeCardHolder: string;
+  // setStripeCardHolder: (value: string) => void;
+  // onStripeCardChange: (complete: boolean, error?: string) => void;
+  qbCardData: QbCardData;
+  setQbCardData: (data: QbCardData) => void;
   savedPaymentMethods: SavedPaymentMethod[];
   paymentMethodsLoading: boolean;
   paymentMethodsError: string | null;
@@ -68,10 +71,8 @@ export default function PaymentTab({
   goBackToShipping,
   handleFormChange,
   handleBillingChange,
-  stripeCardRef,
-  stripeCardHolder,
-  setStripeCardHolder,
-  onStripeCardChange,
+  qbCardData,
+  setQbCardData,
   savedPaymentMethods,
   paymentMethodsLoading,
   paymentMethodsError,
@@ -86,8 +87,6 @@ export default function PaymentTab({
   saveBillingAddress,
   setSaveBillingAddress,
 }: PaymentTabProps) {
-  const useSavedCard = Boolean(selectedSavedPaymentMethodId);
-
   return (
     <form onSubmit={handleSubmit}>
       <div className="bg-gray-50 border border-gray-200 rounded-lg p-4 mb-4">
@@ -261,6 +260,7 @@ export default function PaymentTab({
 
           {form.payment_method === "card" && (
             <div className="bg-gray-50 border-2 border-gray-300 rounded-lg p-6 space-y-4">
+              {/* --- Stripe saved-card path (commented out in favor of QuickBooks Payments) ---
               {paymentMethodsLoading ? (
                 <div className="rounded border border-[#E6EEF5] bg-white px-4 py-3 text-sm text-[#0B3C5D]">
                   Loading saved payment methods...
@@ -306,24 +306,10 @@ export default function PaymentTab({
                   {paymentMethodsError}
                 </div>
               )}
+              --- end Stripe saved-card path --- */}
 
-              <div className={useSavedCard ? "hidden" : "space-y-4 rounded border border-[#d5deea] bg-white p-4"}>
-                <StripeCardInput
-                  ref={stripeCardRef}
-                  cardHolder={stripeCardHolder}
-                  onCardHolderChange={setStripeCardHolder}
-                  onChange={onStripeCardChange}
-                />
-
-                <label className="flex items-center gap-3 text-sm text-[#0b2e59]">
-                  <input
-                    type="checkbox"
-                    checked={savePaymentMethod}
-                    onChange={(event) => setSavePaymentMethod(event.target.checked)}
-                    className="h-4 w-4"
-                  />
-                  Save this card for future payments
-                </label>
+              <div className="space-y-4 rounded border border-[#d5deea] bg-white p-4">
+                <QbCardInput cardData={qbCardData} onCardChange={setQbCardData} />
               </div>
             </div>
           )}
