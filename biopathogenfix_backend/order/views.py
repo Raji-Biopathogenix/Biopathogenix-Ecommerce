@@ -118,10 +118,7 @@ def CheckoutView(request):
     user         = request.user
     payment_method = data.get("payment_method", "card")
 
-    print("data",data,"user",user,"payment_method",payment_method)
-
-
-    # Layer 1: Validate request payload 
+    # Layer 1: Validate request payload
     try:
         validate_checkout_payload(data)
     except ValidationError as e:
@@ -253,9 +250,6 @@ def _handle_card_payment(request, data, user, amount, idempotency_key,cartItems)
         logger.error(f"Unexpected charge error: {e}")
         return Response({"status":"error", "message":  "Payment processing failed. Please try again.",
             "retry": True}, status=500)
-    
-    print("Chared card",qb_result)
-
 
     # Payment CAPTURED — money is now debited
     transaction_id = qb_result.get("id")
