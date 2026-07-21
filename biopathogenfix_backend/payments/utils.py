@@ -401,7 +401,7 @@ def get_or_create_qb_customer(access_token: str, realm_id: str, base_url: str, o
         )
         customers = search_response.json().get("QueryResponse", {}).get("Customer", [])
         if customers:
-            logger.info(f"QB Customer found: {customers[0]['Id']} for {email}")
+            print(f"QB Customer found: {customers[0]['Id']} for {email} (Active={customers[0].get('Active')})")
             return customers[0]["Id"]
     except Exception as e:
         logger.warning(f"QB customer search failed, will create new: {e}")
@@ -438,7 +438,7 @@ def get_or_create_qb_customer(access_token: str, realm_id: str, base_url: str, o
         logger.error(f"QB Customer creation failed: {create_response.json()}")
         raise Exception("Failed to create QB customer.")
 
-    logger.info(f"QB Customer created: {customer_id} for {email}")
+    print(f"QB Customer created: {customer_id} for {email}")
     return customer_id
 
 
@@ -465,18 +465,22 @@ def get_or_create_qb_item(access_token: str, realm_id: str, base_url: str) -> st
         params={"query": "SELECT * FROM Item WHERE Active = true MAXRESULTS 20"},
         timeout=15,
     )
-    items = response.json().get("QueryResponse", {}).get("Item", [])
+    raw = response.json()
+    items = raw.get("QueryResponse", {}).get("Item", [])
+    print(f"QB Item query raw response: {raw}")
+    print(f"QB Items found ({len(items)}): " + str([(i.get('Id'), i.get('Name'), i.get('Type')) for i in items]))
+
     sellable = [i for i in items if i.get("Type") not in ("Category", "Group")]
 
     if not sellable:
-        logger.error(f"QB Item query returned no sellable items: {items}")
+        print(f"QB Item query returned no sellable items out of {len(items)} total")
         raise Exception(
             "No active, sellable Product/Service Item found in QuickBooks. "
             "Create at least one Item (Sales -> Products and Services) before invoicing."
         )
 
     chosen = sellable[0]
-    logger.info(
+    print(
         f"QB Item selected for invoice lines: {chosen.get('Id')} "
         f"({chosen.get('Name')}, type={chosen.get('Type')})"
     )
@@ -626,6 +630,8 @@ def create_qb_invoice(access_token: str, order, orderItems: list, payment_method
     else:
         customer_id = user.quickbook_customer_id
 
+    print(f"QB invoice for Order #{order.id} using customer_id={customer_id} realm_id={realm_id}")
+
     # Step 2: Build line items
     item_id = get_or_create_qb_item(access_token, realm_id, base_url)
     line_items = _build_invoice_line_items(order, orderItems, item_id)
@@ -663,7 +669,8 @@ def create_qb_invoice(access_token: str, order, orderItems: list, payment_method
         "EmailStatus": "NeedToSend" if payment_method == "invoice" else "NotSet",
     }
 
-    #  Step 4: Create invoice in QB 
+    #  Step 4: Create invoice in QB
+    print(f"QB invoice payload for Order #{order.id}: {invoice_payload}")
     invoice_response = requests.post(
         f"{base_url}/v3/company/{realm_id}/invoice",
         headers={
