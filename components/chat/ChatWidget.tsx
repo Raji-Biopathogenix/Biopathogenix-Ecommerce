@@ -444,7 +444,7 @@ export default function ChatWidget() {
   return (
     <>
       {!isOpen && (
-        <div className="fixed z-[9999] flex flex-col items-end gap-2" style={launcherStyle}>
+        <div className="fixed z-[9999] flex flex-col items-end gap-2 print:hidden" style={launcherStyle}>
           {showQuickPopup && (
             <div className="w-[300px] max-w-[calc(100vw-16px)] rounded-2xl border border-[#d5e3f2] bg-white p-3 shadow-xl">
               <div className="text-sm font-medium mb-2">What are you looking for?</div>
@@ -484,7 +484,7 @@ export default function ChatWidget() {
 
       {isOpen && (
         <div
-          className="fixed z-[9999] overflow-hidden rounded-2xl border border-[#d5e3f2] bg-white shadow-2xl"
+          className="fixed z-[9999] overflow-hidden rounded-2xl border border-[#d5e3f2] bg-white shadow-2xl print:hidden"
           style={panelStyle}
         >
           <div className="flex select-none items-center justify-between gap-2 bg-[linear-gradient(120deg,#0b2e4f_0%,#1b4c79_100%)] px-3 py-3 text-white sm:px-4">
