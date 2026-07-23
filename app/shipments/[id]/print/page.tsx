@@ -824,8 +824,6 @@ export default function PrintLabelPage() {
                     <tr>
                       <td>Item / SKU</td>
                       <td>Qty</td>
-                      <td>Unit Price</td>
-                      <td>Total</td>
                     </tr>
                   </thead>
                   <tbody>
@@ -836,31 +834,10 @@ export default function PrintLabelPage() {
                           <div className="item-sku">SKU: {item.product_sku}</div>
                         </td>
                         <td>{item.quantity}</td>
-                        <td>${item.unit_price}</td>
-                        <td>${item.total_price}</td>
                       </tr>
                     ))}
                   </tbody>
                 </table>
-
-                <div className="totals-row">
-                  <table className="totals-table">
-                    <tbody>
-                      <tr>
-                        <td>Subtotal</td>
-                        <td>${label.subtotal}</td>
-                      </tr>
-                      <tr>
-                        <td>Tax</td>
-                        <td>${label.tax}</td>
-                      </tr>
-                      <tr className="totals-total">
-                        <td>Total</td>
-                        <td>${label.total}</td>
-                      </tr>
-                    </tbody>
-                  </table>
-                </div>
 
                 {label.is_return && label.return_reason && (
                   <div className="return-note">
