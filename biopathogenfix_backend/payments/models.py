@@ -49,8 +49,8 @@ class TaxConfig(models.Model):
     """
     provider = models.CharField(
         max_length=20,
-        choices=[("taxjar", "TaxJar"), ("fallback", "Fallback Table")],
-        default="taxjar",
+        choices=[("quickbooks", "QuickBooks"), ("taxjar", "TaxJar"), ("fallback", "Fallback Table")],
+        default="quickbooks",
     )
     enabled = models.BooleanField(default=True)
     api_key = models.CharField(max_length=255, blank=True, help_text="Tax provider API key")

@@ -219,19 +219,59 @@ def calculate_tax_and_shipping(
     county = ""
 
     if country_code == "US" and cfg["enabled"]:
-        if cfg["provider"] == "taxjar":
-            if not cfg["api_key"]:
-                logger.warning("TaxJar quote blocked: missing API key in TaxConfig/settings.")
-                raise ValueError("TaxJar is not configured. Please contact support.")
+        # --- TaxJar path (commented out in favor of QuickBooks) ---
+        # if cfg["provider"] == "taxjar":
+        #     if not cfg["api_key"]:
+        #         logger.warning("TaxJar quote blocked: missing API key in TaxConfig/settings.")
+        #         raise ValueError("TaxJar is not configured. Please contact support.")
+        #     try:
+        #         tax_amount, tax_rate, county = _calculate_with_taxjar(
+        #             api_key=cfg["api_key"],
+        #             api_base=cfg["api_base"],
+        #             nexus_country=cfg["nexus_country"],
+        #             nexus_zip=cfg["nexus_zip"],
+        #             nexus_state=cfg["nexus_state"],
+        #             nexus_city=cfg["nexus_city"],
+        #             nexus_street=cfg["nexus_street"],
+        #             subtotal=safe_subtotal,
+        #             shipping_cost=shipping_cost,
+        #             to_state=state_code,
+        #             to_zip=provider_zip,
+        #             to_country=country_code,
+        #             to_city=shipping_city,
+        #             to_street=shipping_address_line1,
+        #         )
+        #         provider = "taxjar"
+        #     except requests.HTTPError as exc:
+        #         status_code = exc.response.status_code if exc.response is not None else "unknown"
+        #         detail = _extract_taxjar_error_message(exc.response)
+        #         logger.error(
+        #             "TaxJar HTTP error while quoting tax | status=%s | to_state=%s | to_zip=%s | detail=%s",
+        #             status_code,
+        #             state_code,
+        #             provider_zip,
+        #             detail,
+        #         )
+        #         raise ValueError(_humanize_taxjar_error(detail)) from exc
+        #     except requests.RequestException as exc:
+        #         logger.error(
+        #             "TaxJar network/request error while quoting tax | to_state=%s | to_zip=%s | error=%s",
+        #             state_code,
+        #             provider_zip,
+        #             exc,
+        #         )
+        #         raise ValueError("Unable to calculate tax from TaxJar right now. Please try again.") from exc
+        #     except Exception as exc:
+        #         logger.exception(
+        #             "Unexpected TaxJar quote error | to_state=%s | to_zip=%s",
+        #             state_code,
+        #             provider_zip,
+        #         )
+        #         raise ValueError("Unable to calculate tax from TaxJar. Please verify shipping address.") from exc
+
+        if cfg["provider"] == "quickbooks":
             try:
-                tax_amount, tax_rate, county = _calculate_with_taxjar(
-                    api_key=cfg["api_key"],
-                    api_base=cfg["api_base"],
-                    nexus_country=cfg["nexus_country"],
-                    nexus_zip=cfg["nexus_zip"],
-                    nexus_state=cfg["nexus_state"],
-                    nexus_city=cfg["nexus_city"],
-                    nexus_street=cfg["nexus_street"],
+                tax_amount, tax_rate, county = _calculate_with_quickbooks(
                     subtotal=safe_subtotal,
                     shipping_cost=shipping_cost,
                     to_state=state_code,
@@ -240,33 +280,14 @@ def calculate_tax_and_shipping(
                     to_city=shipping_city,
                     to_street=shipping_address_line1,
                 )
-                provider = "taxjar"
-            except requests.HTTPError as exc:
-                status_code = exc.response.status_code if exc.response is not None else "unknown"
-                detail = _extract_taxjar_error_message(exc.response)
-                logger.error(
-                    "TaxJar HTTP error while quoting tax | status=%s | to_state=%s | to_zip=%s | detail=%s",
-                    status_code,
-                    state_code,
-                    provider_zip,
-                    detail,
-                )
-                raise ValueError(_humanize_taxjar_error(detail)) from exc
-            except requests.RequestException as exc:
-                logger.error(
-                    "TaxJar network/request error while quoting tax | to_state=%s | to_zip=%s | error=%s",
-                    state_code,
-                    provider_zip,
-                    exc,
-                )
-                raise ValueError("Unable to calculate tax from TaxJar right now. Please try again.") from exc
+                provider = "quickbooks"
             except Exception as exc:
                 logger.exception(
-                    "Unexpected TaxJar quote error | to_state=%s | to_zip=%s",
+                    "QuickBooks tax quote error | to_state=%s | to_zip=%s",
                     state_code,
                     provider_zip,
                 )
-                raise ValueError("Unable to calculate tax from TaxJar. Please verify shipping address.") from exc
+                raise ValueError("Unable to calculate tax from QuickBooks. Please verify shipping address.") from exc
         elif cfg["provider"] == "fallback":
             tax_rate = US_STATE_TAX_RATES.get(state_code, Decimal("0.0000"))
             tax_amount = _quantize_money(safe_subtotal * tax_rate)
@@ -287,6 +308,148 @@ def calculate_tax_and_shipping(
         "county": county,
         "provider": provider,
     }
+
+
+def _get_or_create_qb_tax_quote_customer(access_token: str, realm_id: str, base_url: str) -> str:
+    """
+    A single shared placeholder QB customer used only for tax-quote
+    Estimates, so live checkout tax previews never touch real customer
+    records.
+    """
+    display_name = "Tax Quote (internal use)"
+    try:
+        response = requests.get(
+            f"{base_url}/v3/company/{realm_id}/query",
+            headers={"Authorization": f"Bearer {access_token}", "Accept": "application/json"},
+            params={"query": f"SELECT * FROM Customer WHERE DisplayName = '{display_name}'"},
+            timeout=15,
+        )
+        customers = response.json().get("QueryResponse", {}).get("Customer", [])
+        active = [c for c in customers if c.get("Active", True)]
+        if active:
+            return active[0]["Id"]
+    except Exception as exc:
+        logger.warning("QB tax-quote customer search failed, will create new: %s", exc)
+
+    create_response = requests.post(
+        f"{base_url}/v3/company/{realm_id}/customer",
+        headers={
+            "Authorization": f"Bearer {access_token}",
+            "Content-Type":  "application/json",
+            "Accept":        "application/json",
+        },
+        json={"DisplayName": display_name},
+        timeout=15,
+    )
+    customer = create_response.json().get("Customer", {})
+    customer_id = customer.get("Id")
+    if not customer_id:
+        raise Exception(f"Failed to create QB tax-quote customer: {create_response.json()}")
+    return customer_id
+
+
+def _calculate_with_quickbooks(
+    *,
+    subtotal: Decimal,
+    shipping_cost: Decimal,
+    to_state: str,
+    to_zip: str,
+    to_country: str,
+    to_city: str,
+    to_street: str,
+) -> tuple[Decimal, Decimal, str]:
+    """
+    Gets a tax quote from QuickBooks. QuickBooks has no standalone
+    "quote" endpoint — tax is only ever calculated as part of a real
+    transaction — so this creates a temporary Estimate (a quote entity
+    with no real financial/bookkeeping impact), lets QuickBooks'
+    Automated Sales Tax calculate it, reads the result back, then
+    deletes the Estimate immediately after.
+    """
+    from payments.models import QBConfig
+    from payments.utils import get_valid_qb_token, get_qb_accounting_base_url, get_or_create_qb_item
+
+    config   = QBConfig.get()
+    base_url = get_qb_accounting_base_url(config)
+    realm_id = config.realm_id
+    access_token = get_valid_qb_token()
+
+    item_id     = get_or_create_qb_item(access_token, realm_id, base_url)
+    customer_id = _get_or_create_qb_tax_quote_customer(access_token, realm_id, base_url)
+
+    line_items = [
+        {
+            "Amount":     float(subtotal),
+            "DetailType": "SalesItemLineDetail",
+            "SalesItemLineDetail": {
+                "Qty":        1,
+                "UnitPrice":  float(subtotal),
+                "ItemRef":    { "value": item_id },
+                "TaxCodeRef": { "value": "TAX" },
+            },
+        }
+    ]
+    if shipping_cost > 0:
+        line_items.append({
+            "Amount":     float(shipping_cost),
+            "DetailType": "SalesItemLineDetail",
+            "SalesItemLineDetail": {
+                "Qty":        1,
+                "UnitPrice":  float(shipping_cost),
+                "ItemRef":    { "value": item_id },
+                "TaxCodeRef": { "value": "TAX" },
+            },
+        })
+
+    address = {
+        "Line1":                  to_street or "",
+        "City":                   to_city or "",
+        "CountrySubDivisionCode": to_state,
+        "PostalCode":             to_zip,
+        "Country":                to_country or "US",
+    }
+
+    response = requests.post(
+        f"{base_url}/v3/company/{realm_id}/estimate",
+        headers={
+            "Authorization": f"Bearer {access_token}",
+            "Content-Type":  "application/json",
+            "Accept":        "application/json",
+        },
+        json={
+            "Line":        line_items,
+            "CustomerRef": { "value": customer_id },
+            "BillAddr":    address,
+            "ShipAddr":    address,
+        },
+        timeout=15,
+    )
+    response.raise_for_status()
+    estimate = response.json().get("Estimate", {})
+
+    tax_amount = Decimal(str(estimate.get("TxnTaxDetail", {}).get("TotalTax", "0")))
+    tax_rate   = (tax_amount / subtotal) if subtotal > 0 else Decimal("0.00")
+
+    # This Estimate only ever existed to get a tax number — delete it
+    # right away so it doesn't clutter the account's real Estimates list.
+    estimate_id = estimate.get("Id")
+    sync_token  = estimate.get("SyncToken")
+    if estimate_id and sync_token is not None:
+        try:
+            requests.post(
+                f"{base_url}/v3/company/{realm_id}/estimate?operation=delete",
+                headers={
+                    "Authorization": f"Bearer {access_token}",
+                    "Content-Type":  "application/json",
+                    "Accept":        "application/json",
+                },
+                json={"Id": estimate_id, "SyncToken": sync_token},
+                timeout=15,
+            )
+        except Exception as exc:
+            logger.warning("Failed to delete temporary QB tax-quote Estimate %s: %s", estimate_id, exc)
+
+    return _quantize_money(tax_amount), tax_rate, ""
 
 
 def _calculate_with_taxjar(
