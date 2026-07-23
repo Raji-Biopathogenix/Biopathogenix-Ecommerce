@@ -535,6 +535,13 @@ def _build_invoice_line_items(order, orderItems: list, item_id: str) -> list:
     """
     line_items = []
 
+    # Every line is marked non-taxable ("NON") because tax is already
+    # calculated by TaxJar/our own logic and included as its own line
+    # below. Without this, QuickBooks' automatic sales tax engine also
+    # taxes each Taxable-flagged Item and adds a second, separate tax
+    # charge on top — silently inflating the invoice total and leaving
+    # a fake "balance due" even though the order was paid in full.
+
     #  Product lines
     for i, item in enumerate(orderItems, start=1):
         line_amount = float(item.unit_price) * int(item.quantity)
@@ -545,9 +552,10 @@ def _build_invoice_line_items(order, orderItems: list, item_id: str) -> list:
             "Description": "Product ID : #{product_id} \n Product Name:{product_name} \n Order ID: #{order_id}".format(product_id= item.product.id,product_name=item.product.name,order_id=item.id),
             "DetailType":  "SalesItemLineDetail",
             "SalesItemLineDetail": {
-                "Qty":       int(item.quantity),
-                "UnitPrice": float(item.unit_price),
-                "ItemRef":   { "value": item_id },
+                "Qty":         int(item.quantity),
+                "UnitPrice":   float(item.unit_price),
+                "ItemRef":     { "value": item_id },
+                "TaxCodeRef":  { "value": "NON" },
             },
         })
 
@@ -559,9 +567,10 @@ def _build_invoice_line_items(order, orderItems: list, item_id: str) -> list:
             "Description": "Shipping",
             "DetailType":  "SalesItemLineDetail",
             "SalesItemLineDetail": {
-                "Qty":       1,
-                "UnitPrice": float(order.shipping_cost),
-                "ItemRef":   { "value": item_id },
+                "Qty":         1,
+                "UnitPrice":   float(order.shipping_cost),
+                "ItemRef":     { "value": item_id },
+                "TaxCodeRef":  { "value": "NON" },
             },
         })
 
@@ -573,9 +582,10 @@ def _build_invoice_line_items(order, orderItems: list, item_id: str) -> list:
             "Description": f"Tax ({float(order.tax_rate) * 100:.2f}%)",
             "DetailType":  "SalesItemLineDetail",
             "SalesItemLineDetail": {
-                "Qty":       1,
-                "UnitPrice": float(order.tax_amount),
-                "ItemRef":   { "value": item_id },
+                "Qty":         1,
+                "UnitPrice":   float(order.tax_amount),
+                "ItemRef":     { "value": item_id },
+                "TaxCodeRef":  { "value": "NON" },
             },
         })
 
