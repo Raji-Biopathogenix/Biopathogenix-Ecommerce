@@ -738,7 +738,9 @@ def create_qb_invoice(access_token: str, order, orderItems: list, payment_method
     invoice_payload = {
         "Line":        line_items,
         "CustomerRef": { "value": customer_id },
-        "DocNumber":   f"ORD-{order.id:06d}",
+        # No DocNumber override — QuickBooks assigns its own next
+        # sequential invoice number, same as it always has. The order
+        # number is still traceable via each line's Description.
 
         "CustomerMemo": {
             "value": order.customer_notes or "Thank you for your order!"
