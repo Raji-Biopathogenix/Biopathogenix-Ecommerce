@@ -843,3 +843,83 @@ def refund_qb_charge(
         )
 
     return response.json()
+
+
+def create_qb_refund_receipt(
+    access_token: str,
+    customer_id:  str,
+    amount:       float,
+    description:  str = '',
+) -> dict:
+    """
+    Records a refund in QuickBooks' Accounting books (Sales -> Refund
+    Receipts). refund_qb_charge() only moves the money back via the
+    Payments API — it never touches QuickBooks Online's own invoice
+    and payment history, so without this the books still show the
+    order as fully paid even after the customer has been refunded.
+    """
+    config   = QBConfig.get()
+    base_url = get_qb_accounting_base_url(config)
+    realm_id = config.realm_id
+
+    # RefundReceipt requires a "from" account — every QBO company has
+    # this built-in system account for card/undeposited payments.
+    account_response = requests.get(
+        f"{base_url}/v3/company/{realm_id}/query",
+        headers={
+            "Authorization": f"Bearer {access_token}",
+            "Accept":        "application/json",
+        },
+        params={"query": "SELECT * FROM Account WHERE Name = 'Undeposited Funds'"},
+        timeout=15,
+    )
+    accounts = account_response.json().get("QueryResponse", {}).get("Account", [])
+    if not accounts:
+        raise Exception("Could not find the 'Undeposited Funds' account in QuickBooks for the refund receipt.")
+    deposit_account_id = accounts[0]["Id"]
+
+    item_id = get_or_create_qb_item(access_token, realm_id, base_url)
+
+    refund_payload = {
+        "CustomerRef":         { "value": customer_id },
+        "DepositToAccountRef": { "value": deposit_account_id },
+        "Line": [
+            {
+                "Amount":      float(amount),
+                "DetailType":  "SalesItemLineDetail",
+                "Description": description or "Refund",
+                "SalesItemLineDetail": {
+                    "Qty":        1,
+                    "UnitPrice":  float(amount),
+                    "ItemRef":    { "value": item_id },
+                    "TaxCodeRef": { "value": "NON" },
+                },
+            }
+        ],
+    }
+
+    response = requests.post(
+        f"{base_url}/v3/company/{realm_id}/refundreceipt",
+        headers={
+            "Authorization": f"Bearer {access_token}",
+            "Content-Type":  "application/json",
+            "Accept":        "application/json",
+        },
+        json=refund_payload,
+        timeout=15,
+    )
+
+    if not response.text or not response.text.strip():
+        raise Exception(f"QB RefundReceipt API returned empty response (status {response.status_code})")
+
+    try:
+        data = response.json()
+    except Exception:
+        raise Exception(f"QB RefundReceipt API returned non-JSON (status {response.status_code}): {response.text[:200]}")
+
+    if response.status_code >= 400 or "Fault" in data:
+        raise Exception(f"QB RefundReceipt API error (status {response.status_code}): {data}")
+
+    refund_receipt = data.get("RefundReceipt", {})
+    print(f"QB Refund Receipt created: {refund_receipt.get('Id')} for amount={amount}")
+    return refund_receipt

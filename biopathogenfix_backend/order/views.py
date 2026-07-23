@@ -24,7 +24,8 @@ from payments.utils import (
     charge_card,
     create_qb_invoice,
     notify_admin_critical,
-    refund_qb_charge
+    refund_qb_charge,
+    create_qb_refund_receipt,
 )
 from payments.stripe_utils import refund_stripe_payment, verify_checkout_payment_intent
 from prd_variant.models import ProductSKU
@@ -1067,12 +1068,28 @@ class RefundOrderView(APIView):
         except Exception as e:
             return Response({"status":"error",'message': str(e)},status=400)
 
-        # Check QB status 
+        # Check QB status
         if qb_status == 'DECLINED':
             return Response({"status":"error",'message': f'QB refund declined: {qb_response}'},status=400)
-        
 
-        # Update order 
+        # Record the refund in QB's Accounting books too — refund_qb_charge()
+        # only moves the money via the Payments API, it never touches the
+        # invoice/payment history on its own (never fails the refund itself).
+        if order.user.quickbook_customer_id:
+            try:
+                create_qb_refund_receipt(
+                    access_token=access_token,
+                    customer_id=order.user.quickbook_customer_id,
+                    amount=refund_amount,
+                    description=data.get('refund_notes') or f"Refund for Order #{order.id}",
+                )
+            except Exception as e:
+                logger.error(
+                    f"QB Refund Receipt creation FAILED for Order #{order.id} | "
+                    f"error={e} | ACTION: Manually record refund in QB admin"
+                )
+
+        # Update order
         is_partially_refunded = refund_amount < float(order.amount)
         order.is_partially_refunded = is_partially_refunded
         order.refund_status = qb_status.lower()
