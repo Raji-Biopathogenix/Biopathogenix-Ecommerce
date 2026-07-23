@@ -408,12 +408,76 @@ def is_qb_customer_active(access_token: str, realm_id: str, base_url: str, custo
 
 def get_or_create_qb_customer(access_token: str, realm_id: str, base_url: str, order) -> str:
     """
-    Finds existing QB customer by email or creates a new one.
-    Returns QB customer Id string.
-    """
-    email = order.shipping_email
+    Finds an existing QB customer or creates a new one.
 
-    # Search for existing customer by email 
+    Everyone from the same lab/company shares a single QuickBooks
+    Customer record, matched by CompanyName — so orders placed by
+    different people at the same company all roll up under one
+    customer instead of fragmenting into one-per-person. Orders with
+    no company on file fall back to matching by email, one customer
+    per person, same as before.
+    """
+    company_name = (getattr(order.user, "Company_name", "") or "").strip()
+    email        = order.shipping_email
+
+    if company_name:
+        try:
+            escaped_company = company_name.replace("'", "\\'")
+            search_response = requests.get(
+                f"{base_url}/v3/company/{realm_id}/query",
+                headers={
+                    "Authorization": f"Bearer {access_token}",
+                    "Accept":        "application/json",
+                },
+                params={"query": f"SELECT * FROM Customer WHERE CompanyName = '{escaped_company}'"},
+                timeout=15,
+            )
+            companies = search_response.json().get("QueryResponse", {}).get("Customer", [])
+            active_companies = [c for c in companies if c.get("Active", True)]
+            print(
+                f"QB Customer search for company '{company_name}': found {len(companies)} total, "
+                f"{len(active_companies)} active"
+            )
+            if active_companies:
+                print(f"QB Customer found: {active_companies[0]['Id']} for company '{company_name}'")
+                return active_companies[0]["Id"]
+        except Exception as e:
+            logger.warning(f"QB company customer search failed, will create new: {e}")
+
+        create_response = requests.post(
+            f"{base_url}/v3/company/{realm_id}/customer",
+            headers={
+                "Authorization": f"Bearer {access_token}",
+                "Content-Type":  "application/json",
+                "Accept":        "application/json",
+            },
+            json={
+                "CompanyName":      company_name,
+                "DisplayName":      company_name,
+                "PrimaryEmailAddr": { "Address": email },
+                "PrimaryPhone":     { "FreeFormNumber": order.shipping_phone or "" },
+                "BillAddr": {
+                    "Line1":                  order.billing_address_line1,
+                    "City":                   order.billing_city,
+                    "CountrySubDivisionCode": order.billing_state,
+                    "PostalCode":             order.billing_postal_code,
+                    "Country":                "US",
+                },
+            },
+            timeout=15,
+        )
+
+        customer = create_response.json().get("Customer", {})
+        customer_id = customer.get("Id")
+
+        if not customer_id:
+            logger.error(f"QB Customer creation failed for company '{company_name}': {create_response.json()}")
+            raise Exception("Failed to create QB customer.")
+
+        print(f"QB Customer created: {customer_id} for company '{company_name}'")
+        return customer_id
+
+    # No company on file — fall back to one customer per person, by email.
     try:
         search_response = requests.get(
             f"{base_url}/v3/company/{realm_id}/query",
@@ -440,7 +504,7 @@ def get_or_create_qb_customer(access_token: str, realm_id: str, base_url: str, o
     except Exception as e:
         logger.warning(f"QB customer search failed, will create new: {e}")
 
-    # Create new QB customer 
+    # Create new QB customer
     create_response = requests.post(
         f"{base_url}/v3/company/{realm_id}/customer",
         headers={
