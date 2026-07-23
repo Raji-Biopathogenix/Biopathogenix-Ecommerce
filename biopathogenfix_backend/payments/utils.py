@@ -479,7 +479,14 @@ def get_or_create_qb_item(access_token: str, realm_id: str, base_url: str) -> st
             "Create at least one Item (Sales -> Products and Services) before invoicing."
         )
 
-    chosen = sellable[0]
+    # Prefer Service/NonInventory items — they have no linked Inventory
+    # Asset account or quantity tracking, so they're less likely to hit
+    # a broken/inactive account reference, and don't decrement real
+    # stock when used for generic lines like Shipping or Tax.
+    preferred = [i for i in sellable if i.get("Type") in ("Service", "NonInventory")]
+    chosen_pool = preferred or sellable
+
+    chosen = chosen_pool[0]
     print(
         f"QB Item selected for invoice lines: {chosen.get('Id')} "
         f"({chosen.get('Name')}, type={chosen.get('Type')})"
