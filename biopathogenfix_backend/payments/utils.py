@@ -626,6 +626,38 @@ def get_qb_item_by_sku(access_token: str, realm_id: str, base_url: str, sku: str
     return None
 
 
+def get_qb_shipping_item_id(access_token: str, realm_id: str, base_url: str):
+    """
+    Looks up a QuickBooks Item named "Shipping" to use for the shipping
+    line. If your account's Sales form content has "Shipping" enabled
+    and QuickBooks auto-created its reserved shipping Item, using it
+    here is what makes the shipping charge break out into its own
+    SHIPPING summary row on the invoice, instead of an inline Activity
+    row. Returns None if no such Item exists — caller falls back to
+    the default Item, same behavior as before.
+    """
+    try:
+        response = requests.get(
+            f"{base_url}/v3/company/{realm_id}/query",
+            headers={
+                "Authorization": f"Bearer {access_token}",
+                "Accept":        "application/json",
+            },
+            params={"query": "SELECT * FROM Item WHERE Name = 'Shipping'"},
+            timeout=15,
+        )
+        items = response.json().get("QueryResponse", {}).get("Item", [])
+        matches = [i for i in items if i.get("Active", True)]
+        if matches:
+            print(f"QB Shipping item found: {matches[0].get('Id')} ({matches[0].get('Name')})")
+            return matches[0]["Id"]
+    except Exception as e:
+        print(f"QB Shipping item lookup failed: {e}")
+
+    print("No QB Item named 'Shipping' found — using default item")
+    return None
+
+
 def _build_invoice_line_items(
     access_token: str, realm_id: str, base_url: str,
     order, orderItems: list, default_item_id: str,
@@ -662,8 +694,11 @@ def _build_invoice_line_items(
             },
         })
 
-    #  Shipping line
+    #  Shipping line — uses the account's reserved "Shipping" Item when
+    #  one exists, so it can render as its own summary row like it does
+    #  on MyWorks-synced invoices, falling back to the default Item.
     if float(order.shipping_cost) > 0:
+        shipping_item_id = get_qb_shipping_item_id(access_token, realm_id, base_url)
         line_items.append({
             "LineNum":     len(line_items) + 1,
             "Amount":      float(order.shipping_cost),
@@ -672,7 +707,7 @@ def _build_invoice_line_items(
             "SalesItemLineDetail": {
                 "Qty":         1,
                 "UnitPrice":   float(order.shipping_cost),
-                "ItemRef":     { "value": default_item_id },
+                "ItemRef":     { "value": shipping_item_id or default_item_id },
                 "TaxCodeRef":  { "value": "NON" },
             },
         })
