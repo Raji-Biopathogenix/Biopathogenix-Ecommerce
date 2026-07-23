@@ -379,6 +379,33 @@ def notify_admin_critical(transaction_id: str, user_id: int, email: str, amount:
 
 
 
+def is_qb_customer_active(access_token: str, realm_id: str, base_url: str, customer_id: str) -> bool:
+    """
+    Checks whether a previously-saved QB customer Id is still active.
+    A cached Id from a different environment (or a since-deactivated
+    customer) would otherwise be reused forever and break invoicing.
+    """
+    try:
+        response = requests.get(
+            f"{base_url}/v3/company/{realm_id}/customer/{customer_id}",
+            headers={
+                "Authorization": f"Bearer {access_token}",
+                "Accept":        "application/json",
+            },
+            timeout=15,
+        )
+        if response.status_code != 200:
+            print(f"QB customer id={customer_id} lookup failed (status {response.status_code})")
+            return False
+        customer = response.json().get("Customer", {})
+        active = bool(customer.get("Active", False))
+        print(f"QB cached customer id={customer_id} Active={active}")
+        return active
+    except Exception as e:
+        print(f"QB customer id={customer_id} lookup error: {e}")
+        return False
+
+
 def get_or_create_qb_customer(access_token: str, realm_id: str, base_url: str, order) -> str:
     """
     Finds existing QB customer by email or creates a new one.
@@ -400,9 +427,16 @@ def get_or_create_qb_customer(access_token: str, realm_id: str, base_url: str, o
             timeout=15,
         )
         customers = search_response.json().get("QueryResponse", {}).get("Customer", [])
-        if customers:
-            print(f"QB Customer found: {customers[0]['Id']} for {email} (Active={customers[0].get('Active')})")
-            return customers[0]["Id"]
+        active_customers = [c for c in customers if c.get("Active", True)]
+        print(
+            f"QB Customer search for {email}: found {len(customers)} total, "
+            f"{len(active_customers)} active — {[(c.get('Id'), c.get('Active')) for c in customers]}"
+        )
+        if active_customers:
+            print(f"QB Customer found: {active_customers[0]['Id']} for {email}")
+            return active_customers[0]["Id"]
+        elif customers:
+            print(f"QB Customer match for {email} is inactive — creating a new one instead")
     except Exception as e:
         logger.warning(f"QB customer search failed, will create new: {e}")
 
@@ -629,13 +663,19 @@ def create_qb_invoice(access_token: str, order, orderItems: list, payment_method
 
 
 
-    # Step 1: Get or create QB customer
-    if not user.quickbook_customer_id:
+    # Step 1: Get or create QB customer — re-validate a cached Id
+    # rather than trusting it forever (it may belong to a different
+    # QB environment/company, or have since been deactivated).
+    customer_id = None
+    if user.quickbook_customer_id and is_qb_customer_active(
+        access_token, realm_id, base_url, user.quickbook_customer_id
+    ):
+        customer_id = user.quickbook_customer_id
+
+    if not customer_id:
         customer_id = get_or_create_qb_customer(access_token, realm_id, base_url, order)
         user.quickbook_customer_id = customer_id
         user.save(update_fields=["quickbook_customer_id"])
-    else:
-        customer_id = user.quickbook_customer_id
 
     print(f"QB invoice for Order #{order.id} using customer_id={customer_id} realm_id={realm_id}")
 
