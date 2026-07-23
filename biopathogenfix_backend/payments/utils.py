@@ -528,7 +528,44 @@ def get_or_create_qb_item(access_token: str, realm_id: str, base_url: str) -> st
     return chosen["Id"]
 
 
-def _build_invoice_line_items(order, orderItems: list, item_id: str) -> list:
+def get_qb_item_by_sku(access_token: str, realm_id: str, base_url: str, sku: str):
+    """
+    Looks up a QuickBooks Item whose Sku matches a product's own SKU,
+    so invoice lines show the real product (e.g. "STI Quadraplex Kit -
+    250 Reactions") instead of a generic catch-all. Returns None if no
+    active, sellable match exists — caller falls back to a default Item,
+    mirroring the "Default for Unmatched Products" pattern.
+    """
+    if not sku:
+        return None
+
+    escaped_sku = sku.replace("'", "\\'")
+    try:
+        response = requests.get(
+            f"{base_url}/v3/company/{realm_id}/query",
+            headers={
+                "Authorization": f"Bearer {access_token}",
+                "Accept":        "application/json",
+            },
+            params={"query": f"SELECT * FROM Item WHERE Sku = '{escaped_sku}'"},
+            timeout=15,
+        )
+        items = response.json().get("QueryResponse", {}).get("Item", [])
+        matches = [i for i in items if i.get("Active", True) and i.get("Type") not in ("Category", "Group")]
+        if matches:
+            print(f"QB Item matched by SKU '{sku}': {matches[0].get('Id')} ({matches[0].get('Name')})")
+            return matches[0]["Id"]
+    except Exception as e:
+        print(f"QB Item lookup by SKU '{sku}' failed: {e}")
+
+    print(f"No QB Item match for SKU '{sku}' — using default item")
+    return None
+
+
+def _build_invoice_line_items(
+    access_token: str, realm_id: str, base_url: str,
+    order, orderItems: list, default_item_id: str,
+) -> list:
     """
     Builds QB invoice line items from order items.
     Includes products, shipping, and tax as separate lines.
@@ -542,9 +579,11 @@ def _build_invoice_line_items(order, orderItems: list, item_id: str) -> list:
     # charge on top — silently inflating the invoice total and leaving
     # a fake "balance due" even though the order was paid in full.
 
-    #  Product lines
+    #  Product lines — matched to the real QB Item by SKU when possible,
+    #  falling back to the generic default Item otherwise.
     for i, item in enumerate(orderItems, start=1):
         line_amount = float(item.unit_price) * int(item.quantity)
+        matched_item_id = get_qb_item_by_sku(access_token, realm_id, base_url, item.sku_code)
         line_items.append({
             "Id":          str(i),
             "LineNum":     i,
@@ -554,7 +593,7 @@ def _build_invoice_line_items(order, orderItems: list, item_id: str) -> list:
             "SalesItemLineDetail": {
                 "Qty":         int(item.quantity),
                 "UnitPrice":   float(item.unit_price),
-                "ItemRef":     { "value": item_id },
+                "ItemRef":     { "value": matched_item_id or default_item_id },
                 "TaxCodeRef":  { "value": "NON" },
             },
         })
@@ -569,7 +608,7 @@ def _build_invoice_line_items(order, orderItems: list, item_id: str) -> list:
             "SalesItemLineDetail": {
                 "Qty":         1,
                 "UnitPrice":   float(order.shipping_cost),
-                "ItemRef":     { "value": item_id },
+                "ItemRef":     { "value": default_item_id },
                 "TaxCodeRef":  { "value": "NON" },
             },
         })
@@ -584,7 +623,7 @@ def _build_invoice_line_items(order, orderItems: list, item_id: str) -> list:
             "SalesItemLineDetail": {
                 "Qty":         1,
                 "UnitPrice":   float(order.tax_amount),
-                "ItemRef":     { "value": item_id },
+                "ItemRef":     { "value": default_item_id },
                 "TaxCodeRef":  { "value": "NON" },
             },
         })
@@ -690,8 +729,10 @@ def create_qb_invoice(access_token: str, order, orderItems: list, payment_method
     print(f"QB invoice for Order #{order.id} using customer_id={customer_id} realm_id={realm_id}")
 
     # Step 2: Build line items
-    item_id = get_or_create_qb_item(access_token, realm_id, base_url)
-    line_items = _build_invoice_line_items(order, orderItems, item_id)
+    default_item_id = get_or_create_qb_item(access_token, realm_id, base_url)
+    line_items = _build_invoice_line_items(
+        access_token, realm_id, base_url, order, orderItems, default_item_id,
+    )
 
     # Step 3: Build invoice payload 
     invoice_payload = {
