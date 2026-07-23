@@ -17,6 +17,9 @@ class OrderAdmin(admin.ModelAdmin):
     search_fields = ("shipping_email", "shipping_first_name", "shipping_last_name", "user__email")
     inlines = (OrderStatusUpdateInline,)
 
+    def has_delete_permission(self, request, obj=None):
+        return False
+
     def get_queryset(self, request):
         return super().get_queryset(request).prefetch_related("items")
 
