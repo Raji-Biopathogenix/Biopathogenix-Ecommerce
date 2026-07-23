@@ -452,6 +452,33 @@ class CalculateTaxView(APIView):
                 status=status.HTTP_400_BAD_REQUEST
             )
 
+        # --- QuickBooks tax path ---
+        if tax_row.provider == "quickbooks":
+            from decimal import Decimal
+            from order.tax_service import _calculate_with_quickbooks
+            try:
+                qb_tax_amount, qb_tax_rate, _county = _calculate_with_quickbooks(
+                    subtotal=Decimal(str(data['amount'])),
+                    shipping_cost=Decimal(str(data.get('shipping', 0) or 0)),
+                    to_state=data['shipping_state'],
+                    to_zip=data['shipping_postal_code'],
+                    to_country=data['shipping_country'],
+                    to_city=data.get('shipping_city', ''),
+                    to_street=data.get('shipping_address_line1', ''),
+                )
+            except Exception as e:
+                logger.warning("QuickBooks tax calculation failed | error=%s", e)
+                return Response({'error': f'Unable to calculate tax from QuickBooks: {e}'}, status=status.HTTP_400_BAD_REQUEST)
+
+            return Response({"status": "success", "result": {
+                "amount_to_collect": float(qb_tax_amount),
+                "rate":              float(qb_tax_rate),
+                "has_nexus":         float(qb_tax_amount) > 0,
+                "taxable_amount":    float(data['amount']),
+                "freight_taxable":   False,
+            }}, status=200)
+
+        # --- TaxJar path (used when provider is set to "taxjar") ---
         payload = {
             # Ship FROM — your warehouse
             'from_country': tax_row.nexus_country ,
@@ -476,14 +503,14 @@ class CalculateTaxView(APIView):
                 {
                     'id':str(item.id),
                     'quantity':int(item.quantity),
-                    'unit_price':float(item.price),  
+                    'unit_price':float(item.price),
                     'discount':float(0),
                     # item.get('discount', 0),
                     # 'product_tax_code':  item.get('product_tax_code', ''),
                 }
                 for item in cart_items
             ],
-        
+
         }
         response = requests.post(f'{get_base_url(tax_row)}/taxes',headers=get_taxjar_headers(tax_row),json=payload,)
         # TaxJar returned an error
