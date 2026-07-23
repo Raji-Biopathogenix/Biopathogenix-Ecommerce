@@ -668,12 +668,14 @@ def _build_invoice_line_items(
     """
     line_items = []
 
-    # Every line is marked non-taxable ("NON") because tax is already
-    # calculated by TaxJar/our own logic and included as its own line
-    # below. Without this, QuickBooks' automatic sales tax engine also
-    # taxes each Taxable-flagged Item and adds a second, separate tax
-    # charge on top — silently inflating the invoice total and leaving
-    # a fake "balance due" even though the order was paid in full.
+    # Lines are marked taxable ("TAX") so QuickBooks' own Automated
+    # Sales Tax engine calculates and displays tax in its native TAX
+    # summary field, instead of it sitting as its own inline Activity
+    # row. This is safe now that checkout itself sources tax from
+    # QuickBooks (see _calculate_with_quickbooks) — the invoice asks
+    # the same engine the same question a second time, so it should
+    # reproduce the same amount already charged. There's no separate
+    # manual Tax line anymore; QuickBooks supplies that number itself.
 
     #  Product lines — matched to the real QB Item by SKU when possible,
     #  falling back to the generic default Item otherwise.
@@ -690,7 +692,7 @@ def _build_invoice_line_items(
                 "Qty":         int(item.quantity),
                 "UnitPrice":   float(item.unit_price),
                 "ItemRef":     { "value": matched_item_id or default_item_id },
-                "TaxCodeRef":  { "value": "NON" },
+                "TaxCodeRef":  { "value": "TAX" },
             },
         })
 
@@ -708,25 +710,9 @@ def _build_invoice_line_items(
                 "Qty":         1,
                 "UnitPrice":   float(order.shipping_cost),
                 "ItemRef":     { "value": shipping_item_id or default_item_id },
-                "TaxCodeRef":  { "value": "NON" },
+                "TaxCodeRef":  { "value": "TAX" },
             },
         })
-
-    #  Tax line
-    if float(order.tax_amount) > 0:
-        line_items.append({
-            "LineNum":     len(line_items) + 1,
-            "Amount":      float(order.tax_amount),
-            "Description": f"Tax ({float(order.tax_rate) * 100:.2f}%)",
-            "DetailType":  "SalesItemLineDetail",
-            "SalesItemLineDetail": {
-                "Qty":         1,
-                "UnitPrice":   float(order.tax_amount),
-                "ItemRef":     { "value": default_item_id },
-                "TaxCodeRef":  { "value": "NON" },
-            },
-        })
-
 
     return line_items
 
