@@ -73,25 +73,25 @@ export default function HeroCarousel({ result }: HeroCarouselprops) {
       key: "top-left",
       src: images?.[0]?.image,
       alt: images?.[0]?.alt_text || "BioPathogenix sample image",
-      className: "left-[49%] top-[18%] z-20 h-[27%] w-[17%] md:left-[47%] md:h-[28%] md:w-[16%] lg:left-[48%] lg:h-[30%] lg:w-[15%]",
+      className: "left-0 top-0 z-20 h-[42%] w-[46%]",
     },
     {
       key: "top-right",
       src: images?.[1]?.image,
       alt: images?.[1]?.alt_text || "BioPathogenix lab image",
-      className: "right-[6%] top-[13%] z-10 h-[47%] w-[33%] md:right-[6%] md:h-[48%] md:w-[31%] lg:right-[6%] lg:h-[49%] lg:w-[30%]",
+      className: "right-0 top-[6%] z-10 h-[58%] w-[54%]",
     },
     {
       key: "bottom-left",
       src: images?.[2]?.image,
       alt: images?.[2]?.alt_text || "BioPathogenix tube image",
-      className: "left-[41%] bottom-[5%] z-30 h-[37%] w-[31%] md:left-[40%] md:h-[38%] md:w-[30%] lg:left-[41%] lg:h-[39%] lg:w-[29%]",
+      className: "bottom-0 left-[6%] z-30 h-[58%] w-[54%]",
     },
     {
       key: "bottom-right",
       src: images?.[3]?.image,
       alt: images?.[3]?.alt_text || "BioPathogenix microscope image",
-      className: "right-[6%] bottom-[12%] z-20 h-[26%] w-[15%] md:right-[6%] md:h-[27%] md:w-[14%] lg:right-[6%] lg:h-[28%] lg:w-[13%]",
+      className: "bottom-0 right-0 z-20 h-[42%] w-[46%]",
     },
   ];
 
@@ -136,7 +136,7 @@ export default function HeroCarousel({ result }: HeroCarouselprops) {
           </button>
         </div>
 
-        <div className="relative hidden h-[520px] w-full shrink-0 sm:block lg:h-[620px] lg:w-[54%]">
+        <div className="relative hidden h-[440px] w-full max-w-[560px] shrink-0 sm:block lg:h-[560px] lg:w-[54%]">
           {heroSlots.map((slot) => (
             <HexImage key={slot.key} src={slot.src} alt={slot.alt} className={slot.className} />
           ))}
