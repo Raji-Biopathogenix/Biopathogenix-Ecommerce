@@ -111,11 +111,11 @@ export default function HeroCarousel({ result }: HeroCarouselprops) {
     >
       <div className="mx-auto flex max-w-[1320px] flex-col items-center gap-12 lg:flex-row lg:items-start lg:justify-between lg:gap-6">
         <div className="w-full max-w-[620px] lg:w-[46%]">
-          <p className="mb-5 text-[0.82rem] font-bold tracking-[0.22em] text-[#16325f]">
+          <p className="mb-5 text-[0.88rem] font-bold tracking-[0.22em] text-[#16325f]">
             ADVANCED MULTIPLEX
           </p>
 
-          <h1 className="mb-6 max-w-[620px] font-['Quicksand'] text-[2.9rem] font-bold leading-[1.05] tracking-[-0.02em] text-[#132a52] sm:text-[3.6rem] md:text-[4.1rem] lg:text-[4.2rem]">
+          <h1 className="mb-6 max-w-[640px] font-['Quicksand'] text-[3.2rem] font-bold leading-[1.05] tracking-[-0.02em] text-[#132a52] sm:text-[3.9rem] md:text-[4.4rem] lg:text-[4.6rem]">
             qPCR Assays
             <br />
             and <span className="text-[#3d7ec2]">Integrated</span>
@@ -123,11 +123,11 @@ export default function HeroCarousel({ result }: HeroCarouselprops) {
             <span className="text-[#3d7ec2]">Molecular</span>
           </h1>
 
-          <p className="mb-5 text-[1.14rem] font-semibold leading-snug text-[#17315b] sm:text-[1.22rem]">
+          <p className="mb-5 text-[1.24rem] font-semibold leading-snug text-[#17315b] sm:text-[1.32rem]">
             Workflow Solutions for Pathogen Detection.
           </p>
 
-          <p className="mb-10 max-w-[560px] text-[0.98rem] leading-[1.75] text-[#3d4c60] sm:text-[1rem]">
+          <p className="mb-10 max-w-[580px] text-[1.05rem] leading-[1.75] text-[#3d4c60] sm:text-[1.08rem]">
             BioPathogenix, headquartered in Nicholasville, Kentucky, specializes in the
             development of high-performance multiplex qPCR assays, custom pathogen detection
             panel and integrated nucleic acid workflow solutions designed to support infectious
