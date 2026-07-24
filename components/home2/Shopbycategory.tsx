@@ -4,7 +4,7 @@ import { useRouter } from "next/navigation";
 
 
 interface ShopByCategoryprops{
-  result: LandingPageType
+  result?: LandingPageType
 }
 
 
@@ -18,7 +18,7 @@ export default function ShopByCategory({result}:ShopByCategoryprops) {
       </h2>
 
       <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
-        {result?.contexts.map((cat,index) => (
+        {result?.contexts?.map((cat,index) => (
           <div
             key={cat.id ?? cat.title}
             className="bg-white rounded-xl p-4 flex flex-col gap-3"

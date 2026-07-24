@@ -1,5 +1,6 @@
 import { API_BASE_URL } from "@/config/env";
 import { LandingPageResponse } from "@/types/header";
+import { LandingPageType } from "@/types/header";
 import HeroCarousel from "@/components/home2/HeroCarousel";
 import Shopbycategory from '@/components/home2/Shopbycategory';
 import HighPerformanceMultiplex from "@/components/home2/HighPerformanceMultiplex";
@@ -24,13 +25,24 @@ async function fetchLandingPageContext(): Promise<LandingPageResult | null> {
   }
 }
 
-// Landing page sections, in the order they must be created in Django admin
-// (LandingPageType.order 0-5): Hero, Shop by Category, Primary Conversion
-// Pathways, Supporting Scientific Community, Product Catalog, Offers.
-// High Performance Multiplex is fully static and isn't admin-managed.
+// Sections are matched by name keyword, not by array position - this way a
+// section that's missing, renamed, or reordered in Django admin can never be
+// silently swapped with a different one. Give each LandingPageType a `name`
+// containing one of these keywords (case-insensitive).
+function findSection(data: LandingPageType[], keywords: string[]): LandingPageType | undefined {
+  return data.find((item) => keywords.some((keyword) => item?.name?.toLowerCase().includes(keyword)));
+}
+
 export default async function Home() {
   const landingPageContext = await fetchLandingPageContext();
   const pageContents = landingPageContext?.data ?? [];
+
+  const hero = findSection(pageContents, ["hero"]);
+  const shopByCategory = findSection(pageContents, ["categor"]);
+  const conversionPathways = findSection(pageContents, ["conversion", "pathway"]);
+  const supportingCommunity = findSection(pageContents, ["scientific", "communit"]);
+  const productCatalog = findSection(pageContents, ["catalog"]);
+  const offers = findSection(pageContents, ["offer"]);
 
   return (
     <main className="min-h-screen bg-white">
@@ -38,16 +50,16 @@ export default async function Home() {
         <>
           <section className="px-4 pb-8 pt-4 md:px-6 lg:px-8">
             <div className="space-y-4">
-              <OffersSection result={pageContents[5]} />
-              <HeroCarousel result={pageContents[0]} />
+              <OffersSection result={offers} />
+              <HeroCarousel result={hero} />
             </div>
           </section>
           <div className="flex flex-col gap-8 pb-10">
-            <Shopbycategory result={pageContents[1]} />
+            <Shopbycategory result={shopByCategory} />
             <HighPerformanceMultiplex />
-            <PrimaryConversionPathways result={pageContents[2]} />
-            <SupportingScientificCommunity result={pageContents[3]} />
-            <ProductCatalogBanner result={pageContents[4]} />
+            <PrimaryConversionPathways result={conversionPathways} />
+            <SupportingScientificCommunity result={supportingCommunity} />
+            <ProductCatalogBanner result={productCatalog} />
           </div>
         </>
       ) : (
