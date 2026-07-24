@@ -73,25 +73,25 @@ export default function HeroCarousel({ result }: HeroCarouselprops) {
       key: "top-left",
       src: images?.[0]?.image,
       alt: images?.[0]?.alt_text || "BioPathogenix sample image",
-      className: "left-0 top-0 z-20 h-[44%] w-[48%]",
+      className: "left-0 top-[10%] z-20 h-[38%] w-[40%]",
     },
     {
       key: "top-right",
       src: images?.[1]?.image,
       alt: images?.[1]?.alt_text || "BioPathogenix lab image",
-      className: "right-0 top-[3%] z-10 h-[60%] w-[56%]",
+      className: "right-0 top-0 z-10 h-[64%] w-[62%]",
     },
     {
       key: "bottom-left",
       src: images?.[2]?.image,
       alt: images?.[2]?.alt_text || "BioPathogenix tube image",
-      className: "bottom-0 left-[3%] z-30 h-[60%] w-[56%]",
+      className: "bottom-0 left-0 z-30 h-[62%] w-[62%]",
     },
     {
       key: "bottom-right",
       src: images?.[3]?.image,
       alt: images?.[3]?.alt_text || "BioPathogenix microscope image",
-      className: "bottom-0 right-0 z-20 h-[44%] w-[48%]",
+      className: "bottom-[8%] right-0 z-20 h-[38%] w-[40%]",
     },
   ];
 
@@ -136,7 +136,7 @@ export default function HeroCarousel({ result }: HeroCarouselprops) {
           </button>
         </div>
 
-        <div className="relative hidden h-[480px] w-full max-w-[600px] shrink-0 sm:block lg:h-[640px] lg:w-[54%]">
+        <div className="relative hidden h-[520px] w-full max-w-[580px] shrink-0 sm:block lg:h-[720px] lg:w-[54%]">
           {heroSlots.map((slot) => (
             <HexImage key={slot.key} src={slot.src} alt={slot.alt} className={slot.className} />
           ))}
