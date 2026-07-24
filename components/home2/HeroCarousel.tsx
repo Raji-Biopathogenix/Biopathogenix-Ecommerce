@@ -104,23 +104,24 @@ export default function HeroCarousel({ result }: HeroCarouselprops) {
     >
       <div className="mx-auto flex max-w-[1320px] flex-col items-center gap-12 lg:flex-row lg:items-start lg:justify-between lg:gap-6">
         <div className="w-full max-w-[620px] lg:w-[46%]">
-          <p className="mb-5 text-[0.82rem] font-bold tracking-[0.22em] text-[#16325f]">
+          <span className="mb-6 inline-flex items-center gap-2 rounded-full border border-[#c7dcee] bg-white/70 px-4 py-1.5 text-[0.78rem] font-bold tracking-[0.18em] text-[#16325f]">
+            <span className="h-1.5 w-1.5 rounded-full bg-[#3ab5d0]" />
             ADVANCED MULTIPLEX
-          </p>
+          </span>
 
-          <h1 className="mb-6 max-w-[620px] text-[3.15rem] font-[500] leading-[0.92] tracking-[-0.055em] text-[#163061] sm:text-[4.3rem] md:text-[4.85rem] lg:text-[4.95rem]">
+          <h1 className="mb-6 max-w-[620px] text-[2.9rem] font-bold leading-[1.05] tracking-[-0.02em] text-[#132a52] sm:text-[3.6rem] md:text-[4.1rem] lg:text-[4.2rem]">
             qPCR Assays
             <br />
-            and <span className="text-[#5c98d6]">Integrated</span>
+            and <span className="text-[#3d7ec2]">Integrated</span>
             <br />
-            <span className="text-[#5c98d6]">Molecular</span>
+            <span className="text-[#3d7ec2]">Molecular</span>
           </h1>
 
           <p className="mb-5 text-[1.14rem] font-semibold leading-snug text-[#17315b] sm:text-[1.22rem]">
             Workflow Solutions for Pathogen Detection.
           </p>
 
-          <p className="mb-10 max-w-[560px] text-[0.98rem] leading-7 text-[#28384d] sm:text-[1rem]">
+          <p className="mb-10 max-w-[560px] text-[0.98rem] leading-[1.75] text-[#3d4c60] sm:text-[1rem]">
             BioPathogenix, headquartered in Nicholasville, Kentucky, specializes in the
             development of high-performance multiplex qPCR assays, custom pathogen detection
             panel and integrated nucleic acid workflow solutions designed to support infectious
@@ -128,7 +129,7 @@ export default function HeroCarousel({ result }: HeroCarouselprops) {
           </p>
 
           <button
-            className="inline-flex min-w-[217px] items-center justify-center gap-4 rounded-lg bg-[#264d87] px-8 py-4 text-[1.02rem] font-semibold text-white shadow-[0_12px_24px_rgba(33,73,129,0.22)] transition-colors hover:bg-[#183d6c]"
+            className="inline-flex min-w-[217px] items-center justify-center gap-4 rounded-lg bg-[#173864] px-8 py-4 text-[1.02rem] font-semibold text-white shadow-[0_16px_28px_rgba(23,56,100,0.25)] transition-colors hover:bg-[#0f2a4d]"
             onClick={() => router.push(context?.btn_url || "#")}
           >
             <span>{context?.btn_text || "Shop Now"}</span>
