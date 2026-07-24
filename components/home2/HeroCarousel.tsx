@@ -19,6 +19,13 @@ type HexSlotProps = {
   className: string;
 };
 
+// A regular flat-top hexagon under HEX_CLIP is exactly 2/sqrt(3) (~1.1547)
+// times wider than it is tall. Only ever set height as a % of the
+// container and let width derive from this ratio - setting width and
+// height independently is what caused the tiles to render as squished or
+// stretched diamonds instead of proper hexagons.
+const HEX_RATIO = 1.1547;
+
 function HexImage({ src, alt, className }: HexSlotProps) {
   const [hasError, setHasError] = useState(false);
   const showPlaceholder = !src || hasError;
@@ -26,7 +33,7 @@ function HexImage({ src, alt, className }: HexSlotProps) {
   return (
     <div
       className={`absolute overflow-hidden bg-white p-1.5 shadow-[0_14px_30px_rgba(18,53,93,0.10)] sm:p-2 ${className}`}
-      style={{ clipPath: HEX_CLIP }}
+      style={{ clipPath: HEX_CLIP, aspectRatio: HEX_RATIO }}
     >
       <div
         className="relative h-full w-full overflow-hidden"
@@ -73,25 +80,25 @@ export default function HeroCarousel({ result }: HeroCarouselprops) {
       key: "top-left",
       src: images?.[0]?.image,
       alt: images?.[0]?.alt_text || "BioPathogenix sample image",
-      className: "left-0 top-[10%] z-20 h-[38%] w-[40%]",
+      className: "left-0 top-[15%] z-20 w-[40%]",
     },
     {
       key: "top-right",
       src: images?.[1]?.image,
       alt: images?.[1]?.alt_text || "BioPathogenix lab image",
-      className: "right-0 top-0 z-10 h-[64%] w-[62%]",
+      className: "right-0 top-0 z-10 w-[65%]",
     },
     {
       key: "bottom-left",
       src: images?.[2]?.image,
       alt: images?.[2]?.alt_text || "BioPathogenix tube image",
-      className: "bottom-0 left-0 z-30 h-[62%] w-[62%]",
+      className: "bottom-0 left-0 z-30 w-[65%]",
     },
     {
       key: "bottom-right",
       src: images?.[3]?.image,
       alt: images?.[3]?.alt_text || "BioPathogenix microscope image",
-      className: "bottom-[8%] right-0 z-20 h-[38%] w-[40%]",
+      className: "bottom-[16%] right-0 z-20 w-[40%]",
     },
   ];
 
@@ -136,7 +143,7 @@ export default function HeroCarousel({ result }: HeroCarouselprops) {
           </button>
         </div>
 
-        <div className="relative hidden h-[520px] w-full max-w-[580px] shrink-0 sm:block lg:h-[720px] lg:w-[54%]">
+        <div className="relative hidden h-[460px] w-full max-w-[580px] shrink-0 sm:block lg:h-[620px] lg:w-[54%]">
           {heroSlots.map((slot) => (
             <HexImage key={slot.key} src={slot.src} alt={slot.alt} className={slot.className} />
           ))}
