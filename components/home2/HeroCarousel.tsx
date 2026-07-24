@@ -1,11 +1,10 @@
 "use client";
 import { useMemo } from "react";
 import { LandingPageType } from "@/types/header";
-import DOMPurify from "isomorphic-dompurify";
 import { useRouter } from "next/navigation";
 
 interface HeroCarouselprops {
-  result: LandingPageType;
+  result?: LandingPageType;
 }
 
 const HEX_CLIP = "polygon(25% 0%, 75% 0%, 100% 50%, 75% 100%, 25% 100%, 0% 50%)";
@@ -49,36 +48,32 @@ export default function HeroCarousel({ result }: HeroCarouselprops) {
             ADVANCED MULTIPLEX
           </p>
 
-          {context?.title && (
-            <h1
-              className="mb-6 text-[2.6rem] font-extrabold leading-[1.08] text-[#0d1f3c] md:text-[3.4rem]"
-              dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(context.title) }}
-            />
-          )}
+          <h1 className="mb-6 text-[2.6rem] font-extrabold leading-[1.08] text-[#0d1f3c] md:text-[3.4rem]">
+            qPCR Assays
+            <br />
+            and <span className="text-[#3ab5d0]">Integrated</span>
+            <br />
+            <span className="text-[#3ab5d0]">Molecular</span>
+          </h1>
 
-          {context?.short_description && (
-            <div
-              className="cms-content mb-4 text-[1.15rem] font-semibold leading-snug text-[#0d1f3c]"
-              dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(context.short_description) }}
-            />
-          )}
+          <p className="mb-4 text-[1.15rem] font-semibold leading-snug text-[#0d1f3c]">
+            Workflow Solutions for Pathogen Detection.
+          </p>
 
-          {context?.description && (
-            <div
-              className="cms-content mb-9 max-w-[540px] text-[0.98rem] leading-7 text-[#4a5f7a]"
-              dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(context.description) }}
-            />
-          )}
+          <p className="mb-9 max-w-[540px] text-[0.98rem] leading-7 text-[#4a5f7a]">
+            BioPathogenix, headquartered in Nicholasville, Kentucky, specializes in the
+            development of high-performance multiplex qPCR assays, custom pathogen detection
+            panel and integrated nucleic acid workflow solutions designed to support infectious
+            pathogen detection, scientific research and laboratory innovation.
+          </p>
 
-          {context?.btn_text && (
-            <button
-              className="inline-flex items-center gap-3 rounded-lg bg-[#0d2a4e] px-8 py-3.5 text-base font-semibold text-white transition-colors hover:bg-[#173d69]"
-              onClick={() => router.push(context.btn_url || "#")}
-            >
-              {context.btn_text}
-              <span className="border-l border-white/30 pl-3">→</span>
-            </button>
-          )}
+          <button
+            className="inline-flex items-center gap-3 rounded-lg bg-[#0d2a4e] px-8 py-3.5 text-base font-semibold text-white transition-colors hover:bg-[#173d69]"
+            onClick={() => router.push(context?.btn_url || "#")}
+          >
+            Shop Now
+            <span className="border-l border-white/30 pl-3">→</span>
+          </button>
         </div>
 
         {/* Right — hexagon photo collage */}
