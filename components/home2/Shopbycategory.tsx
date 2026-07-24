@@ -20,7 +20,7 @@ export default function ShopByCategory({result}:ShopByCategoryprops) {
       <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
         {result?.contexts.map((cat,index) => (
           <div
-            key={cat.title}
+            key={cat.id ?? cat.title}
             className="bg-white rounded-xl p-4 flex flex-col gap-3"
           >
             <p className="text-[0.85rem] font-bold text-[#0d1f3c] text-center leading-snug min-h-[40px]">
@@ -29,11 +29,11 @@ export default function ShopByCategory({result}:ShopByCategoryprops) {
 
             <img
               src={result?.images?.[index]?.image}
-              alt={cat.title}
+              alt={result?.images?.[index]?.alt_text || cat.title}
               className="w-full h-[170px] object-cover rounded-lg"
             />
 
-            <button className="w-full py-2.5 bg-[#0d1f3c] hover:bg-[#1a3560] text-white text-[0.85rem] font-semibold rounded-lg transition-colors" onClick={()=> router.push(result?.contexts?.[0]?.btn_url || "#")}>
+            <button className="w-full py-2.5 bg-[#0d1f3c] hover:bg-[#1a3560] text-white text-[0.85rem] font-semibold rounded-lg transition-colors" onClick={()=> router.push(cat.btn_url || "#")}>
              {cat.btn_text}
             </button>
           </div>

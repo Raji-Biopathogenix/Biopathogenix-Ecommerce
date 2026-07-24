@@ -8,6 +8,7 @@ import SupportingScientificCommunity from '@/components/home2/Supportingscientif
 import ProductCatalogBanner from "@/components/home2/Productcatalogbanner";
 import WhyScientistsChoose from "@/components/home2/Whyscientistschoose";
 import OffersSection from "@/components/home2/OffersSection";
+import HighPerformanceMultiplex from "@/components/home2/HighPerformanceMultiplex";
 
 export type LandingPageResult = LandingPageResponse["result"]; 
 export const dynamic = "force-dynamic";
@@ -78,6 +79,7 @@ export default async function Home() {
 	        <div className="flex flex-col gap-8 pb-10">
 	          <AboutSection result={pageContents[1]} />
 	          <Shopbycategory result={pageContents[2]}/>
+	          <HighPerformanceMultiplex />
 	          <PrimaryConversionPathways result={pageContents[3]} />
 	          <WhyScientistsChoose result={pageContents[4]} />
 	          <SupportingScientificCommunity result={pageContents[5]} />

@@ -1,52 +1,77 @@
 "use client";
 import { LandingPageType } from "@/types/header";
 import { useRouter } from "next/navigation";
-import DOMPurify from "isomorphic-dompurify";
 
-
-interface SupportCommunityprops{
-  result: LandingPageType
+interface SupportCommunityprops {
+  result?: LandingPageType;
 }
 
+const TOPICS = [
+  "PCR assay design principles",
+  "Emerging pathogen research",
+  "Nucleic acid extraction strategies",
+  "Advances and achievements in multiplex qPCR technologies",
+];
 
-export default function SupportingScientificCommunity({result}:SupportCommunityprops) {
+function CheckIcon() {
+  return (
+    <span className="mt-0.5 flex h-5 w-5 flex-shrink-0 items-center justify-center rounded-full bg-[#0d63c9]">
+      <svg className="h-3 w-3 text-white" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
+        <polyline points="20 6 9 17 4 12" />
+      </svg>
+    </span>
+  );
+}
+
+export default function SupportingScientificCommunity({ result }: SupportCommunityprops) {
   const router = useRouter();
+  const image = result?.images?.[0];
+  const btnUrl = result?.contexts?.[0]?.btn_url || "#";
 
   return (
-    <section className="w-full bg-white py-14 px-5">
-      <div className="flex flex-col md:flex-row items-center gap-12">
-
-        {/* LEFT — large image */}
-        <div className="w-full md:w-1/2 flex-shrink-0">
-        {result?.images?.[0]?.image &&  <img
-            src={result?.images?.[0]?.image}
-            alt="Scientists in lab"
-            className="w-full h-[460px] object-cover rounded-2xl"
-          />}
+    <section className="w-full bg-white px-5 py-14">
+      <div className="mx-auto flex max-w-[1440px] flex-col overflow-hidden rounded-[28px] bg-[#f4f9fc] md:flex-row md:items-stretch">
+        {/* LEFT — large image (admin uploaded) */}
+        <div className="w-full flex-shrink-0 md:w-1/2">
+          {image?.image && (
+            <img
+              src={image.image}
+              alt={image.alt_text || "Scientist working with a microscope"}
+              className="h-[320px] w-full object-cover md:h-full md:min-h-[520px]"
+            />
+          )}
         </div>
 
-        {/* RIGHT — text */}
-        <div className="w-full md:w-1/2">
-          <h2 className="text-[1.9rem] font-bold text-[#0d1f3c] leading-snug mb-4">
-            {result?.contexts?.[0]?.title || "Supporting the Scientific Community"}
+        {/* RIGHT — static text + admin-controlled button link */}
+        <div className="w-full px-6 py-10 md:w-1/2 md:px-14 md:py-16">
+          <h2 className="mb-5 text-[2rem] font-bold leading-tight text-[#0d1f3c] md:text-[2.4rem]">
+            Supporting the <span className="text-[#3ab5d0]">Scientific Community</span>
           </h2>
 
-        <div className="cms-content">
-          {result?.contexts?.[0]?.short_description && <span dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(result?.contexts?.[0]?.short_description) }} />}
-          {result?.contexts?.[0]?.description && <span dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(result?.contexts?.[0]?.description) }} />}
-        </div>
-            {/* <svg className="w-5 h-5 flex-shrink-0 text-[#3ab5d0]" viewBox="0 0 24 24" fill="none"
-              stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-              <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" />
-              <polyline points="22 4 12 14.01 9 11.01" />
-            </svg> */}
-         
+          <p className="mb-6 max-w-[520px] text-[0.98rem] leading-relaxed text-[#3a5070]">
+            BioPathogenix shares insights and educational resources designed to support researchers
+            working with PCR technologies and pathogen research.
+          </p>
 
-          <button className="px-6 py-3 bg-[#0d1f3c] hover:bg-[#1a3560] text-white text-[0.9rem] font-semibold rounded-lg transition-colors" onClick={()=> router.push(result?.contexts?.[0]?.btn_url || "#")}>
-            {result?.contexts?.[0]?.btn_text || "Visit the Learning Center →"}
+          <p className="mb-4 font-bold text-[#0d1f3c]">Our learning resources explore topics such as:</p>
+
+          <ul className="mb-8 flex flex-col gap-3">
+            {TOPICS.map((topic) => (
+              <li key={topic} className="flex items-start gap-3 text-[0.95rem] leading-relaxed text-[#3a5070]">
+                <CheckIcon />
+                <span>{topic}</span>
+              </li>
+            ))}
+          </ul>
+
+          <button
+            className="inline-flex items-center gap-4 rounded-lg bg-[#0d2a4e] px-7 py-3.5 text-base font-semibold text-white transition-colors hover:bg-[#173d69]"
+            onClick={() => router.push(btnUrl)}
+          >
+            Explore QC &amp; Validation Solutions
+            <span className="border-l border-white/30 pl-4">→</span>
           </button>
         </div>
-
       </div>
     </section>
   );
