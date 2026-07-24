@@ -15,7 +15,7 @@ export default function ProductCatalogBanner({ result }: ProductCatalogBannerpro
     <section className="w-full bg-[#0a1c3f] px-5 py-16 md:px-14">
       <div className="mx-auto flex max-w-[1280px] flex-col items-center gap-14 md:flex-row md:items-center md:justify-between">
         <div className="w-full max-w-[560px]">
-          <h2 className="mb-6 text-[2.4rem] font-bold leading-[1.1] text-white md:text-[3rem]">
+          <h2 className="mb-6 font-['Quicksand'] text-[2.4rem] font-bold leading-[1.1] text-white md:text-[3rem]">
             Explore the
             <br />
             <span className="text-[#5fb8dd]">BioPathogenix</span>

@@ -57,10 +57,10 @@ export default function HighPerformanceMultiplex() {
           </div>
 
           <div className="w-full px-8 py-10 md:w-3/5 md:px-4 md:py-16 md:pr-16">
-            <h2 className="mb-1 text-[1.8rem] font-bold leading-tight text-[#5fc3dd] md:text-[2.1rem]">
+            <h2 className="mb-1 font-['Quicksand'] text-[1.8rem] font-bold leading-tight text-[#5fc3dd] md:text-[2.1rem]">
               High Performance Multiplex qPCR
             </h2>
-            <h3 className="mb-5 text-[1.5rem] font-semibold leading-tight text-white md:text-[1.8rem]">
+            <h3 className="mb-5 font-['Quicksand'] text-[1.5rem] font-semibold leading-tight text-white md:text-[1.8rem]">
               Workflows Designed for Modern Laboratories
             </h3>
 

@@ -44,7 +44,7 @@ export default function SupportingScientificCommunity({ result }: SupportCommuni
 
         {/* RIGHT — static text + admin-controlled button link */}
         <div className="w-full px-6 py-10 md:w-1/2 md:px-14 md:py-16">
-          <h2 className="mb-5 text-[2rem] font-bold leading-tight text-[#0d1f3c] md:text-[2.4rem]">
+          <h2 className="mb-5 font-['Quicksand'] text-[2rem] font-bold leading-tight text-[#0d1f3c] md:text-[2.4rem]">
             Supporting the <span className="text-[#3ab5d0]">Scientific Community</span>
           </h2>
 

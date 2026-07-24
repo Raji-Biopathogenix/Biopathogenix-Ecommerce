@@ -104,12 +104,11 @@ export default function HeroCarousel({ result }: HeroCarouselprops) {
     >
       <div className="mx-auto flex max-w-[1320px] flex-col items-center gap-12 lg:flex-row lg:items-start lg:justify-between lg:gap-6">
         <div className="w-full max-w-[620px] lg:w-[46%]">
-          <span className="mb-6 inline-flex items-center gap-2 rounded-full border border-[#c7dcee] bg-white/70 px-4 py-1.5 text-[0.78rem] font-bold tracking-[0.18em] text-[#16325f]">
-            <span className="h-1.5 w-1.5 rounded-full bg-[#3ab5d0]" />
+          <p className="mb-5 text-[0.82rem] font-bold tracking-[0.22em] text-[#16325f]">
             ADVANCED MULTIPLEX
-          </span>
+          </p>
 
-          <h1 className="mb-6 max-w-[620px] text-[2.9rem] font-bold leading-[1.05] tracking-[-0.02em] text-[#132a52] sm:text-[3.6rem] md:text-[4.1rem] lg:text-[4.2rem]">
+          <h1 className="mb-6 max-w-[620px] font-['Quicksand'] text-[2.9rem] font-bold leading-[1.05] tracking-[-0.02em] text-[#132a52] sm:text-[3.6rem] md:text-[4.1rem] lg:text-[4.2rem]">
             qPCR Assays
             <br />
             and <span className="text-[#3d7ec2]">Integrated</span>
