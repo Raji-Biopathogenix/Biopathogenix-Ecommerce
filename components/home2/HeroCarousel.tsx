@@ -73,25 +73,25 @@ export default function HeroCarousel({ result }: HeroCarouselprops) {
       key: "top-left",
       src: images?.[0]?.image,
       alt: images?.[0]?.alt_text || "BioPathogenix sample image",
-      className: "left-0 top-0 z-20 h-[46%] w-[50%]",
+      className: "left-0 top-0 z-20 h-[44%] w-[48%]",
     },
     {
       key: "top-right",
       src: images?.[1]?.image,
       alt: images?.[1]?.alt_text || "BioPathogenix lab image",
-      className: "right-0 top-[2%] z-10 h-[62%] w-[58%]",
+      className: "right-0 top-[3%] z-10 h-[60%] w-[56%]",
     },
     {
       key: "bottom-left",
       src: images?.[2]?.image,
       alt: images?.[2]?.alt_text || "BioPathogenix tube image",
-      className: "bottom-0 left-[2%] z-30 h-[62%] w-[58%]",
+      className: "bottom-0 left-[3%] z-30 h-[60%] w-[56%]",
     },
     {
       key: "bottom-right",
       src: images?.[3]?.image,
       alt: images?.[3]?.alt_text || "BioPathogenix microscope image",
-      className: "bottom-0 right-0 z-20 h-[46%] w-[50%]",
+      className: "bottom-0 right-0 z-20 h-[44%] w-[48%]",
     },
   ];
 
