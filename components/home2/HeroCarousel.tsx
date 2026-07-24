@@ -102,7 +102,7 @@ export default function HeroCarousel({ result }: HeroCarouselprops) {
         backgroundImage: `radial-gradient(circle at 68% 22%, rgba(255,255,255,0.98), rgba(235,242,250,0.72) 28%, transparent 58%), radial-gradient(circle at 18% 68%, rgba(255,255,255,0.96), transparent 40%), url("${HEX_PATTERN_BG}"), linear-gradient(135deg,#f7f9fc 0%,#e8eff7 100%)`,
       }}
     >
-      <div className="mx-auto flex max-w-[1320px] flex-col items-center gap-12 lg:flex-row lg:items-center lg:justify-between lg:gap-6">
+      <div className="mx-auto flex max-w-[1320px] flex-col items-center gap-12 lg:flex-row lg:items-start lg:justify-between lg:gap-6">
         <div className="w-full max-w-[620px] lg:w-[46%]">
           <p className="mb-5 text-[0.82rem] font-bold tracking-[0.22em] text-[#16325f]">
             ADVANCED MULTIPLEX
@@ -136,7 +136,7 @@ export default function HeroCarousel({ result }: HeroCarouselprops) {
           </button>
         </div>
 
-        <div className="relative hidden h-[440px] w-full max-w-[560px] shrink-0 sm:block lg:h-[560px] lg:w-[54%]">
+        <div className="relative hidden h-[480px] w-full max-w-[600px] shrink-0 sm:block lg:h-[640px] lg:w-[54%]">
           {heroSlots.map((slot) => (
             <HexImage key={slot.key} src={slot.src} alt={slot.alt} className={slot.className} />
           ))}
