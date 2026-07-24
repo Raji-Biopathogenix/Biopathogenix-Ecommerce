@@ -63,7 +63,7 @@ export default function PrimaryConversionPathways({ result }: PrimaryConversionP
     >
       <div className="mx-auto flex max-w-[1280px] flex-col gap-12 lg:flex-row lg:items-start lg:justify-between">
         <div className="w-full max-w-[560px]">
-          <h2 className="mb-6 text-[2.2rem] font-bold leading-tight text-[#0d1f3c] md:text-[2.6rem]">
+          <h2 className="mb-6 font-['Quicksand'] text-[2.2rem] font-bold leading-tight text-[#0d1f3c] md:text-[2.6rem]">
             Primary <span className="text-[#3ab5d0]">Conversion Pathways</span>
           </h2>
 
