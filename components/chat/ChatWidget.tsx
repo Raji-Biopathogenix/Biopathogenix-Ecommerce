@@ -475,9 +475,20 @@ export default function ChatWidget() {
               toggle();
               setShowQuickPopup(false);
             }}
-            className="rounded-full border border-[#d5e3f2] bg-[linear-gradient(120deg,#0b2e4f_0%,#1b4c79_100%)] px-5 py-3 text-sm font-semibold uppercase tracking-[0.16em] text-white shadow-[0_18px_40px_rgba(11,46,79,0.35)] transition hover:translate-y-[-1px] hover:shadow-[0_22px_44px_rgba(11,46,79,0.35)]"
+            aria-label="Chat with BioPath"
+            className={
+              isMobile
+                ? "flex h-14 w-14 items-center justify-center rounded-full border border-[#d5e3f2] bg-[linear-gradient(120deg,#0b2e4f_0%,#1b4c79_100%)] text-white shadow-[0_14px_30px_rgba(11,46,79,0.35)] transition hover:translate-y-[-1px]"
+                : "rounded-full border border-[#d5e3f2] bg-[linear-gradient(120deg,#0b2e4f_0%,#1b4c79_100%)] px-5 py-3 text-sm font-semibold uppercase tracking-[0.16em] text-white shadow-[0_18px_40px_rgba(11,46,79,0.35)] transition hover:translate-y-[-1px] hover:shadow-[0_22px_44px_rgba(11,46,79,0.35)]"
+            }
           >
-            Chat With BioPath
+            {isMobile ? (
+              <svg className="h-6 w-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
+              </svg>
+            ) : (
+              "Chat With BioPath"
+            )}
           </button>
         </div>
       )}
