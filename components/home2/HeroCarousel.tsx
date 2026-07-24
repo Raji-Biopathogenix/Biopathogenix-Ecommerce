@@ -38,8 +38,8 @@ export default function HeroCarousel({ result }: HeroCarouselprops) {
 
   return (
     <section
-      className="relative overflow-hidden rounded-[28px] bg-[linear-gradient(135deg,#eef6fb_0%,#e3f0fa_100%)] px-6 py-14 md:px-14 md:py-20"
-      style={{ backgroundImage: `linear-gradient(135deg,#eef6fb 0%,#e3f0fa 100%), url("${HEX_PATTERN_BG}")` }}
+      className="relative overflow-hidden rounded-[28px] px-6 py-14 md:px-14 md:py-20"
+      style={{ backgroundImage: `url("${HEX_PATTERN_BG}"), linear-gradient(135deg,#eef6fb 0%,#e3f0fa 100%)` }}
     >
       <div className="mx-auto flex max-w-[1280px] flex-col items-center gap-14 lg:flex-row lg:items-center lg:justify-between">
         {/* Left — copy */}
