@@ -12,7 +12,7 @@ export default function ShopByCategory({result}:ShopByCategoryprops) {
   const router = useRouter();
 
   return (
-    <section className=" bg-[#e8f7fb] py-12 px-5 mx-5">
+    <section className="w-full bg-[#e8f7fb] py-12 px-5">
       <h2 className="text-center text-[1.9rem] font-bold text-[#0d1f3c] mb-10">
        {result?.name || "Shop by Category"}
       </h2>

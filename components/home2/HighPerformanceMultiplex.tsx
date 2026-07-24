@@ -49,8 +49,8 @@ function DnaHelix() {
 
 export default function HighPerformanceMultiplex() {
   return (
-    <section className="w-full px-5">
-      <div className="w-full overflow-hidden rounded-2xl bg-[#0a1c3f]">
+    <section className="w-full overflow-hidden bg-[#0a1c3f]">
+      <div className="w-full">
         <div className="flex flex-col md:flex-row md:items-center">
           <div className="h-[260px] w-full md:h-[420px] md:w-2/5">
             <DnaHelix />
