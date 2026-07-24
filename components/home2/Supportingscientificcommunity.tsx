@@ -29,8 +29,8 @@ export default function SupportingScientificCommunity({ result }: SupportCommuni
   const btnUrl = result?.contexts?.[0]?.btn_url || "#";
 
   return (
-    <section className="w-full bg-white px-5 py-14">
-      <div className="mx-auto flex max-w-[1440px] flex-col overflow-hidden rounded-[28px] bg-[#f4f9fc] md:flex-row md:items-stretch">
+    <section className="w-full overflow-hidden bg-[#f4f9fc] py-14">
+      <div className="flex flex-col md:flex-row md:items-stretch">
         {/* LEFT — large image (admin uploaded) */}
         <div className="w-full flex-shrink-0 md:w-1/2">
           {image?.image && (

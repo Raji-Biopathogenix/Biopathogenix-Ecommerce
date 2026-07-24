@@ -48,19 +48,13 @@ export default async function Home() {
     <main className="min-h-screen bg-white">
       {pageContents?.length > 0 ? (
         <>
-          <section className="px-4 pb-8 pt-4 md:px-6 lg:px-8">
-            <div className="space-y-4">
-              <OffersSection result={offers} />
-              <HeroCarousel result={hero} />
-            </div>
-          </section>
-          <div className="flex flex-col gap-8 pb-10">
-            <Shopbycategory result={shopByCategory} />
-            <HighPerformanceMultiplex />
-            <PrimaryConversionPathways result={conversionPathways} />
-            <SupportingScientificCommunity result={supportingCommunity} />
-            <ProductCatalogBanner result={productCatalog} />
-          </div>
+          <OffersSection result={offers} />
+          <HeroCarousel result={hero} />
+          <Shopbycategory result={shopByCategory} />
+          <HighPerformanceMultiplex />
+          <PrimaryConversionPathways result={conversionPathways} />
+          <SupportingScientificCommunity result={supportingCommunity} />
+          <ProductCatalogBanner result={productCatalog} />
         </>
       ) : (
         <div className="py-20 text-center text-gray-500">Landing page content is not available at the moment. Please check back later.</div>
