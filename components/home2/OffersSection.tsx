@@ -5,7 +5,7 @@ import { LandingPageType } from "@/types/header";
 import OffersCarouselModal from "../Modal/offersModal";
 
 interface OffersSectionProps {
-  result: LandingPageType;
+  result?: LandingPageType;
 }
 
 function getPlainText(content?: string) {
@@ -93,7 +93,7 @@ export default function OffersSection({ result }: OffersSectionProps) {
       <OffersCarouselModal
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
-        result={result}
+        result={result!}
       />
     </>
   );
