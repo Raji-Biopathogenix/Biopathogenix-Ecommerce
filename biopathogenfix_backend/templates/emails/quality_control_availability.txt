@@ -1,0 +1,14 @@
+Dear Team,
+
+A new Quality Control availability confirmation request has been submitted. Please find the details below:
+
+First Name: {{ first_name }}
+Last Name: {{ last_name }}
+Laboratory Name: {{ laboratory }}
+Phone Number: {{ phone }}
+Message: {{ message }}
+
+Please review the request and follow up as needed.
+
+Best regards,
+BioPathogenix
