@@ -682,11 +682,27 @@ def _build_invoice_line_items(
     for i, item in enumerate(orderItems, start=1):
         line_amount = float(item.unit_price) * int(item.quantity)
         matched_item_id = get_qb_item_by_sku(access_token, realm_id, base_url, item.sku_code)
+
+        # Catalog number only exists on ProductAssayDetail, which not
+        # every product has (e.g. plain consumables) — access it safely.
+        try:
+            catalog_number = (item.product.assay_detail.catalog_number or "").strip()
+        except Exception:
+            catalog_number = ""
+
+        description_lines = [
+            f"Product ID : #{item.product.id}",
+            f"Product Name:{item.product.name}",
+        ]
+        if catalog_number:
+            description_lines.append(f"Catalog #: {catalog_number}")
+        description_lines.append(f"Order ID: #{item.id}")
+
         line_items.append({
             "Id":          str(i),
             "LineNum":     i,
             "Amount":      line_amount,
-            "Description": "Product ID : #{product_id} \n Product Name:{product_name} \n Order ID: #{order_id}".format(product_id= item.product.id,product_name=item.product.name,order_id=item.id),
+            "Description": " \n ".join(description_lines),
             "DetailType":  "SalesItemLineDetail",
             "SalesItemLineDetail": {
                 "Qty":         int(item.quantity),
