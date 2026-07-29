@@ -31,6 +31,10 @@ CUSTOM_TARGET_CC_RECIPIENTS = [
 CUSTOM_TARGET_ALLOWED_FILE_EXTENSIONS = {"xlsx", "xls", "pdf", "doc", "docx", "csv"}
 CUSTOM_TARGET_MAX_FILE_SIZE = 3 * 1024 * 1024
 
+QUALITY_CONTROL_AVAILABILITY_RECIPIENTS = [
+    "support@biopathogenix.com",
+]
+
 
 def get_or_none(classmodel, **kwargs):
     try:
@@ -112,6 +116,69 @@ class ContactValidationView(APIView):
                 )
         except Exception:
             logger.exception("Failed to send validation services contact email")
+            return Response(
+                {"message": "Failed to send your request. Please try again shortly."},
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            )
+
+        return Response(
+            {"message": "Thank you. Your request has been sent to our team."},
+            status=status.HTTP_200_OK,
+        )
+
+
+class QualityControlAvailabilityView(APIView):
+    permission_classes = [AllowAny]
+
+    def post(self, request):
+        data = request.data
+        first_name = (data.get("first_name") or "").strip()
+        last_name = (data.get("last_name") or "").strip()
+        laboratory = (data.get("laboratory") or "").strip()
+        phone = (data.get("phone") or "").strip()
+        message = (data.get("message") or "").strip()
+
+        if not first_name or not last_name or not laboratory or not phone:
+            return Response(
+                {"message": "First name, last name, laboratory, and phone are required."},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        full_name = f"{first_name} {last_name}"
+        subject = f"New Quality Control Availability Request - {full_name}"
+        context = {
+            "first_name": first_name,
+            "last_name": last_name,
+            "laboratory": laboratory,
+            "phone": phone,
+            "message": message or "N/A",
+        }
+        html_body = render_to_string("emails/quality_control_availability.html", context)
+        text_body = render_to_string("emails/quality_control_availability.txt", context)
+        plain_fallback = strip_tags(html_body)
+        if not text_body.strip():
+            text_body = plain_fallback
+
+        try:
+            if getattr(settings, "GRAPH_ENABLED", False):
+                send_graph_email(
+                    QUALITY_CONTROL_AVAILABILITY_RECIPIENTS,
+                    subject,
+                    html_body=html_body,
+                    text_body=text_body,
+                    from_email=getattr(settings, "DEFAULT_FROM_EMAIL", None),
+                )
+            else:
+                send_mail(
+                    subject=subject,
+                    message=text_body,
+                    from_email=getattr(settings, "DEFAULT_FROM_EMAIL", None),
+                    recipient_list=QUALITY_CONTROL_AVAILABILITY_RECIPIENTS,
+                    html_message=html_body,
+                    fail_silently=False,
+                )
+        except Exception:
+            logger.exception("Failed to send quality control availability email")
             return Response(
                 {"message": "Failed to send your request. Please try again shortly."},
                 status=status.HTTP_500_INTERNAL_SERVER_ERROR,

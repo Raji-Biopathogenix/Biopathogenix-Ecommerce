@@ -15,7 +15,7 @@ from order.views import CheckoutView,UserOrdersView,AllOrdersView,orderItemsView
 
 from home.views import HeaderMenuViewset, CareerOpenRoleViewset, CareerApplicationCreateView,LandingPageView,BlogPostViewset
 
-from api.views import AssayInquiryView, ContactValidationView, CustomTargetRequestView
+from api.views import AssayInquiryView, ContactValidationView, CustomTargetRequestView, QualityControlAvailabilityView
 from payments.views import create_payment_intent, create_setup_intent, list_payment_methods, save_payment_method, stripe_config
 
 
@@ -93,6 +93,7 @@ urlpatterns += [
     path("admin_order_return_handle/", AdminorderReturnRequestView, name="AdminorderReturnRequestHandle"),
     path("admin_order_edit_handle/", AdminorderUpdateView, name="admin_order_edit_handle"),
     path("contact-validation/", ContactValidationView.as_view(), name="contact_validation"),
+    path("quality-control-availability/", QualityControlAvailabilityView.as_view(), name="quality_control_availability"),
     path("assay-inquiry/", AssayInquiryView.as_view(), name="assay_inquiry"),
     path("custom-target-request/", CustomTargetRequestView.as_view(), name="custom_target_request"),
     path("career-applications/", CareerApplicationCreateView.as_view(), name="career_applications"),
