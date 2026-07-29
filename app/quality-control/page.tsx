@@ -76,7 +76,7 @@ export default function QualityControlPage() {
           className="hidden lg:block absolute right-[4%] bottom-[12%]"
         />
 
-        <div className="relative z-10 mx-auto max-w-3xl text-center">
+        <div className="relative mx-auto max-w-3xl text-center">
           <h1 className="font-['Quicksand'] text-[2.6rem] font-bold leading-[1.05] tracking-[-0.02em] text-[#132a52] sm:text-[3.2rem] md:text-[3.6rem]">
             Quality <span className="text-[#3d7ec2]">Control</span>
           </h1>

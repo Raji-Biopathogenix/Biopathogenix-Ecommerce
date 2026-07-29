@@ -104,7 +104,7 @@ export default function HeroCarousel({ result }: HeroCarouselprops) {
 
   return (
     <section
-      className="relative w-full overflow-hidden px-6 py-14 md:px-14 md:py-20"
+      className="isolate relative w-full overflow-hidden px-6 py-14 md:px-14 md:py-20"
       style={{
         backgroundImage: `radial-gradient(circle at 68% 22%, rgba(255,255,255,0.98), rgba(235,242,250,0.72) 28%, transparent 58%), radial-gradient(circle at 18% 68%, rgba(255,255,255,0.96), transparent 40%), url("${HEX_PATTERN_BG}"), linear-gradient(135deg,#f7f9fc 0%,#e8eff7 100%)`,
       }}

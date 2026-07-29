@@ -11,29 +11,28 @@ const bullets = [
 
 export default function ValidationPerformanceSection() {
   return (
-    <section className="relative bg-[#f2f4f6] py-10 [font-family:'Times_New_Roman',Times,serif]">
-      <div className="pointer-events-none absolute inset-y-0 left-0 hidden w-[38%] bg-[linear-gradient(120deg,rgba(17,55,100,0.07)_1px,transparent_1px),linear-gradient(0deg,rgba(17,55,100,0.07)_1px,transparent_1px)] bg-[size:52px_56px] md:block" />
-      <div className="relative mx-auto grid max-w-7xl gap-8 px-4 md:grid-cols-2 md:items-center">
-        <div className="text-[#123669]">
-          <h2 className="text-3xl font-semibold leading-tight text-[#123669] md:text-5xl">
-            Validation Services That Deliver Verified Performance
+    <section className="w-full bg-gradient-to-br from-[#0e2248] to-[#060e22] px-5 py-16 md:px-14">
+      <div className="mx-auto grid max-w-7xl gap-10 md:grid-cols-2 md:items-center">
+        <div className="text-white">
+          <h2 className="font-['Quicksand'] text-3xl font-bold leading-tight md:text-5xl">
+            Validation Services That <span className="text-[#5fb8dd]">Deliver Verified Performance</span>
           </h2>
-          <p className="mt-7 text-lg font-medium leading-relaxed md:text-xl">
+          <p className="mt-6 text-base leading-relaxed text-white/80 md:text-lg">
             We don&#39;t just confirm functionality- we establish measurable, defensible performance
             benchmarks that support confident research, regulatory readiness, and long-term
             scalability.
           </p>
-          <ul className="mt-8 space-y-3">
+          <ul className="mt-7 space-y-3">
             {bullets.map((item) => (
-              <li key={item} className="flex items-start gap-2 text-lg md:text-xl">
-                <CheckCircle2 className="mt-1 h-6 w-6 shrink-0 text-[#123669] md:h-8 md:w-8" />
+              <li key={item} className="flex items-start gap-3 text-base md:text-lg">
+                <CheckCircle2 className="mt-0.5 h-5 w-5 shrink-0 text-[#5fb8dd]" />
                 <span>{item}</span>
               </li>
             ))}
           </ul>
         </div>
 
-        <div className="overflow-hidden rounded-2xl">
+        <div className="overflow-hidden rounded-2xl shadow-[0_30px_60px_rgba(0,0,0,0.35)]">
           <Image
             src="/images/validation%20services/Blog-Placeholder-Image-2.jpg"
             alt="Validated assay process"

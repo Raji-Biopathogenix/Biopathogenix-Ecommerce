@@ -18,7 +18,7 @@ export default function ValidationLandingPageContent() {
     <>
       <main className="bg-[#f2f4f6]">
         <ValidationLandingHero onOpenForm={() => setIsFormOpen(true)} />
-        <ValidationSuccessfulSection onOpenForm={() => setIsFormOpen(true)} />
+        <ValidationSuccessfulSection />
         <ValidationInfrastructureSection />
         <ValidationDifferenceSection />
         <ValidationPerformanceSection />
