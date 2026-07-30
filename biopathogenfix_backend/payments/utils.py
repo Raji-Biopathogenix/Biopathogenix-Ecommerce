@@ -692,19 +692,13 @@ def _build_invoice_line_items(
         except Exception:
             catalog_number = ""
 
-        description_lines = [
-            f"Product ID : #{item.product.id}",
-            f"Product Name:{item.product.name}",
-        ]
-        if catalog_number:
-            description_lines.append(f"Catalog #: {catalog_number}")
-        description_lines.append(f"Order ID: #{item.id}")
+        description = catalog_number or item.product.name
 
         line_items.append({
             "Id":          str(i),
             "LineNum":     i,
             "Amount":      line_amount,
-            "Description": " \n ".join(description_lines),
+            "Description": description,
             "DetailType":  "SalesItemLineDetail",
             "SalesItemLineDetail": {
                 "Qty":         int(item.quantity),
