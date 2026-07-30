@@ -667,6 +667,7 @@ def _build_invoice_line_items(
     Includes products, shipping, and tax as separate lines.
     """
     line_items = []
+    products_subtotal = 0.0
 
     # Lines are marked taxable ("TAX") so QuickBooks' own Automated
     # Sales Tax engine calculates and displays tax in its native TAX
@@ -681,6 +682,7 @@ def _build_invoice_line_items(
     #  falling back to the generic default Item otherwise.
     for i, item in enumerate(orderItems, start=1):
         line_amount = float(item.unit_price) * int(item.quantity)
+        products_subtotal += line_amount
         matched_item_id = get_qb_item_by_sku(access_token, realm_id, base_url, item.sku_code)
 
         # Catalog number only exists on ProductAssayDetail, which not
@@ -715,10 +717,21 @@ def _build_invoice_line_items(
     #  Shipping line — uses the account's reserved "Shipping" Item when
     #  one exists, so it can render as its own summary row like it does
     #  on MyWorks-synced invoices, falling back to the default Item.
+    #
+    #  A SubTotalLineDetail marker is inserted right before it — this
+    #  structural line (confirmed from a real MyWorks-synced invoice's
+    #  raw API data) is what appears to signal to QuickBooks' invoice
+    #  template that everything before it is "products" and what
+    #  follows is a separate charge, rather than the ItemRef name alone.
     if float(order.shipping_cost) > 0:
+        line_items.append({
+            "Amount":     round(products_subtotal, 2),
+            "DetailType": "SubTotalLineDetail",
+            "SubTotalLineDetail": {},
+        })
+
         shipping_item_id = get_qb_shipping_item_id(access_token, realm_id, base_url)
         line_items.append({
-            "LineNum":     len(line_items) + 1,
             "Amount":      float(order.shipping_cost),
             "Description": "Shipping",
             "DetailType":  "SalesItemLineDetail",
