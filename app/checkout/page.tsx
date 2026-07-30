@@ -343,6 +343,7 @@ export default function CheckoutPage() {
             shipping_postal_code: zip,
             shipping_country: selectedCountryCode || "US",
             amount:subtotal,
+            shipping: shippingCost,
             item_quantity: selectedQuantity,
           });
 
@@ -380,6 +381,7 @@ export default function CheckoutPage() {
     form.shipping.state,
     form.shipping.state_code,
     selectedQuantity,
+    shippingCost,
     state,
     subtotal,
   ]);

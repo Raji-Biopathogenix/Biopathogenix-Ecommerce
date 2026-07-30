@@ -7,6 +7,7 @@ interface TaxShippingRequest {
   shipping_postal_code: string;
   shipping_country: string;
   amount: number;
+  shipping?: number;
   item_quantity?: number;
 }
 
