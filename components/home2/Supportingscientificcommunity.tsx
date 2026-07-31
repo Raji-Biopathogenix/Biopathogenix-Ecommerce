@@ -32,9 +32,9 @@ export default function SupportingScientificCommunity({ result }: SupportCommuni
   const btnUrl = result?.contexts?.[0]?.btn_url || "#";
 
   return (
-    <section className="bg-white px-6 py-14 md:px-14 md:py-16">
-      <div className="mx-auto grid max-w-[1360px] grid-cols-1 overflow-hidden rounded-[28px] shadow-[0_20px_50px_rgba(13,31,60,0.08)] md:grid-cols-2 md:items-stretch">
-        <div className="h-[320px] md:h-auto">
+    <section className="overflow-hidden bg-white">
+      <div className="grid grid-cols-1 overflow-hidden rounded-[40px] md:grid-cols-2 md:items-stretch">
+        <div className="h-[360px] md:h-auto">
           <img
             src="/fig-preview/images/0377cb72fc5481097071d3d22006c7e168cb930b"
             alt="Researchers in a laboratory setting"
@@ -43,11 +43,15 @@ export default function SupportingScientificCommunity({ result }: SupportCommuni
         </div>
 
         <div
-          className="relative flex flex-col justify-center overflow-hidden bg-[#eaf5f9] px-6 py-12 md:px-14 md:py-16"
+          className="relative flex flex-col justify-center overflow-hidden bg-[#eaf5f9] px-6 py-14 md:px-16 md:py-20"
           style={{ backgroundImage: `url("${DOT_PATTERN_BG}")`, backgroundPosition: "right -20px top", backgroundRepeat: "no-repeat" }}
         >
-          <h2 className="relative font-['Quicksand'] text-[2rem] font-bold leading-tight tracking-[-0.02em] text-[#102447] md:text-[2.55rem]">
-            Supporting the <span className="text-[#3ab5d0]">Scientific Community</span>
+          <h2 className="relative font-['Quicksand'] text-[2.2rem] font-bold leading-tight tracking-[-0.02em] text-[#102447] md:text-[2.9rem]">
+            Supporting the
+            <br />
+            <span className="text-[#3ab5d0]">Scientific</span>
+            <br />
+            <span className="text-[#3ab5d0]">Community</span>
           </h2>
 
           <p className="relative mt-5 max-w-[560px] text-[0.98rem] leading-relaxed text-[#3a5070]">
