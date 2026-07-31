@@ -65,17 +65,19 @@ export default function HeroCarousel({ result }: HeroCarouselprops) {
     <section className="overflow-hidden bg-[linear-gradient(135deg,#f8fbfe_0%,#edf5fb_58%,#f7fbff_100%)] px-6 py-14 md:px-14 md:py-20">
       <div className="mx-auto flex max-w-[1360px] flex-col gap-12 lg:flex-row lg:items-center lg:justify-between">
         <div className="w-full max-w-[640px] lg:w-[48%]">
-          <h1 className="max-w-[740px] font-['Poppins'] text-[2.9rem] font-semibold leading-[1.03] tracking-[-0.04em] text-[#13254a] sm:text-[3.55rem] md:text-[4.15rem] lg:text-[4.85rem]">
-            Advanced Multiplex
+          <p className="mb-5 text-[0.88rem] font-bold tracking-[0.22em] text-[#16325f]">
+            ADVANCED MULTIPLEX
+          </p>
+
+          <h1 className="max-w-[640px] font-['Quicksand'] text-[2.9rem] font-bold leading-[1.05] tracking-[-0.02em] text-[#13254a] sm:text-[3.55rem] md:text-[4.15rem] lg:text-[4.6rem]">
+            qPCR Assays
             <br />
-            qPCR Assays and Integrated
+            and <span className="text-[#3d7ec2]">Integrated</span>
             <br />
-            Molecular Workflow Solutions
-            <br />
-            for Pathogen Detection.
+            <span className="text-[#3d7ec2]">Molecular</span>
           </h1>
 
-          <p className="mt-5 max-w-[620px] text-[1.18rem] font-medium leading-snug text-[#16325d] sm:text-[1.26rem]">
+          <p className="mt-5 max-w-[620px] text-[1.18rem] font-semibold leading-snug text-[#16325d] sm:text-[1.26rem]">
             Workflow Solutions for Pathogen Detection.
           </p>
 
