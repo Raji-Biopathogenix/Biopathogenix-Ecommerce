@@ -19,8 +19,8 @@ const DOT_PATTERN_BG =
 
 function CheckIcon() {
   return (
-    <span className="mt-0.5 flex h-5 w-5 flex-shrink-0 items-center justify-center rounded-full bg-[#0d63c9]">
-      <svg className="h-3 w-3 text-white" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
+    <span className="mt-0.5 flex h-4 w-4 flex-shrink-0 items-center justify-center rounded-full bg-[#0d63c9]">
+      <svg className="h-2.5 w-2.5 text-white" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
         <polyline points="20 6 9 17 4 12" />
       </svg>
     </span>
@@ -34,7 +34,7 @@ export default function SupportingScientificCommunity({ result }: SupportCommuni
   return (
     <section className="overflow-hidden bg-white">
       <div className="grid grid-cols-1 overflow-hidden rounded-[40px] md:grid-cols-2 md:items-stretch">
-        <div className="h-[360px] md:h-auto">
+        <div className="h-[260px] md:h-[440px]">
           <img
             src="/fig-preview/images/0377cb72fc5481097071d3d22006c7e168cb930b"
             alt="Researchers in a laboratory setting"
@@ -43,10 +43,10 @@ export default function SupportingScientificCommunity({ result }: SupportCommuni
         </div>
 
         <div
-          className="relative flex flex-col justify-center overflow-hidden bg-[#eaf5f9] px-6 py-14 md:px-16 md:py-20"
+          className="relative flex flex-col justify-center overflow-hidden bg-[#eaf5f9] px-6 py-8 md:h-[440px] md:px-12 md:py-10"
           style={{ backgroundImage: `url("${DOT_PATTERN_BG}")`, backgroundPosition: "right -20px top", backgroundRepeat: "no-repeat" }}
         >
-          <h2 className="relative font-['Quicksand'] text-[2.2rem] font-bold leading-tight tracking-[-0.02em] text-[#102447] md:text-[2.9rem]">
+          <h2 className="relative font-['Quicksand'] text-[1.7rem] font-bold leading-tight tracking-[-0.02em] text-[#102447] md:text-[2.15rem]">
             Supporting the
             <br />
             <span className="text-[#3ab5d0]">Scientific</span>
@@ -54,16 +54,16 @@ export default function SupportingScientificCommunity({ result }: SupportCommuni
             <span className="text-[#3ab5d0]">Community</span>
           </h2>
 
-          <p className="relative mt-5 max-w-[560px] text-[0.98rem] leading-relaxed text-[#3a5070]">
+          <p className="relative mt-3 max-w-[520px] text-[0.9rem] leading-relaxed text-[#3a5070]">
             BioPathogenix shares insights and educational resources designed to support researchers
             working with PCR technologies and pathogen research.
           </p>
 
-          <p className="relative mt-5 font-semibold text-[#102447]">Our learning resources explore topics such as:</p>
+          <p className="relative mt-3 text-[0.9rem] font-semibold text-[#102447]">Our learning resources explore topics such as:</p>
 
-          <ul className="relative mt-5 flex flex-col gap-3">
+          <ul className="relative mt-3 flex flex-col gap-1.5">
             {TOPICS.map((topic) => (
-              <li key={topic} className="flex items-start gap-3 text-[0.95rem] leading-relaxed text-[#3a5070]">
+              <li key={topic} className="flex items-start gap-2 text-[0.86rem] leading-snug text-[#3a5070]">
                 <CheckIcon />
                 <span>{topic}</span>
               </li>
@@ -71,7 +71,7 @@ export default function SupportingScientificCommunity({ result }: SupportCommuni
           </ul>
 
           <button
-            className="relative mt-8 inline-flex w-fit items-center gap-4 rounded-[12px] bg-[#173864] px-7 py-3.5 text-base font-semibold text-white transition-colors hover:bg-[#102b4f]"
+            className="relative mt-5 inline-flex w-fit items-center gap-4 rounded-[12px] bg-[#173864] px-6 py-3 text-[0.92rem] font-semibold text-white transition-colors hover:bg-[#102b4f]"
             onClick={() => router.push(btnUrl)}
           >
             Explore QC &amp; Validation Solutions
