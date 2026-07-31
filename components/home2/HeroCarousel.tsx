@@ -17,22 +17,22 @@ const HERO_IMAGES = [
   {
     src: "/fig-preview/images/303490d404583a39e84a9657020d1ad7f04a4965",
     alt: "Scientist working in a modern laboratory",
-    className: "left-0 top-[4%] z-20 h-[40%] w-[40%]",
+    className: "left-0 top-[4%] z-20 h-[40%]",
   },
   {
     src: "/fig-preview/images/b8563fa9c06f015706a7c5d6998d6726b96468ef",
     alt: "Researcher using a microscope",
-    className: "right-0 top-0 z-10 h-[60%] w-[60%]",
+    className: "right-0 top-0 z-10 h-[60%]",
   },
   {
     src: "/fig-preview/images/794d214fa013d6197197895dda9d981efc8df127",
     alt: "Scientist writing lab notes beside a microscope",
-    className: "right-[2%] bottom-[8%] z-20 h-[40%] w-[40%]",
+    className: "right-[2%] bottom-[8%] z-20 h-[40%]",
   },
   {
     src: "/fig-preview/images/341d4c17677780e3ffe716da598d5cd49fe71a93",
     alt: "Gloved hands holding sample tubes",
-    className: "left-[8%] bottom-0 z-30 h-[60%] w-[60%] translate-y-[10%]",
+    className: "left-[8%] bottom-0 z-30 h-[60%] translate-y-[10%]",
   },
 ] as const;
 
