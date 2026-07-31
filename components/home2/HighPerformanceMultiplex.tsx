@@ -17,8 +17,8 @@ function CheckIcon() {
 
 export default function HighPerformanceMultiplex() {
   return (
-    <section className="overflow-hidden bg-[#0a1c3f]">
-      <div className="mx-auto grid max-w-[1360px] grid-cols-1 lg:grid-cols-[0.92fr_1.08fr]">
+    <section className="overflow-hidden bg-white px-6 py-14 md:px-14 md:py-16">
+      <div className="mx-auto grid max-w-[1360px] grid-cols-1 overflow-hidden rounded-[32px] bg-[#0a1c3f] lg:grid-cols-[0.92fr_1.08fr]">
         <div className="relative min-h-[300px] overflow-hidden bg-[#0f2651] px-8 py-12 lg:min-h-[520px] lg:px-12 lg:py-16">
           <div className="absolute inset-0 opacity-90">
             <img
@@ -32,10 +32,10 @@ export default function HighPerformanceMultiplex() {
         </div>
 
         <div className="px-8 py-12 text-white lg:px-12 lg:py-16">
-          <h2 className="font-['Poppins'] text-[2.05rem] font-semibold leading-[1.12] tracking-[-0.03em] text-[#5fc3dd] md:text-[2.35rem]">
+          <h2 className="font-['Quicksand'] text-[2.05rem] font-bold leading-[1.12] tracking-[-0.02em] text-[#5fc3dd] md:text-[2.35rem]">
             High Performance Multiplex qPCR
           </h2>
-          <h3 className="mt-2 max-w-[640px] font-['Poppins'] text-[1.55rem] font-semibold leading-tight text-white md:text-[1.95rem]">
+          <h3 className="mt-2 max-w-[640px] font-['Quicksand'] text-[1.55rem] font-bold leading-tight text-white md:text-[1.95rem]">
             Workflows Designed for Modern Laboratories
           </h3>
 
