@@ -24,6 +24,10 @@ const CATEGORIES = [
     title: "Specimen Collection Supplies",
     image: "/fig-preview/images/47de23b4d89bd43c2c82125a838f1ca90b06ab66",
   },
+  {
+    title: "Personal Protection Equipment",
+    image: "/images/PPE/face-mask-img-for-website-1-1000x1000.jpg",
+  },
 ] as const;
 
 export default function ShopByCategory({ result }: ShopByCategoryprops) {
@@ -38,7 +42,7 @@ export default function ShopByCategory({ result }: ShopByCategoryprops) {
           </h2>
         </div>
 
-        <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 xl:grid-cols-4">
+        <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5">
           {CATEGORIES.map((category, index) => {
             const link = result?.contexts?.[index]?.btn_url || "#";
             const buttonText = result?.contexts?.[index]?.btn_text || "View Products";
