@@ -5,18 +5,15 @@ import { faLinkedinIn } from "@fortawesome/free-brands-svg-icons";
 export default function BrandColumn() {
     return (
         <div className="max-w-[320px]">
-            {/* Logo */}
             <div className="mb-3">
                 <Logo></Logo>
             </div>
 
-            {/* Description */}
-            <p className="text-[16px] leading-[1.7] text-[#0b2e59] mb-10">
-                BioPathogenix, based in Nicholasville, KY, provides laboratories with
+            <p className="mb-10 text-[16px] leading-[1.7] text-[#0b2e59]">
+                Based in Nicholasville, KY, BioPathogenix provides laboratories with
                 quality wholesale supplies for qPCR.
             </p>
 
-            {/* LinkedIn */}
             <a
                 href="https://www.linkedin.com/company/biopathogenix"
                 target="_blank"

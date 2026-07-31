@@ -1,6 +1,5 @@
 "use client";
 
-import { useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import { LandingPageType } from "@/types/header";
 
@@ -8,60 +7,51 @@ interface HeroCarouselprops {
   result?: LandingPageType;
 }
 
+// Flat-top hexagon: width is 2/sqrt(3) (~1.1547) times height. Only set
+// height as a % of the container and let width derive from this ratio,
+// otherwise tiles render as squished/stretched diamonds.
 const HEX_CLIP = "polygon(25% 0%, 75% 0%, 100% 50%, 75% 100%, 25% 100%, 0% 50%)";
-
-const HEX_PATTERN_BG =
-  "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='84' height='146' viewBox='0 0 84 146'%3E%3Cpath d='M42 0L84 24V96L42 120L0 96V24Z' fill='none' stroke='%23cfe4f2' stroke-width='1'/%3E%3Cpath d='M42 26L84 50V122L42 146L0 122V50Z' fill='none' stroke='%23cfe4f2' stroke-width='1'/%3E%3C/svg%3E";
-
-type HexSlotProps = {
-  src?: string;
-  alt: string;
-  className: string;
-};
-
-// A regular flat-top hexagon under HEX_CLIP is exactly 2/sqrt(3) (~1.1547)
-// times wider than it is tall. Only ever set height as a % of the
-// container and let width derive from this ratio - setting width and
-// height independently is what caused the tiles to render as squished or
-// stretched diamonds instead of proper hexagons.
 const HEX_RATIO = 1.1547;
 
-function HexImage({ src, alt, className }: HexSlotProps) {
-  const [hasError, setHasError] = useState(false);
-  const showPlaceholder = !src || hasError;
+const HERO_IMAGES = [
+  {
+    src: "/fig-preview/images/303490d404583a39e84a9657020d1ad7f04a4965",
+    alt: "Scientist working in a modern laboratory",
+    className: "left-0 top-[4%] z-20 h-[36%] w-[36%]",
+  },
+  {
+    src: "/fig-preview/images/b8563fa9c06f015706a7c5d6998d6726b96468ef",
+    alt: "Researcher using a microscope",
+    className: "right-0 top-0 z-10 h-[56%] w-[56%]",
+  },
+  {
+    src: "/fig-preview/images/794d214fa013d6197197895dda9d981efc8df127",
+    alt: "Scientist writing lab notes beside a microscope",
+    className: "right-[2%] bottom-[8%] z-20 h-[36%] w-[36%]",
+  },
+  {
+    src: "/fig-preview/images/341d4c17677780e3ffe716da598d5cd49fe71a93",
+    alt: "Gloved hands holding sample tubes",
+    className: "left-[10%] bottom-0 z-30 h-[56%] w-[56%] translate-y-[10%]",
+  },
+] as const;
 
+function HeroImage({
+  src,
+  alt,
+  className,
+}: {
+  src: string;
+  alt: string;
+  className: string;
+}) {
   return (
     <div
-      className={`absolute overflow-hidden bg-white p-1.5 shadow-[0_14px_30px_rgba(18,53,93,0.10)] sm:p-2 ${className}`}
+      className={`absolute overflow-hidden bg-white p-1.5 shadow-[0_16px_34px_rgba(14,33,61,0.14)] sm:p-2 ${className}`}
       style={{ clipPath: HEX_CLIP, aspectRatio: HEX_RATIO }}
     >
-      <div
-        className="relative h-full w-full overflow-hidden"
-        style={{
-          clipPath: HEX_CLIP,
-          background: !showPlaceholder
-            ? "linear-gradient(180deg, rgba(255,255,255,0.0) 0%, rgba(255,255,255,0.04) 100%)"
-            : "linear-gradient(145deg, rgba(255,255,255,0.98) 0%, rgba(241,246,251,0.96) 100%)",
-          boxShadow: showPlaceholder ? "inset 0 0 0 1px rgba(255,255,255,0.95)" : "none",
-        }}
-      >
-        {!showPlaceholder ? (
-          <img
-            src={src}
-            alt={alt}
-            className="h-full w-full object-cover"
-            onError={() => setHasError(true)}
-          />
-        ) : (
-          <div
-            className="h-full w-full"
-            aria-hidden="true"
-            style={{
-              backgroundImage:
-                "radial-gradient(circle at 32% 18%, rgba(255,255,255,0.95), transparent 34%), radial-gradient(circle at 72% 76%, rgba(226,237,248,0.8), transparent 38%), linear-gradient(145deg, rgba(255,255,255,0.98), rgba(238,244,250,0.98))",
-            }}
-          />
-        )}
+      <div className="h-full w-full overflow-hidden" style={{ clipPath: HEX_CLIP }}>
+        <img src={src} alt={alt} className="h-full w-full object-cover" />
       </div>
     </div>
   );
@@ -69,65 +59,27 @@ function HexImage({ src, alt, className }: HexSlotProps) {
 
 export default function HeroCarousel({ result }: HeroCarouselprops) {
   const router = useRouter();
-  const context = result?.contexts?.[0];
-  const images = useMemo(
-    () => [...(result?.images ?? [])].sort((a, b) => (a.order ?? 0) - (b.order ?? 0)),
-    [result]
-  );
-
-  const heroSlots = [
-    {
-      key: "top-left",
-      src: images?.[0]?.image,
-      alt: images?.[0]?.alt_text || "BioPathogenix sample image",
-      className: "left-0 top-[15%] z-20 w-[40%]",
-    },
-    {
-      key: "top-right",
-      src: images?.[1]?.image,
-      alt: images?.[1]?.alt_text || "BioPathogenix lab image",
-      className: "right-0 top-0 z-10 w-[65%]",
-    },
-    {
-      key: "bottom-left",
-      src: images?.[2]?.image,
-      alt: images?.[2]?.alt_text || "BioPathogenix tube image",
-      className: "bottom-0 left-0 z-30 w-[65%]",
-    },
-    {
-      key: "bottom-right",
-      src: images?.[3]?.image,
-      alt: images?.[3]?.alt_text || "BioPathogenix microscope image",
-      className: "bottom-[16%] right-0 z-20 w-[40%]",
-    },
-  ];
+  const btnUrl = result?.contexts?.[0]?.btn_url || "#";
 
   return (
-    <section
-      className="isolate relative w-full overflow-hidden px-6 py-14 md:px-14 md:py-20"
-      style={{
-        backgroundImage: `radial-gradient(circle at 68% 22%, rgba(255,255,255,0.98), rgba(235,242,250,0.72) 28%, transparent 58%), radial-gradient(circle at 18% 68%, rgba(255,255,255,0.96), transparent 40%), url("${HEX_PATTERN_BG}"), linear-gradient(135deg,#f7f9fc 0%,#e8eff7 100%)`,
-      }}
-    >
-      <div className="mx-auto flex max-w-[1320px] flex-col items-center gap-12 lg:flex-row lg:items-start lg:justify-between lg:gap-6">
-        <div className="w-full max-w-[620px] lg:w-[46%]">
-          <p className="mb-5 text-[0.88rem] font-bold tracking-[0.22em] text-[#16325f]">
-            ADVANCED MULTIPLEX
-          </p>
-
-          <h1 className="mb-6 max-w-[640px] font-['Quicksand'] text-[3.2rem] font-bold leading-[1.05] tracking-[-0.02em] text-[#132a52] sm:text-[3.9rem] md:text-[4.4rem] lg:text-[4.6rem]">
-            qPCR Assays
+    <section className="overflow-hidden bg-[linear-gradient(135deg,#f8fbfe_0%,#edf5fb_58%,#f7fbff_100%)] px-6 py-14 md:px-14 md:py-20">
+      <div className="mx-auto flex max-w-[1360px] flex-col gap-12 lg:flex-row lg:items-center lg:justify-between">
+        <div className="w-full max-w-[640px] lg:w-[48%]">
+          <h1 className="max-w-[740px] font-['Poppins'] text-[2.9rem] font-semibold leading-[1.03] tracking-[-0.04em] text-[#13254a] sm:text-[3.55rem] md:text-[4.15rem] lg:text-[4.85rem]">
+            Advanced Multiplex
             <br />
-            and <span className="text-[#3d7ec2]">Integrated</span>
+            qPCR Assays and Integrated
             <br />
-            <span className="text-[#3d7ec2]">Molecular</span>
+            Molecular Workflow Solutions
+            <br />
+            for Pathogen Detection.
           </h1>
 
-          <p className="mb-5 text-[1.24rem] font-semibold leading-snug text-[#17315b] sm:text-[1.32rem]">
+          <p className="mt-5 max-w-[620px] text-[1.18rem] font-medium leading-snug text-[#16325d] sm:text-[1.26rem]">
             Workflow Solutions for Pathogen Detection.
           </p>
 
-          <p className="mb-10 max-w-[580px] text-[1.05rem] leading-[1.75] text-[#3d4c60] sm:text-[1.08rem]">
+          <p className="mt-6 max-w-[610px] text-[1.02rem] leading-[1.78] text-[#4a5c73]">
             BioPathogenix, headquartered in Nicholasville, Kentucky, specializes in the
             development of high-performance multiplex qPCR assays, custom pathogen detection
             panel and integrated nucleic acid workflow solutions designed to support infectious
@@ -135,17 +87,17 @@ export default function HeroCarousel({ result }: HeroCarouselprops) {
           </p>
 
           <button
-            className="inline-flex min-w-[217px] items-center justify-center gap-4 rounded-lg bg-[#173864] px-8 py-4 text-[1.02rem] font-semibold text-white shadow-[0_16px_28px_rgba(23,56,100,0.25)] transition-colors hover:bg-[#0f2a4d]"
-            onClick={() => router.push(context?.btn_url || "#")}
+            className="mt-10 inline-flex min-w-[220px] items-center justify-center gap-4 rounded-[12px] bg-[#163864] px-8 py-4 text-[1rem] font-semibold text-white shadow-[0_16px_28px_rgba(22,56,100,0.25)] transition-transform duration-200 hover:-translate-y-0.5 hover:bg-[#102b4f]"
+            onClick={() => router.push(btnUrl)}
           >
-            <span>{context?.btn_text || "Shop Now"}</span>
-            <span className="border-l border-white/30 pl-3">&rarr;</span>
+            <span>Shop Now</span>
+            <span className="border-l border-white/30 pl-4">-&gt;</span>
           </button>
         </div>
 
-        <div className="relative hidden h-[460px] w-full max-w-[580px] shrink-0 sm:block lg:h-[620px] lg:w-[54%]">
-          {heroSlots.map((slot) => (
-            <HexImage key={slot.key} src={slot.src} alt={slot.alt} className={slot.className} />
+        <div className="relative h-[460px] w-full lg:h-[620px] lg:w-[52%]">
+          {HERO_IMAGES.map((image) => (
+            <HeroImage key={image.src} {...image} />
           ))}
         </div>
       </div>
