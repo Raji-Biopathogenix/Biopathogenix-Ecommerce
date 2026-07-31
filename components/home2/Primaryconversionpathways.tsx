@@ -1,6 +1,7 @@
 "use client";
-import { LandingPageType } from "@/types/header";
+
 import { useRouter } from "next/navigation";
+import { LandingPageType } from "@/types/header";
 
 interface PrimaryConversionPathwaysprops {
   result?: LandingPageType;
@@ -9,6 +10,7 @@ interface PrimaryConversionPathwaysprops {
 const PATHWAY_CARDS = [
   {
     title: "Split Sample\nTesting Services",
+    href: "/split-sample-testing",
     icon: (
       <svg viewBox="0 0 24 24" fill="none" className="h-7 w-7 text-[#3ab5d0]">
         <path d="M9 2v6.5L4.5 17a3 3 0 0 0 2.6 4.5h9.8a3 3 0 0 0 2.6-4.5L15 8.5V2" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" />
@@ -20,6 +22,7 @@ const PATHWAY_CARDS = [
   },
   {
     title: "A Biobank offering\nover 1,000 Pathogens",
+    href: "/contrived-samples",
     icon: (
       <svg viewBox="0 0 24 24" fill="none" className="h-7 w-7 text-[#3ab5d0]">
         <path d="M9 2h6M10 2v5.5c0 .6-.2 1.2-.6 1.7L5.8 14a5 5 0 0 0 4 8h4.4a5 5 0 0 0 4-8l-3.6-4.8a2.7 2.7 0 0 1-.6-1.7V2" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" />
@@ -29,6 +32,7 @@ const PATHWAY_CARDS = [
   },
   {
     title: "Quality Control\nResources",
+    href: "/quality-control",
     icon: (
       <svg viewBox="0 0 24 24" fill="none" className="h-7 w-7 text-[#3ab5d0]">
         <circle cx="12" cy="10" r="7" stroke="currentColor" strokeWidth="1.6" />
@@ -39,6 +43,7 @@ const PATHWAY_CARDS = [
   },
   {
     title: "Zero Net Loss\nValidation support",
+    href: "/services/validation-services",
     icon: (
       <svg viewBox="0 0 24 24" fill="none" className="h-7 w-7 text-[#3ab5d0]">
         <path d="M7 3h7l4 4v11a3 3 0 0 1-3 3H7a3 3 0 0 1-3-3V6a3 3 0 0 1 3-3Z" stroke="currentColor" strokeWidth="1.6" strokeLinejoin="round" />
@@ -58,48 +63,48 @@ export default function PrimaryConversionPathways({ result }: PrimaryConversionP
 
   return (
     <section
-      className="w-full overflow-hidden px-5 py-16 md:px-14"
+      className="overflow-hidden px-6 py-16 md:px-14"
       style={{ backgroundImage: `linear-gradient(180deg,#f2f9fc 0%,#ffffff 100%), url("${PATTERN_BG}")` }}
     >
-      <div className="mx-auto flex max-w-[1280px] flex-col gap-12 lg:flex-row lg:items-start lg:justify-between">
-        <div className="w-full max-w-[560px]">
-          <h2 className="mb-6 font-['Quicksand'] text-[2.2rem] font-bold leading-tight text-[#0d1f3c] md:text-[2.6rem]">
-            Primary <span className="text-[#3ab5d0]">Conversion Pathways</span>
+      <div className="mx-auto flex max-w-[1360px] flex-col gap-12 lg:flex-row lg:items-start lg:justify-between">
+        <div className="w-full max-w-[570px]">
+          <h2 className="font-['Poppins'] text-[2.2rem] font-semibold leading-tight tracking-[-0.03em] text-[#102447] md:text-[2.8rem]">
+            Primary Conversion Pathways
           </h2>
 
-          <p className="mb-5 text-[1rem] leading-relaxed text-[#3a5070]">
+          <p className="mt-6 text-[1rem] leading-relaxed text-[#3a5070]">
             At BioPathogenix, we adhere to stringent quality control processes, ensuring our
             laboratory supplies meet high standards of accuracy, reliability, and workflow
             consistency for researchers working with molecular technologies.
           </p>
 
-          <p className="mb-8 text-[1rem] leading-relaxed text-[#3a5070]">
+          <p className="mt-5 text-[1rem] leading-relaxed text-[#3a5070]">
             That same commitment extends beyond our products. BioPathogenix also develops
             tools and resources that help laboratories monitor performance, validate workflows,
             and maintain confidence in their molecular results.
           </p>
 
           <button
-            className="inline-flex items-center gap-4 rounded-lg bg-[#0d2a4e] px-7 py-3.5 text-base font-semibold text-white transition-colors hover:bg-[#173d69]"
+            className="mt-8 inline-flex items-center gap-4 rounded-[12px] bg-[#173864] px-7 py-3.5 text-base font-semibold text-white transition-colors hover:bg-[#102b4f]"
             onClick={() => router.push(btnUrl)}
           >
             Explore QC &amp; Validation Solutions
-            <span className="border-l border-white/30 pl-4">→</span>
+            <span className="border-l border-white/30 pl-4">-&gt;</span>
           </button>
         </div>
 
-        <div className="grid w-full max-w-[620px] grid-cols-1 gap-5 sm:grid-cols-2">
-          {PATHWAY_CARDS.map((card, index) => (
+        <div className="grid w-full max-w-[640px] grid-cols-1 gap-5 sm:grid-cols-2">
+          {PATHWAY_CARDS.map((card) => (
             <button
               key={card.title}
               type="button"
-              onClick={() => router.push(result?.contexts?.[index + 1]?.btn_url || "#")}
-              className="flex flex-col items-center gap-4 rounded-2xl bg-white p-8 text-center shadow-[0_10px_30px_rgba(13,31,60,0.06)] transition-shadow hover:shadow-[0_14px_36px_rgba(13,31,60,0.12)]"
+              onClick={() => router.push(card.href)}
+              className="flex flex-col items-center gap-4 rounded-[24px] bg-white p-8 text-center shadow-[0_10px_30px_rgba(13,31,60,0.06)] transition-shadow hover:shadow-[0_14px_36px_rgba(13,31,60,0.12)]"
             >
               <span className="flex h-16 w-16 items-center justify-center rounded-full bg-[#eaf5f9]">
                 {card.icon}
               </span>
-              <p className="whitespace-pre-line text-[1.05rem] font-bold leading-snug text-[#0d1f3c]">
+              <p className="whitespace-pre-line text-[1.02rem] font-semibold leading-snug text-[#102447]">
                 {card.title}
               </p>
             </button>

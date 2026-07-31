@@ -7,7 +7,6 @@ import HighPerformanceMultiplex from "@/components/home2/HighPerformanceMultiple
 import PrimaryConversionPathways from '@/components/home2/Primaryconversionpathways';
 import SupportingScientificCommunity from '@/components/home2/Supportingscientificcommunity';
 import ProductCatalogBanner from "@/components/home2/Productcatalogbanner";
-import OffersSection from "@/components/home2/OffersSection";
 
 export type LandingPageResult = LandingPageResponse["result"];
 export const dynamic = "force-dynamic";
@@ -42,23 +41,15 @@ export default async function Home() {
   const conversionPathways = findSection(pageContents, ["conversion", "pathway"]);
   const supportingCommunity = findSection(pageContents, ["scientific", "communit"]);
   const productCatalog = findSection(pageContents, ["catalog"]);
-  const offers = findSection(pageContents, ["offer"]);
 
   return (
     <main className="min-h-screen bg-white">
-      {pageContents?.length > 0 ? (
-        <>
-          <OffersSection result={offers} />
-          <HeroCarousel result={hero} />
-          <Shopbycategory result={shopByCategory} />
-          <HighPerformanceMultiplex />
-          <PrimaryConversionPathways result={conversionPathways} />
-          <SupportingScientificCommunity result={supportingCommunity} />
-          <ProductCatalogBanner result={productCatalog} />
-        </>
-      ) : (
-        <div className="py-20 text-center text-gray-500">Landing page content is not available at the moment. Please check back later.</div>
-      )}
+      <HeroCarousel result={hero} />
+      <Shopbycategory result={shopByCategory} />
+      <HighPerformanceMultiplex />
+      <PrimaryConversionPathways result={conversionPathways} />
+      <SupportingScientificCommunity result={supportingCommunity} />
+      <ProductCatalogBanner result={productCatalog} />
     </main>
   );
 }
