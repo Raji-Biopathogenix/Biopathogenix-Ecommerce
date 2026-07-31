@@ -83,9 +83,18 @@ class ProductImageSerializer(serializers.ModelSerializer):
 
 
 class ProductPrimaryImageSerializer(serializers.ModelSerializer):
+    image = serializers.SerializerMethodField()
+
     class Meta:
         model = ProductImage
         fields = ['image', 'alt_text']
+
+    def get_image(self, obj):
+        request = self.context.get('request')
+        if not obj.image:
+            return None
+        url = obj.image.url
+        return request.build_absolute_uri(url) if request else url
 
 
 class ProductRelatedInfoSerializer(serializers.ModelSerializer):
@@ -233,9 +242,18 @@ class ProductByCategorySerializer(serializers.ModelSerializer):
 
 
 class ProductDetailImageSerializer(serializers.ModelSerializer):
+    image = serializers.SerializerMethodField()
+
     class Meta:
         model = ProductImage
         fields = ['image','is_primary']
+
+    def get_image(self, obj):
+        request = self.context.get('request')
+        if not obj.image:
+            return None
+        url = obj.image.url
+        return request.build_absolute_uri(url) if request else url
 
 
 class ProductDocumentSerializer(serializers.ModelSerializer):

@@ -11,9 +11,18 @@ class CategoryListSerializer(serializers.ModelSerializer):
 
 
 class HeaderSubCategorySerializer(serializers.ModelSerializer):
+    image = serializers.SerializerMethodField()
+
     class Meta:
         model = Category
-        fields = ('name', 'slug','image')  
+        fields = ('name', 'slug','image')
+
+    def get_image(self, obj):
+        request = self.context.get('request')
+        if not obj.image:
+            return None
+        url = obj.image.url
+        return request.build_absolute_uri(url) if request else url
 
 
 class HeaderCategorySerializer(serializers.ModelSerializer):
@@ -33,9 +42,10 @@ class HeaderCategorySerializer(serializers.ModelSerializer):
 
 
 class SearchCategoryHeaderSerializer(serializers.ModelSerializer):
-    # product_count = serializers.SerializerMethodField()    
+    # product_count = serializers.SerializerMethodField()
     product_count = serializers.IntegerField(read_only=True)
     parent = serializers.SerializerMethodField()
+    image = serializers.SerializerMethodField()
 
     class Meta:
         model = Category
@@ -45,6 +55,13 @@ class SearchCategoryHeaderSerializer(serializers.ModelSerializer):
         if obj.parent:
             return {'slug': obj.parent.slug}
         return None
+
+    def get_image(self, obj):
+        request = self.context.get('request')
+        if not obj.image:
+            return None
+        url = obj.image.url
+        return request.build_absolute_uri(url) if request else url
 
     # def get_product_count(self, obj):
     #     return getattr(obj, 'product_count', 0)  # fallback to 0 if not annotated

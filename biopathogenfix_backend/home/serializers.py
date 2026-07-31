@@ -84,15 +84,33 @@ class CareerApplicationCreateSerializer(serializers.ModelSerializer):
 
 
 class LandingPageImageSerializer(serializers.ModelSerializer):
+    image = serializers.SerializerMethodField()
+
     class Meta:
         model = LandingPageImage
         fields = [ "image", "alt_text", "order", "is_active"]
 
+    def get_image(self, obj):
+        request = self.context.get('request')
+        if not obj.image:
+            return None
+        url = obj.image.url
+        return request.build_absolute_uri(url) if request else url
+
 
 class LandingPageContextSerializer(serializers.ModelSerializer):
+    download_file = serializers.SerializerMethodField()
+
     class Meta:
         model = LandingPageContext
         fields = ["title","short_description","description", "btn_text", "btn_url", "download_file"]
+
+    def get_download_file(self, obj):
+        request = self.context.get('request')
+        if not obj.download_file:
+            return None
+        url = obj.download_file.url
+        return request.build_absolute_uri(url) if request else url
 
 
 class LandingPageTypeSerializer(serializers.ModelSerializer):
