@@ -17,48 +17,63 @@ const risks = [
 
 export default function ValidationInfrastructureSection() {
   return (
-    <section className="bg-[#f2f4f6] py-12 md:py-20">
-      <div className="mx-auto max-w-7xl px-6 md:px-12">
-        <div className="grid items-start gap-12 md:grid-cols-2">
-          <div className="relative order-2 md:order-1">
-            <div className="overflow-hidden rounded-3xl shadow-sm md:h-[520px]">
-              <Image
-                src="/images/validation%20services/Contrived-Sample-1000x667.jpg"
-                alt="Laboratory research"
-                width={800}
-                height={600}
-                className="h-full w-full object-cover"
-              />
-            </div>
+    <section
+      className="relative overflow-hidden bg-[#f4f8fc] px-4 py-10 md:px-6 md:py-14"
+      style={{
+        backgroundImage: `url("/images/validation%20services/bg2.jpeg")`,
+        backgroundSize: "cover",
+        backgroundPosition: "center",
+      }}
+    >
+      <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(180deg,rgba(244,248,252,0.92)_0%,rgba(244,248,252,0.72)_100%)]" />
+      <div className="relative mx-auto max-w-[1440px]">
+        <div className="grid items-center gap-8 md:grid-cols-2 md:gap-12">
+          <div className="relative overflow-hidden rounded-[28px] shadow-[0_24px_48px_rgba(14,34,72,0.12)]">
+            <Image
+              src="/images/validation%20services/8.png"
+              alt="Laboratory research"
+              width={900}
+              height={860}
+              className="h-full w-full object-cover object-[52%_50%]"
+            />
           </div>
 
-          <div className="order-1 text-[#123669] md:order-2">
-            <h2 className="font-['Quicksand'] text-4xl font-bold leading-tight md:text-6xl">
-              Validation isn&#39;t a formality. <span className="text-[#3d7ec2]">It&#39;s infrastructure.</span>
+          <div className="text-[#16345f]">
+            <h2 className="max-w-[610px] font-['Quicksand'] text-[2.05rem] font-bold leading-[0.98] tracking-[-0.04em] md:text-[3.45rem]">
+              Validation isn&apos;t a formality.{" "}
+              <span className="text-[#3989c7]">It&apos;s infrastructure.</span>
             </h2>
 
-            <p className="mt-6 text-lg leading-relaxed md:max-w-md">
-              It defines the standard your laboratory operates within—today and as you scale.
+            <p className="mt-5 max-w-[500px] text-[0.84rem] leading-6 text-[#53657c] md:mt-6 md:text-[1rem]">
+              It defines the standard your laboratory operates within today and as you scale.
             </p>
 
-            <div className="mt-10">
-              <p className="text-2xl font-bold">You&#39;re</p>
-              <ul className="mt-4 space-y-3">
+            <div className="mt-7 md:mt-9">
+              <p className="text-[1.15rem] font-bold md:text-[1.55rem]">You&apos;re</p>
+              <ul className="mt-4 space-y-2.5">
                 {strengths.map((item) => (
-                  <li key={item} className="flex items-center gap-3 text-base font-medium">
-                    <CheckCircle2 className="h-5 w-5 shrink-0 text-[#3d7ec2]" />
+                  <li
+                    key={item}
+                    className="flex items-start gap-3 text-[0.84rem] font-medium text-[#3d4f69] md:text-[0.98rem]"
+                  >
+                    <CheckCircle2 className="mt-0.5 h-5 w-5 shrink-0 text-[#3a8ac8]" />
                     <span>{item}</span>
                   </li>
                 ))}
               </ul>
             </div>
 
-            <div className="mt-10">
-              <h3 className="text-2xl font-bold">Without structured validation design</h3>
-              <ul className="mt-4 space-y-3">
+            <div className="mt-7 md:mt-8">
+              <h3 className="text-[1.08rem] font-bold text-[#16345f] md:text-[1.45rem]">
+                Without structured validation design
+              </h3>
+              <ul className="mt-4 space-y-2.5">
                 {risks.map((item) => (
-                  <li key={item} className="flex items-center gap-3 text-base font-medium">
-                    <CheckCircle2 className="h-5 w-5 shrink-0 text-[#3d7ec2]" />
+                  <li
+                    key={item}
+                    className="flex items-start gap-3 text-[0.84rem] font-medium text-[#3d4f69] md:text-[0.98rem]"
+                  >
+                    <CheckCircle2 className="mt-0.5 h-5 w-5 shrink-0 text-[#3a8ac8]" />
                     <span>{item}</span>
                   </li>
                 ))}
@@ -67,11 +82,9 @@ export default function ValidationInfrastructureSection() {
           </div>
         </div>
 
-        <div className="mt-16 rounded-xl bg-[#0f2a4d] px-8 py-6 text-center shadow-lg">
-          <p className="text-sm font-bold uppercase tracking-widest text-white md:text-lg">
-            BIOPATHOGENIX VALIDATION SERVICES ARE BUILT TO ELIMINATE THOSE RISKS BEFORE THEY SURFACE.
-          </p>
-        </div>
+        <p className="mx-auto mt-10 max-w-5xl text-center text-[0.72rem] font-semibold tracking-[0.16em] text-[#173863] md:mt-12 md:text-[0.9rem]">
+          BIOPATHOGENIX VALIDATION SERVICES ARE BUILT TO ELIMINATE THOSE RISKS BEFORE THEY SURFACE.
+        </p>
       </div>
     </section>
   );

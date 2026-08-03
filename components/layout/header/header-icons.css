@@ -4,12 +4,17 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  color: #0b3c5d;
-  transition: color 0.2s ease, transform 0.2s ease;
+  color: #1b345f;
+  transition: color 0.2s ease, transform 0.2s ease, background 0.2s ease;
+  width: 42px;
+  height: 42px;
+  border-radius: 999px;
+  background: #f1f5fb;
 }
 
 .header-icon-btn:hover {
-  color: #0c86d1;
+  color: #274e84;
+  background: #e4edf8;
   transform: translateY(-1px);
 }
 
@@ -20,13 +25,13 @@
 
 .header-cart-badge {
   position: absolute;
-  top: -6px;
-  right: -8px;
-  background: #0c86d1;
+  top: -3px;
+  right: -4px;
+  background: #4f87cb;
   color: #ffffff;
-  font-size: 11px;
-  height: 18px;
-  min-width: 18px;
+  font-size: 10px;
+  height: 17px;
+  min-width: 17px;
   border-radius: 999px;
   display: flex;
   align-items: center;

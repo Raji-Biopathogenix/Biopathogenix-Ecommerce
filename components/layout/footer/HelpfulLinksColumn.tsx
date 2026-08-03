@@ -12,7 +12,7 @@ const links = [
 export default function HelpfulLinksColumn() {
   return (
     <div>
-      <h4 className="text-[18px] font-semibold text-[#0b2e59] mb-6">
+      <h4 className="mb-6 text-[18px] font-bold text-[#10264a]">
         Helpful Links
       </h4>
 
@@ -21,7 +21,7 @@ export default function HelpfulLinksColumn() {
           <li key={item.label}>
             <Link
               href={item.href}
-              className="text-[16px] text-[#0b2e59] hover:text-[#0b76d1] transition"
+              className="text-[16px] text-[#51647c] transition hover:text-[#4f87cb]"
             >
               {item.label}
             </Link>

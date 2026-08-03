@@ -4,106 +4,47 @@ type ValidationBottomCtaProps = {
   onOpenForm: () => void;
 };
 
-const HELIX_HEIGHT = 640;
-const HELIX_CENTER = 130;
-const HELIX_AMPLITUDE = 110;
-const HELIX_PERIOD = 190;
-const HELIX_STEPS = 90;
-
-function strandPath(phase: number) {
-  let d = "";
-  for (let i = 0; i <= HELIX_STEPS; i += 1) {
-    const y = (HELIX_HEIGHT / HELIX_STEPS) * i;
-    const x = HELIX_CENTER + HELIX_AMPLITUDE * Math.sin((y / HELIX_PERIOD) * 2 * Math.PI + phase);
-    d += i === 0 ? `M ${x.toFixed(1)} ${y.toFixed(1)}` : ` L ${x.toFixed(1)} ${y.toFixed(1)}`;
-  }
-  return d;
-}
-
-const RUNG_COUNT = 11;
-
-function DnaHelix() {
-  const rungs = Array.from({ length: RUNG_COUNT }).map((_, i) => {
-    const y = (HELIX_HEIGHT / (RUNG_COUNT - 1)) * i + 10;
-    const x1 = HELIX_CENTER + HELIX_AMPLITUDE * Math.sin((y / HELIX_PERIOD) * 2 * Math.PI);
-    const x2 = HELIX_CENTER + HELIX_AMPLITUDE * Math.sin((y / HELIX_PERIOD) * 2 * Math.PI + Math.PI);
-    return { y, x1, x2 };
-  });
-
-  return (
-    <svg
-      viewBox={`0 0 260 ${HELIX_HEIGHT}`}
-      className="pointer-events-none h-full w-full"
-      fill="none"
-      aria-hidden="true"
-    >
-      <defs>
-        <linearGradient id="dnaStrandA" x1="0" y1="0" x2="1" y2="1">
-          <stop offset="0%" stopColor="#bfe6f7" />
-          <stop offset="45%" stopColor="#5fb8dd" />
-          <stop offset="100%" stopColor="#2f7fb0" />
-        </linearGradient>
-        <linearGradient id="dnaStrandB" x1="0" y1="0" x2="1" y2="1">
-          <stop offset="0%" stopColor="#ffffff" />
-          <stop offset="50%" stopColor="#cfe0ee" />
-          <stop offset="100%" stopColor="#8ea6c2" />
-        </linearGradient>
-      </defs>
-      {rungs.map((rung, i) => (
-        <line
-          key={i}
-          x1={rung.x1}
-          y1={rung.y}
-          x2={rung.x2}
-          y2={rung.y}
-          stroke="#bfe6f7"
-          strokeOpacity="0.5"
-          strokeWidth="3"
-        />
-      ))}
-      <path d={strandPath(0)} stroke="url(#dnaStrandA)" strokeWidth="9" strokeLinecap="round" />
-      <path d={strandPath(Math.PI)} stroke="url(#dnaStrandB)" strokeOpacity="0.85" strokeWidth="9" strokeLinecap="round" />
-    </svg>
-  );
-}
-
 export default function ValidationBottomCta({ onOpenForm }: ValidationBottomCtaProps) {
   return (
-    <section className="bg-[#f2f4f6] px-4 pb-12 pt-4">
-      <div className="relative mx-auto max-w-7xl overflow-hidden rounded-2xl bg-gradient-to-br from-[#0c2049] to-[#050b1d]">
-        <div className="pointer-events-none absolute -right-6 -top-10 hidden h-[calc(100%+5rem)] w-[300px] md:block lg:w-[360px]">
-          <DnaHelix />
-        </div>
+    <section className="bg-[#f4f8fc] px-4 pb-12 pt-4 md:px-6 md:pb-14">
+      <div className="mx-auto max-w-[1440px] overflow-hidden rounded-[28px] bg-[#081534] shadow-[0_24px_60px_rgba(5,12,30,0.24)]">
+        <div
+          className="relative min-h-[320px] px-6 py-8 md:min-h-[360px] md:px-10 md:py-10"
+          style={{
+            backgroundImage: `linear-gradient(90deg, rgba(8,21,52,1) 0%, rgba(8,21,52,1) 46%, rgba(8,21,52,0.96) 58%, rgba(8,21,52,0.72) 72%, rgba(8,21,52,0.18) 88%, rgba(8,21,52,0) 100%), url("/images/validation%20services/confident-validation-dna.png")`,
+            backgroundSize: "cover, cover",
+            backgroundPosition: "left center, right center",
+            backgroundRepeat: "no-repeat, no-repeat",
+          }}
+        >
+          <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_86%_40%,rgba(115,170,255,0.26)_0,rgba(115,170,255,0.12)_12%,rgba(8,21,52,0)_34%),radial-gradient(circle_at_74%_74%,rgba(94,157,255,0.15)_0,rgba(94,157,255,0.06)_14%,rgba(8,21,52,0)_28%)]" />
 
-        <div className="relative px-8 py-14 text-white md:px-14 md:py-20">
-          <span className="text-xs font-bold tracking-[0.22em] text-white md:text-sm">
-            STANDARD ASSAYS
-          </span>
-
-          <div className="mt-5 flex flex-col items-start gap-3 md:flex-row md:items-end md:gap-8">
-            <h2 className="font-['Quicksand'] text-3xl font-bold leading-tight md:text-5xl">
-              <span className="text-[#5fb8dd]">Confident Validation</span>
+          <div className="relative z-10 flex h-full max-w-[620px] flex-col justify-center text-white">
+            <span className="text-[0.68rem] font-bold tracking-[0.34em] text-white/62 md:text-[0.78rem]">
+              STANDARD ASSAYS
+            </span>
+            <h2 className="mt-4 max-w-[620px] font-['Quicksand'] text-[2.05rem] font-bold leading-[0.92] tracking-[-0.04em] md:text-[3.45rem]">
+              <span className="text-[#50a7d7]">Confident Validation</span>
               <br />
               Starts With Structured
               <br />
               Design
             </h2>
-            <p className="max-w-xs pb-1 text-sm leading-relaxed text-white/80 md:text-base">
-              Schedule a consultation and see how BioPathogenix transforms validation from risk
-              into readiness.
+            <p className="mt-4 max-w-[320px] text-[0.82rem] leading-6 text-white/78 md:mt-5 md:text-[0.96rem]">
+              Schedule a consultation and see how BioPathogenix transforms validation from risk into readiness.
             </p>
-          </div>
 
-          <button
-            type="button"
-            onClick={onOpenForm}
-            className="mt-9 inline-flex items-center gap-3 rounded-lg bg-white px-8 py-3.5 text-sm font-semibold text-[#0c2049] transition-colors hover:bg-[#eef4fb] md:text-base"
-          >
-            Schedule a Consultation
-            <span className="border-l border-[#0c2049]/20 pl-3">
-              <ArrowRight className="h-4 w-4" />
-            </span>
-          </button>
+            <button
+              type="button"
+              onClick={onOpenForm}
+              className="mt-6 inline-flex items-center gap-3 rounded-[4px] bg-white px-6 py-3 text-[0.82rem] font-semibold text-[#0a1d3d] transition hover:bg-[#eef6fc] md:mt-8 md:px-7 md:text-[0.94rem]"
+            >
+              Schedule a Consultation
+              <span className="border-l border-[#0a1d3d]/20 pl-3">
+                <ArrowRight className="h-4 w-4" />
+              </span>
+            </button>
+          </div>
         </div>
       </div>
     </section>
