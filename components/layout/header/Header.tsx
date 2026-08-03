@@ -1,7 +1,6 @@
-"use client"
+"use client";
 
-import React,{ useState }  from "react";
-import Container from "@/components/layout/Container";
+import { useState } from "react";
 import Logo from "./Logo";
 import NavItem from "./NavbarMenus";
 import HeaderIcons from "./HeaderIcons";
@@ -44,7 +43,6 @@ function HeaderSection({ menus,search_categories,top_searchs }: HeaderSectionPro
   const [mobileOpen, setMobileOpen] = useState(false);
   const { isSuperAdmin } = useAuth()
 
-  console.log("menu",menus)
   const pathname = usePathname();
 
   const HIDE_HEADER_ROUTES = [
@@ -60,7 +58,7 @@ function HeaderSection({ menus,search_categories,top_searchs }: HeaderSectionPro
 
 
     <div className="navbar_container">
- <nav className=" mr-15 ml-15  navbar" role="navigation" aria-label="Main navigation">
+ <nav className="navbar" role="navigation" aria-label="Main navigation">
         <div className="navbar__start">
           {/* Hamburger - first child so it sits on the left on mobile */}
           <button

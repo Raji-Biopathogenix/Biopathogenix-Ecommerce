@@ -13,8 +13,8 @@ export default function Footer() {
   const hideHeader = HIDE_HEADER_ROUTES.some((route) => pathname.includes(route));
 
   return hideHeader ? null : (
-    <footer className="border-t border-[#e5eff9] pt-20 pb-10">
-      <div className="mx-auto max-w-[1400px] px-6">
+    <footer className="border-t border-[#dbe7f3] bg-[#f6f9fc] pt-20 pb-10">
+      <div className="mx-auto max-w-[1440px] px-6">
         <div className="grid grid-cols-1 gap-12 md:grid-cols-4">
           <BrandColumn />
           <FooterContact />
@@ -22,7 +22,7 @@ export default function Footer() {
           <HelpfulLinksColumn />
         </div>
 
-        <div className="mt-20 flex flex-col items-center justify-between border-t border-[#e5eff9] pt-6 text-[14px] text-[#7a8ca5] md:flex-row">
+        <div className="mt-16 flex flex-col items-center justify-between border-t border-[#dbe7f3] pt-6 text-[14px] text-[#6c7f98] md:flex-row">
           <p>{"\u00A9"} 2026 BioPathogenix. All rights reserved.</p>
         </div>
       </div>

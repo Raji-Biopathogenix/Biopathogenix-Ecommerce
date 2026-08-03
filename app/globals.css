@@ -1,29 +1,132 @@
-@import url("https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&display=swap");
-@import url("https://fonts.googleapis.com/css2?family=Quicksand:wght@500;600;700&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Manrope:wght@400;500;600;700;800&display=swap");
 @import "tailwindcss";
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --background: #f6f9fc;
+  --foreground: #10264a;
+  --surface: #ffffff;
+  --surface-soft: #f2f7fd;
+  --surface-muted: #eaf2fb;
+  --border: #dbe7f3;
+  --navy: #10264a;
+  --navy-deep: #081534;
+  --blue: #4f87cb;
+  --blue-deep: #2f5d8f;
+  --text-soft: #51647c;
 }
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
+  --font-sans: "Plus Jakarta Sans", "Manrope", system-ui, sans-serif;
   --font-mono: var(--font-geist-mono);
 }
 
+html {
+  scroll-behavior: smooth;
+}
 
 body {
-  background: var(--background);
+  background:
+    radial-gradient(circle at 50% 0%, rgba(255, 255, 255, 0.95), rgba(246, 249, 252, 0.82) 34%, rgba(246, 249, 252, 0.6) 100%),
+    var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: "Plus Jakarta Sans", "Manrope", system-ui, sans-serif;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  line-height: 1.7;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  color: var(--navy);
+  letter-spacing: -0.04em;
+}
+
+p,
+li,
+span,
+a,
+button,
+input,
+textarea,
+select {
+  font-family: inherit;
+}
+
+button {
+  cursor: pointer;
+}
+
+.font-\[\'Quicksand\'\],
+.font-\[\'Poppins\'\] {
+  font-family: "Plus Jakarta Sans", "Manrope", system-ui, sans-serif !important;
+}
+
+.site-page {
+  background:
+    radial-gradient(circle at 50% 0%, rgba(255, 255, 255, 0.96), rgba(246, 249, 252, 0.84) 34%, rgba(246, 249, 252, 0.64) 100%),
+    var(--background);
+}
+
+.premium-section {
+  position: relative;
+  overflow: hidden;
+}
+
+.premium-card {
+  border: 1px solid rgba(219, 231, 243, 0.75);
+  border-radius: 28px;
+  background: rgba(255, 255, 255, 0.92);
+  box-shadow: 0 18px 48px rgba(16, 38, 74, 0.08);
+}
+
+.premium-button-primary,
+.premium-button-secondary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.75rem;
+  border-radius: 12px;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  transition: transform 180ms ease, box-shadow 180ms ease, background-color 180ms ease;
+}
+
+.premium-button-primary {
+  background: linear-gradient(180deg, #3b6aa3 0%, #2f5d8f 100%);
+  color: #fff;
+  box-shadow: 0 14px 30px rgba(47, 93, 143, 0.2);
+}
+
+.premium-button-secondary {
+  background: #fff;
+  color: var(--navy);
+  border: 1px solid rgba(59, 106, 163, 0.25);
+  box-shadow: 0 10px 24px rgba(16, 38, 74, 0.06);
+}
+
+.premium-button-primary:hover,
+.premium-button-secondary:hover {
+  transform: translateY(-1px);
+}
+
+.premium-eyebrow {
+  text-transform: uppercase;
+  letter-spacing: 0.34em;
+  color: rgba(16, 38, 74, 0.55);
+  font-size: 0.72rem;
+  font-weight: 700;
 }
 
 .bpx-chat-panel,
 .bpx-chat-panel * {
-  font-family: "IBM Plex Sans", "Segoe UI", sans-serif;
+  font-family: "Plus Jakarta Sans", "Manrope", "IBM Plex Sans", "Segoe UI", sans-serif;
 }
 
 .bpx-chat-panel {
@@ -56,8 +159,8 @@ body {
 
 .spec-section.product-overview {
   padding: 40px 0;
-  font-family: Arial, Helvetica, sans-serif;
-  line-height: 1.6;
+  font-family: "Plus Jakarta Sans", "Manrope", system-ui, sans-serif;
+  line-height: 1.7;
 }
 
 .spec-section.product-overview h2 {
@@ -88,14 +191,3 @@ body {
   margin: 32px 0 0 0;
   font-weight: 700;
 }
-
-/* 
-.landing-content h1 {
-  @apply text-[2.8rem] font-extrabold text-white leading-tight mb-5;
-}
-.landing-content p {
-  @apply text-[0.95rem] text-white/85 leading-relaxed max-w-[620px] mb-8;
-}
-.landing-content strong {
-  @apply font-bold text-white;
-} */

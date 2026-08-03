@@ -7,10 +7,10 @@ export default function Logo() {
       <Image
         src="/images/logo/BioPathogenix-Horizontal-1.svg"
         alt="BioPathogenix"
-        width={180}
-        height={42}
+        width={210}
+        height={48}
         priority
-        className="h-8 md:h-12 w-auto"
+        className="h-9 md:h-10 w-auto"
       />
     </Link>
   )
