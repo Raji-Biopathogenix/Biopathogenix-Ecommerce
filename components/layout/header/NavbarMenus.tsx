@@ -1,7 +1,6 @@
 "use client";
-import { useEffect, useMemo, useState,useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
-import Image from "next/image";
 import {HeaderItem,headerSubCategoryitem} from "@/types/header"
 
 
@@ -35,7 +34,28 @@ function NavDropdown({ subCategories,category_slug, visible,type }: { subCategor
 export default function NavItem({ item }: { item: HeaderItem }) {
   const [open, setOpen] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
+  const closeTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const hasSubCategories = item.category.sub_categories.length > 0;
+
+  const handleOpen = () => {
+    if (!hasSubCategories) return;
+    if (closeTimeoutRef.current) {
+      clearTimeout(closeTimeoutRef.current);
+      closeTimeoutRef.current = null;
+    }
+    setOpen(true);
+  };
+
+  const handleCloseDelayed = () => {
+    if (!hasSubCategories) return;
+    if (closeTimeoutRef.current) {
+      clearTimeout(closeTimeoutRef.current);
+    }
+    closeTimeoutRef.current = setTimeout(() => {
+      setOpen(false);
+      closeTimeoutRef.current = null;
+    }, 180);
+  };
 
   useEffect(() => {
     function handleClickOutside(e: MouseEvent) {
@@ -44,15 +64,20 @@ export default function NavItem({ item }: { item: HeaderItem }) {
       }
     }
     document.addEventListener('mousedown', handleClickOutside);
-    return () => document.removeEventListener('mousedown', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+      if (closeTimeoutRef.current) {
+        clearTimeout(closeTimeoutRef.current);
+      }
+    };
   }, []);
 
   return (
     <div
       ref={ref}
       className="nav-item"
-      onMouseEnter={() => hasSubCategories && setOpen(true)}
-      onMouseLeave={() => hasSubCategories && setOpen(false)}
+      onMouseEnter={handleOpen}
+      onMouseLeave={handleCloseDelayed}
     >
       <Link
         href={item?.navigation_flag ? `/${item?.category?.slug}` : ``}

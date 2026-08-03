@@ -11,7 +11,7 @@ export default function ValidationBottomCta({ onOpenForm }: ValidationBottomCtaP
         <div
           className="relative min-h-[320px] px-6 py-8 md:min-h-[360px] md:px-10 md:py-10"
           style={{
-            backgroundImage: `linear-gradient(90deg, rgba(8,21,52,1) 0%, rgba(8,21,52,1) 46%, rgba(8,21,52,0.96) 58%, rgba(8,21,52,0.72) 72%, rgba(8,21,52,0.18) 88%, rgba(8,21,52,0) 100%), url("/images/validation%20services/confident-validation-dna.png")`,
+            backgroundImage: `linear-gradient(90deg, rgba(6,19,46,1) 0%, rgba(6,19,46,1) 48%, rgba(7,24,57,0.96) 60%, rgba(7,24,57,0.74) 74%, rgba(7,24,57,0.2) 89%, rgba(7,24,57,0) 100%), url("/images/validation%20services/confident-validation-dna.png")`,
             backgroundSize: "cover, cover",
             backgroundPosition: "left center, right center",
             backgroundRepeat: "no-repeat, no-repeat",
@@ -23,14 +23,14 @@ export default function ValidationBottomCta({ onOpenForm }: ValidationBottomCtaP
             <span className="text-[0.68rem] font-bold tracking-[0.34em] text-white/62 md:text-[0.78rem]">
               STANDARD ASSAYS
             </span>
-            <h2 className="mt-4 max-w-[620px] font-['Quicksand'] text-[2.05rem] font-bold leading-[0.92] tracking-[-0.04em] md:text-[3.45rem]">
+            <h2 className="mt-4 max-w-[620px] font-['Quicksand'] text-[2.05rem] font-bold leading-[0.92] tracking-[-0.04em] text-white drop-shadow-[0_2px_10px_rgba(4,12,32,0.55)] md:text-[3.45rem]">
               <span className="text-[#50a7d7]">Confident Validation</span>
               <br />
               Starts With Structured
               <br />
               Design
             </h2>
-            <p className="mt-4 max-w-[320px] text-[0.82rem] leading-6 text-white/78 md:mt-5 md:text-[0.96rem]">
+            <p className="mt-4 max-w-[320px] text-[0.82rem] leading-6 text-white/92 md:mt-5 md:text-[0.96rem]">
               Schedule a consultation and see how BioPathogenix transforms validation from risk into readiness.
             </p>
 
