@@ -42,9 +42,9 @@ export default function OrderModal({items, order, onClose }: OrderModalProps) {
   console.log("items",items)
   const cfg = STATUS_CONFIG[order.status];
   const computedSubtotal = items ? items.reduce((s, i) => s + i.unit_price * i.quantity, 0) : 0;
-  const subtotal = order.subtotal || computedSubtotal;
-  const shipping = order.shipping_cost || 0;
-  const tax = order.tax_amount || 0;
+  const subtotal = Number(order.subtotal) || computedSubtotal;
+  const shipping = Number(order.shipping_cost) || 0;
+  const tax = Number(order.tax_amount) || 0;
   const isRefunded = order.refund_status && order.refund_status !== "none" && Number(order.refund_amount) > 0;
 
   useEffect(() => {
