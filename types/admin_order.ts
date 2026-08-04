@@ -21,8 +21,11 @@ export interface Order {
   items_count: number;
   // items: OrderItem[];
   amount: number;
+  subtotal: number;
+  shipping_cost: number;
+  tax_amount: number;
   shipping_address_line1: string;
-  paymentMethod: string;
+  payment_method: string;
   payment_method_display: string
   card_last4: string
   card_brand: string
@@ -33,6 +36,9 @@ export interface Order {
   shipping_label?:string | null
   is_cancellable?: boolean
   is_refundable: boolean
+  refund_status: string
+  refund_amount: number | null
+  refunded_at: string | null
 }
 
 
