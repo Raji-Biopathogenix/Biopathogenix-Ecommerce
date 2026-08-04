@@ -88,7 +88,7 @@ def poll_all_active_orders():
     default_retry_delay=60,
 )
 def track_single_shipment(self,shipment_id, tracking_number, current_status, order_id):
-    from order.models import Shipment, OrderItem
+    from order.models import Shipment, OrderItem, Order
     from django.utils.timezone import now
 
     try:
@@ -128,8 +128,13 @@ def track_single_shipment(self,shipment_id, tracking_number, current_status, ord
         shipment.items.update(status='delivered')
         print(f"[UPS] Items in shipment {shipment_id} marked delivered")
 
-    shipment = Shipment.objects.get(id=shipment_id)
-    shipment.save(update_fields=['status'])  # triggers signal
+    # Recompute the Order's own status from shipment/item state — this
+    # is what actually sends the customer notification email, via
+    # Order.save()'s existing status-change hook. Nothing was calling
+    # update_status() before, so shipment tracking updates never
+    # reached the customer at all despite NOTIFY_ON_STATUSES existing.
+    order = Order.objects.get(id=order_id)
+    order.update_status()
 
     print(f"Order {order_id} updated to {new_status}")
 
