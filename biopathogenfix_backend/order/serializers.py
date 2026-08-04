@@ -133,6 +133,9 @@ class AllOrderSerializer(serializers.ModelSerializer):
                 "id",
                 "transaction_id",
                 "amount",
+                "subtotal",
+                "shipping_cost",
+                "tax_amount",
                 "status",
                 "payment_method",
                 "payment_method_display",
@@ -152,6 +155,9 @@ class AllOrderSerializer(serializers.ModelSerializer):
                 "shipping_label",
                 "is_cancellable",
                 "is_refundable",
+                "refund_status",
+                "refund_amount",
+                "refunded_at",
         ]
     def get_items_count(self,obj):
         return  obj.items.count() 

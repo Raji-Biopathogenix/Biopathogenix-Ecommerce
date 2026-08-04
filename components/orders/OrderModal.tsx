@@ -41,8 +41,11 @@ interface OrderModalProps {
 export default function OrderModal({items, order, onClose }: OrderModalProps) {
   console.log("items",items)
   const cfg = STATUS_CONFIG[order.status];
-  const subtotal = items? items.reduce((s, i) => s + i.unit_price * i.quantity, 0) : 0;
-  const tax = subtotal * 0.18;
+  const computedSubtotal = items ? items.reduce((s, i) => s + i.unit_price * i.quantity, 0) : 0;
+  const subtotal = order.subtotal || computedSubtotal;
+  const shipping = order.shipping_cost || 0;
+  const tax = order.tax_amount || 0;
+  const isRefunded = order.refund_status && order.refund_status !== "none" && Number(order.refund_amount) > 0;
 
   useEffect(() => {
     const handler = (e: KeyboardEvent) => e.key === "Escape" && onClose();
@@ -197,8 +200,9 @@ export default function OrderModal({items, order, onClose }: OrderModalProps) {
           {/* Totals */}
           <div style={{ marginTop: 16, paddingTop: 16, borderTop: "1px solid #f3f4f6" }}>
             {[
-              { label: "Subtotal",   value: subtotal },
-              // { label: "GST (18%)", value: tax },
+              { label: "Items Subtotal", value: subtotal },
+              { label: "Shipping",       value: shipping },
+              { label: "Tax",            value: tax },
             ].map((row) => (
               <div key={row.label} style={{ display: "flex", justifyContent: "space-between", marginBottom: 8, fontSize: 13 }}>
                 <span style={{ color: "#6b7280" }}>{row.label}</span>
@@ -206,14 +210,40 @@ export default function OrderModal({items, order, onClose }: OrderModalProps) {
               </div>
             ))}
             <div style={{ display: "flex", justifyContent: "space-between", paddingTop: 12, borderTop: "1px solid #e5e7eb", marginTop: 4 }}>
-              <span style={{ fontWeight: 700, color: "#111111", fontSize: 15 }}>Total</span>
+              <span style={{ fontWeight: 700, color: "#111111", fontSize: 15 }}>Order Total</span>
               <span style={{ fontWeight: 800, fontSize: 18, color: "#0b76d1" }}>
-                ${order.amount}
+                ${Number(order.amount).toFixed(2)}
               </span>
             </div>
           </div>
+
+          {/* Paid / Refund summary */}
+          <div style={{ marginTop: 16, paddingTop: 16, borderTop: "1px solid #f3f4f6" }}>
+            <div style={{ display: "flex", justifyContent: "space-between", fontSize: 13 }}>
+              <span style={{ fontWeight: 700, color: "#111111" }}>Paid</span>
+              <span style={{ fontWeight: 700, color: "#065f46" }}>${Number(order.amount).toFixed(2)}</span>
+            </div>
+            <div style={{ fontSize: 12, color: "#9ca3af", marginTop: 2 }}>
+              {new Date(order.created_at).toLocaleDateString("en-US", { month: "long", day: "numeric", year: "numeric" })}
+              {order.payment_method === "card" && order.card_brand
+                ? ` via ${order.card_brand} card ending ${order.card_last4}`
+                : ` via ${order.payment_method_display}`}
+            </div>
+
+            {isRefunded && (
+              <div style={{ display: "flex", justifyContent: "space-between", fontSize: 13, marginTop: 10 }}>
+                <span style={{ fontWeight: 700, color: "#92400e" }}>
+                  {order.refund_status === "partially_returned" ? "Partially Refunded" : "Refunded"}
+                </span>
+                <span style={{ fontWeight: 700, color: "#92400e" }}>
+                  -${Number(order.refund_amount).toFixed(2)}
+                  {order.refunded_at ? ` on ${new Date(order.refunded_at).toLocaleDateString("en-US", { month: "long", day: "numeric", year: "numeric" })}` : ""}
+                </span>
+              </div>
+            )}
+          </div>
         </div>
- 
+
         <div style={{ padding: "16px 24px", borderTop: "1px solid #f3f4f6", display: "flex", justifyContent: "flex-end", gap: 8 }}>
           <button
             onClick={onClose}
