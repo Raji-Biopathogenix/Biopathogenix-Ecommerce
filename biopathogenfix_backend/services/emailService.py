@@ -45,6 +45,7 @@ def send_graph_email(
     text_body: Optional[str] = None,
     from_email: Optional[str] = None,
     cc_list: Optional[Iterable[str]] = None,
+    bcc_list: Optional[Iterable[str]] = None,
     attachments: Optional[Iterable[dict]] = None,
 ) -> None:
     if not _graph_enabled():
@@ -69,6 +70,9 @@ def send_graph_email(
             ],
             "ccRecipients": [
                 {"emailAddress": {"address": address}} for address in (cc_list or [])
+            ],
+            "bccRecipients": [
+                {"emailAddress": {"address": address}} for address in (bcc_list or [])
             ],
         },
         "saveToSentItems": "false",

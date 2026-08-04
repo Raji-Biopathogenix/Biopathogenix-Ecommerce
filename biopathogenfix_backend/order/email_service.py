@@ -53,16 +53,18 @@ def send_order_status_email(order, previous_status: str | None = None, notes: st
         subject = f"Order #{context['order_number']} Updated to {context['current_status_display']}"
         from_email = f"{configSettings.COMPANY_NAME} <{configSettings.DEFAULT_FROM_EMAIL}>"
         to_list = _get_order_recipients(order)
+        bcc_list = ['rajeswari.gopu@biopathogenix.com']
         if getattr(settings, 'GRAPH_ENABLED', False):
             # Graph's sendMail wants a bare mailbox address, not a "Name <email>"
             # string -- that display-name format is only valid for the SMTP From header.
-            send_graph_email(to_list, subject, html_body=html_content, text_body=text_content, from_email=configSettings.DEFAULT_FROM_EMAIL)
+            send_graph_email(to_list, subject, html_body=html_content, text_body=text_content, from_email=configSettings.DEFAULT_FROM_EMAIL, bcc_list=bcc_list)
         else:
             email = EmailMultiAlternatives(
                 subject=subject,
                 body=text_content,
                 from_email=from_email,
                 to=to_list,
+                bcc=bcc_list,
                 reply_to=[configSettings.SUPPORT_EMAIL],
             )
             email.attach_alternative(html_content, 'text/html')
