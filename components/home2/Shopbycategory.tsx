@@ -41,7 +41,7 @@ export default function ShopByCategory({ result: _result }: ShopByCategoryprops)
   void _result;
 
   return (
-    <section className="relative overflow-hidden bg-white py-20">
+    <section className="relative overflow-hidden bg-white py-14 sm:py-16 lg:py-20">
       <div className="relative">
         <h2
           className="
@@ -78,8 +78,8 @@ export default function ShopByCategory({ result: _result }: ShopByCategoryprops)
           </h2>
         </div>
 
-        <div className="relative top-10 w-full px-3 sm:px-5 lg:px-8">
-          <div className="flex w-full gap-4 overflow-x-auto pb-2 lg:overflow-visible">
+        <div className="relative top-6 w-full px-3 sm:top-8 sm:px-5 lg:top-10 lg:px-8">
+          <div className="flex w-full snap-x snap-mandatory gap-4 overflow-x-auto pb-2 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden lg:overflow-visible">
             {CATEGORIES.map((category) => {
               const link = category.link;
 
@@ -90,14 +90,17 @@ export default function ShopByCategory({ result: _result }: ShopByCategoryprops)
                   className="
                         group
                         relative
-                        h-[420px]
-                        min-w-[280px]
+                        h-[320px]
+                        min-w-[240px]
                         flex-1
                         lg:min-w-0
                         cursor-pointer
                         overflow-hidden
                         rounded-[28px]
                         flex-shrink-0
+                        snap-start
+                        sm:h-[360px]
+                        lg:h-[420px]
                     "
                 >
                   {/* Image */}
@@ -118,15 +121,15 @@ export default function ShopByCategory({ result: _result }: ShopByCategoryprops)
                   {/* Gradient */}
                   <div className="absolute inset-0 bg-gradient-to-t from-[#08284d] via-[#08284d66] to-transparent" />
                   {/* Bottom Content */}
-                  <div className="absolute bottom-7 left-6 right-6 z-10 flex items-end justify-between">
-                    <h3 className="max-w-[180px] text-[20px] font-semibold leading-tight !text-white drop-shadow-[0_1px_2px_rgba(0,0,0,0.45)]">
+                  <div className="absolute bottom-5 left-4 right-4 z-10 flex items-end justify-between sm:bottom-7 sm:left-6 sm:right-6">
+                    <h3 className="max-w-[150px] text-[14px] font-semibold leading-tight !text-white drop-shadow-[0_1px_2px_rgba(0,0,0,0.45)] sm:max-w-[180px] sm:text-[18px] lg:text-[20px]">
                       {category.title}
                     </h3>
                     <div
                       className="
                           flex
-                          h-12
-                          w-12
+                          h-10
+                          w-10
                           items-center
                           justify-center
                           rounded-full
@@ -134,9 +137,13 @@ export default function ShopByCategory({ result: _result }: ShopByCategoryprops)
                           transition-all
                           duration-300
                           group-hover:translate-x-1
+                          sm:h-11
+                          sm:w-11
+                          lg:h-12
+                          lg:w-12
                         "
                     >
-                      <ChevronRight className="h-5 w-5 text-[#173963]" />
+                      <ChevronRight className="h-4 w-4 text-[#173963] sm:h-5 sm:w-5" />
                     </div>
                   </div>
                 </div>

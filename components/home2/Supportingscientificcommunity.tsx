@@ -40,7 +40,7 @@ export default function SupportingScientificCommunity({
   const btnUrl = result?.contexts?.[0]?.btn_url || "#";
 
   return (
-    <section className="bg-white pt-12 md:pt-16 lg:pt-20">
+    <section className="bg-white pt-10 md:pt-16 lg:pt-20">
       <div className="mx-auto w-full px-4 sm:px-5 lg:px-0">
         {/* Main Card */}
         <div
@@ -57,20 +57,20 @@ export default function SupportingScientificCommunity({
 
           <div className="relative grid grid-cols-1 lg:grid-cols-[47%_53%]">
             {/* LEFT IMAGE */}
-            <div className="p-4 md:p-5 lg:p-0">
+            <div className="p-3 md:p-5 lg:p-0">
               <div className="overflow-hidden rounded-[24px] md:rounded-[30px] lg:rounded-[34px] shadow-[0_25px_60px_rgba(23,57,99,0.12)] h-full">
                 <img
                   src="/fig-preview/images/0377cb72fc5481097071d3d22006c7e168cb930c"
                   alt="Scientific Community"
-                  className="h-[260px] sm:h-[350px] md:h-[450px] lg:h-full w-full object-cover"
+                  className="h-[220px] w-full object-cover sm:h-[350px] md:h-[450px] lg:h-full"
                 />
               </div>
             </div>
 
             {/* RIGHT CONTENT */}
-            <div className="flex items-center px-5 py-8 sm:px-8 sm:py-10 md:px-10 md:py-12 lg:px-16">
+            <div className="flex items-center px-4 py-7 sm:px-8 sm:py-10 md:px-10 md:py-12 lg:px-16">
               <div className="max-w-[610px]">
-                <h2 className="font-['Quicksand'] text-[32px] font-bold leading-[1] tracking-[-1px] text-[#173963] sm:text-[38px] md:text-[48px] lg:text-[60px] lg:tracking-[-2px]">
+                <h2 className="font-['Quicksand'] text-[30px] font-bold leading-[1] tracking-[-1px] text-[#173963] sm:text-[38px] md:text-[48px] lg:text-[60px] lg:tracking-[-2px]">
                   Supporting the
                   <br />
                   <span className="text-[#49A9E6]">Scientific</span>
@@ -78,21 +78,21 @@ export default function SupportingScientificCommunity({
                   <span className="text-[#49A9E6]">Community</span>
                 </h2>
 
-                <p className="mt-5 max-w-[560px] text-[15px] leading-[1.7] text-[#475467] sm:text-[16px] md:mt-6 md:text-[17px] lg:mt-7 lg:text-[18px]">
+                <p className="mt-4 max-w-[560px] text-[14px] leading-[1.65] text-[#475467] sm:text-[16px] md:mt-6 md:text-[17px] lg:mt-7 lg:text-[18px]">
                   BioPathogenix shares insights and educational resources
                   designed to support researchers working with PCR technologies
                   and pathogen research.
                 </p>
 
-                <h3 className="mt-6 text-[18px] font-semibold text-[#173963] sm:text-[20px] md:mt-7 md:text-[21px] lg:mt-8 lg:text-[22px]">
+                <h3 className="mt-5 text-[17px] font-semibold text-[#173963] sm:text-[20px] md:mt-7 md:text-[21px] lg:mt-8 lg:text-[22px]">
                   Our learning resources explore topics such as:
                 </h3>
 
-                <ul className="mt-5 space-y-3 md:mt-6 md:space-y-4 lg:mt-7">
+                <ul className="mt-4 space-y-2.5 md:mt-6 md:space-y-4 lg:mt-7">
                   {TOPICS.map((topic) => (
                     <li
                       key={topic}
-                      className="flex items-start gap-3 md:gap-4 text-[15px] leading-[1.5] text-[#344054] sm:text-[16px] md:text-[17px] lg:text-[18px]"
+                      className="flex items-start gap-3 text-[14px] leading-[1.45] text-[#344054] sm:text-[16px] md:gap-4 md:text-[17px] lg:text-[18px]"
                     >
                       <CheckIcon />
                       <span>{topic}</span>
@@ -102,11 +102,11 @@ export default function SupportingScientificCommunity({
 
                 <button
                   onClick={() => router.push(btnUrl)}
-                  className="mt-8 inline-flex h-[52px] items-center rounded-xl bg-[#0E5C97] px-6 text-[15px] font-semibold text-white transition-all duration-300 hover:bg-[#0B4F82] sm:h-[56px] sm:px-7 sm:text-[16px] md:mt-9 lg:mt-10 lg:h-[62px] lg:px-8 lg:text-[18px]"
+                  className="mt-7 inline-flex h-[48px] items-center rounded-xl bg-[#0E5C97] px-5 text-[14px] font-semibold text-white transition-all duration-300 hover:bg-[#0B4F82] sm:h-[56px] sm:px-7 sm:text-[16px] md:mt-9 lg:mt-10 lg:h-[62px] lg:px-8 lg:text-[18px]"
                 >
                   <span>Explore QC &amp; Validation Solutions</span>
 
-                  <span className="ml-6 border-l border-white/30 pl-6 text-[20px] sm:ml-7 sm:pl-7 md:text-[22px] lg:ml-8 lg:pl-8 lg:text-[24px]">
+                  <span className="ml-4 border-l border-white/30 pl-4 text-[18px] sm:ml-7 sm:pl-7 md:text-[22px] lg:ml-8 lg:pl-8 lg:text-[24px]">
                     →
                   </span>
                 </button>
