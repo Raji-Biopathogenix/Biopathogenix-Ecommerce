@@ -27,19 +27,19 @@ export default function HighPerformanceMultiplex() {
   return (
     <section className="relative py-8 md:py-10">
       <div className="mx-auto max-w-[1400px] px-3 sm:px-4 lg:px-6">
-        <div className="relative overflow-hidden rounded-[26px] bg-[#090b35] lg:rounded-[30px]">
+        <div className="relative min-h-[500px] overflow-hidden rounded-[26px] bg-[#090b35] md:min-h-[560px] lg:min-h-[620px] lg:rounded-[30px]">
 
           {/* Background */}
           <img
             src="/images/home/high-perform.png"
             alt=""
-            className="block h-[390px] w-full object-contain object-left sm:h-[430px] md:h-[470px] lg:h-[500px]"
+            className="absolute inset-0 block h-full w-full object-contain object-left"
           />
 
           <div className="absolute inset-0 bg-gradient-to-r from-[#07092d]/20 via-[#07092d]/58 to-[#060720]/88" />
 
           {/* Content */}
-          <div className="absolute inset-0 flex items-center">
+          <div className="relative z-10 flex h-full items-center py-8 md:py-10">
             <div className="ml-auto w-full px-6 md:mr-[4%] md:w-[56%] md:px-0 lg:w-[48%]">
 
               <h2 className="font-['Quicksand'] text-[38px] font-bold leading-[0.96] tracking-[-0.02em] !text-[#92DAFF] drop-shadow-[0_1px_2px_rgba(0,0,0,0.45)] sm:text-[44px] lg:text-[50px]">
