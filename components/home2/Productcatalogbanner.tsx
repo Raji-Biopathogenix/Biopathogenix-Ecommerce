@@ -23,29 +23,29 @@ export default function ProductCatalogBanner({
         {/* LEFT CONTENT */}
         <div className="w-full max-w-[500px] pt-2 sm:pt-6 lg:pt-8">
 
-          <h2 className="font-['Poppins'] text-[34px] font-light leading-[0.98] tracking-[-0.03em] text-white sm:text-[42px] md:text-[58px] xl:text-[68px]">
+          <h2 className="font-['Poppins'] text-[34px] font-light leading-[0.98] tracking-[-0.03em] !text-[#F4F8FF] drop-shadow-[0_1px_2px_rgba(0,0,0,0.35)] sm:text-[42px] md:text-[58px] xl:text-[68px]">
             Explore the
             <br />
 
-            <span className="font-semibold text-[#4BA8DA]">
+            <span className="font-semibold !text-[#67C2F2]">
               BioPathogenix
             </span>
 
             <br />
 
-            <span className="font-light">
+            <span className="font-light !text-[#F4F8FF]">
               Product Catalog
             </span>
           </h2>
 
-          <p className="mt-6 max-w-[430px] text-[14px] leading-6 text-white/75 sm:text-[15px] sm:leading-7">
+          <p className="mt-6 max-w-[430px] text-[14px] leading-6 !text-white/92 sm:text-[15px] sm:leading-7">
             Download the complete BioPathogenix research portfolio to
             discover molecular assays, nucleic acid extraction kits,
             workflow tools, and laboratory supplies designed to support
             ever-evolving research environments.
           </p>
 
-          <p className="mt-5 max-w-[430px] text-[14px] leading-6 text-white/75 sm:mt-6 sm:text-[15px] sm:leading-7">
+          <p className="mt-5 max-w-[430px] text-[14px] leading-6 !text-white/88 sm:mt-6 sm:text-[15px] sm:leading-7">
             Our catalog provides a convenient overview of available
             products and solutions across the BioPathogenix portfolio.
           </p>
