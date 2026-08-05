@@ -25,15 +25,15 @@ function CheckIcon() {
 
 export default function HighPerformanceMultiplex() {
   return (
-    <section className="relative py-10 md:py-12">
-      <div className="mx-auto max-w-full px-4 lg:px-0">
+    <section className="relative py-8 md:py-10">
+      <div className="mx-auto max-w-[1400px] px-3 sm:px-4 lg:px-6">
         <div className="relative overflow-hidden rounded-[26px] bg-[#090b35] lg:rounded-[30px]">
 
           {/* Background */}
           <img
             src="/images/home/high-perform.png"
             alt=""
-            className="block h-auto w-full object-contain"
+            className="block h-[390px] w-full object-contain object-left sm:h-[430px] md:h-[470px] lg:h-[500px]"
           />
 
           <div className="absolute inset-0 bg-gradient-to-r from-[#07092d]/20 via-[#07092d]/58 to-[#060720]/88" />
