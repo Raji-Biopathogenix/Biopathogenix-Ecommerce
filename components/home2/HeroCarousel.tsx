@@ -30,7 +30,7 @@ const HERO_IMAGES = [
   },
   {
     // Bottom Center (largest)
-    src: "/fig-preview/images/794d214fa013d6197197895dda9d981efc8df128",
+    src: "/images/home/high-perform.png",
     alt: "Gloved hands holding sample tubes",
     className:
       "left-[16%] bottom-[2%] h-[46%] sm:left-[18%] sm:bottom-[2%] sm:h-[50%] md:left-[16%] md:bottom-[4%] md:h-[53%] lg:left-[10%] lg:bottom-[7%] lg:h-[56%]",
