@@ -34,7 +34,6 @@ const CATEGORIES = [
 export default function ShopByCategory({ result }: ShopByCategoryprops) {
   const router = useRouter();
 
-  const slider = [...CATEGORIES, ...CATEGORIES];
   return (
     <section className="relative overflow-hidden bg-white py-20">
       <div className="relative">
@@ -73,12 +72,10 @@ export default function ShopByCategory({ result }: ShopByCategoryprops) {
           </h2>
         </div>
 
-        <div className="overflow-hidden top-10 relative">
-          <div className="flex w-max animate-category-scroll gap-4">
-            {slider.map((category, index) => {
-              const originalIndex = index % CATEGORIES.length;
-              const link =
-                result?.contexts?.[originalIndex]?.btn_url || "#";
+        <div className="relative top-10 overflow-hidden">
+          <div className="flex w-max gap-4">
+            {CATEGORIES.map((category, index) => {
+              const link = result?.contexts?.[index]?.btn_url || "#";
 
               return (
                 <div
