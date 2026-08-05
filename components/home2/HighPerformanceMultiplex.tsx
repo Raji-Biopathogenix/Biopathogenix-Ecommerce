@@ -7,8 +7,16 @@ const CHECKLIST = [
 
 function CheckIcon() {
   return (
-    <span className="mt-0.5 flex h-5 w-5 flex-shrink-0 items-center justify-center rounded-full bg-[#38b6cf]">
-      <svg className="h-3 w-3 text-white" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
+    <span className="mt-[2px] flex h-[18px] w-[18px] shrink-0 items-center justify-center rounded-full bg-[#38B6CF]">
+      <svg
+        className="h-[10px] w-[10px] text-white"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="3"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      >
         <polyline points="20 6 9 17 4 12" />
       </svg>
     </span>
@@ -17,43 +25,58 @@ function CheckIcon() {
 
 export default function HighPerformanceMultiplex() {
   return (
-    <section className="overflow-hidden bg-white px-6 py-14 md:px-14 md:py-16">
-      <div className="mx-auto grid max-w-[1360px] grid-cols-1 overflow-hidden rounded-[32px] bg-[#0a1c3f] lg:grid-cols-[0.92fr_1.08fr]">
-        <div className="relative min-h-[300px] overflow-hidden bg-[#0f2651] px-8 py-12 lg:min-h-[520px] lg:px-12 lg:py-16">
-          <div className="absolute inset-0 opacity-90">
-            <img
-              src="/images/home/dna1.png"
-              alt=""
-              aria-hidden="true"
-              className="h-full w-full object-cover object-left"
-            />
+    <section className="relative py-16">
+      <div className="mx-auto max-w-full px-4 lg:px-0">
+        <div className="relative overflow-hidden rounded-[34px]">
+
+          {/* Background */}
+          <img
+            src="/images/home/high-perform.png"
+            alt=""
+            className="h-auto w-full object-cover"
+          />
+
+          {/* Content */}
+          <div className="absolute inset-0 flex items-center">
+            <div className="ml-auto mr-[4%] w-[44%]">
+
+              <h2 className="font-['Quicksand'] text-[58px] font-bold leading-[0.92] tracking-[-0.03em] text-[#56B7EA]">
+                High Performance
+                <br />
+                Multiplex qPCR
+              </h2>
+
+              <h3 className="mt-2 font-['Quicksand'] text-[54px] font-medium leading-[1.02] tracking-[-0.03em] text-white">
+                Workflows Designed for
+                <br />
+                Modern Laboratories
+              </h3>
+
+              <p className="mt-7 text-[16px] leading-[1.75] text-white/75">
+                BioPathogenix delivers integrated molecular solutions that empower
+                laboratories working in pathogen research, molecular detection,
+                and nucleic acid analysis.
+              </p>
+
+              <h4 className="mt-8 text-[22px] font-semibold text-white">
+                Our teams work directly with scientists to develop
+              </h4>
+
+              <ul className="mt-6 space-y-4">
+                {CHECKLIST.map((item) => (
+                  <li
+                    key={item}
+                    className="flex items-start gap-3 text-[17px] leading-[1.5] text-white/75"
+                  >
+                    <CheckIcon />
+                    <span>{item}</span>
+                  </li>
+                ))}
+              </ul>
+
+            </div>
           </div>
-          <div className="absolute inset-0 bg-[linear-gradient(90deg,rgba(10,28,63,0.92)_0%,rgba(10,28,63,0.72)_48%,rgba(10,28,63,0.2)_100%)]" />
-        </div>
 
-        <div className="px-8 py-12 text-white lg:px-12 lg:py-16">
-          <h2 className="font-['Quicksand'] text-[2.05rem] font-bold leading-[1.12] tracking-[-0.02em] text-[#5fc3dd] md:text-[2.35rem]">
-            High Performance Multiplex qPCR
-          </h2>
-          <h3 className="mt-2 max-w-[640px] font-['Quicksand'] text-[1.55rem] font-bold leading-tight text-white md:text-[1.95rem]">
-            Workflows Designed for Modern Laboratories
-          </h3>
-
-          <p className="mt-5 max-w-[620px] text-[0.98rem] leading-[1.8] text-white/80">
-            BioPathogenix delivers integrated molecular solutions that empower laboratories
-            working in pathogen research, molecular detection, and nucleic acid analysis.
-          </p>
-
-          <p className="mt-6 font-semibold text-white">Our teams work directly with scientists to develop</p>
-
-          <ul className="mt-5 flex flex-col gap-3">
-            {CHECKLIST.map((item) => (
-              <li key={item} className="flex items-start gap-3 text-[0.95rem] leading-relaxed text-white/88">
-                <CheckIcon />
-                <span>{item}</span>
-              </li>
-            ))}
-          </ul>
         </div>
       </div>
     </section>

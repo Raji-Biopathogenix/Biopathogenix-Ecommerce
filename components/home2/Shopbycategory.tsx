@@ -2,6 +2,7 @@
 
 import { useRouter } from "next/navigation";
 import { LandingPageType } from "@/types/header";
+import { ChevronRight } from "lucide-react";
 
 interface ShopByCategoryprops {
   result?: LandingPageType;
@@ -33,45 +34,110 @@ const CATEGORIES = [
 export default function ShopByCategory({ result }: ShopByCategoryprops) {
   const router = useRouter();
 
+  const slider = [...CATEGORIES, ...CATEGORIES];
   return (
-    <section className="w-full overflow-hidden bg-[#eef8fc] px-6 py-14 md:px-14">
-      <div className="mx-auto max-w-[1360px]">
-        <div className="mb-10 text-center">
-          <h2 className="font-['Poppins'] text-[2rem] font-semibold tracking-[-0.03em] text-[#102447] md:text-[2.45rem]">
-            Shop By Category
+    <section className="relative overflow-hidden bg-white py-20">
+      <div className="relative">
+        <h2
+          className="
+                    pointer-events-none
+                    absolute
+                    left-1/2
+                    -translate-x-1/2
+                    -translate-y-10
+                    sm:-translate-y-16
+                    md:-translate-y-26
+                    lg:-translate-y-35
+                    select-none
+                    whitespace-nowrap
+                    text-[64px]
+                    sm:text-[90px]
+                    md:text-[130px]
+                    lg:text-[180px]
+                    text-[#173963]
+                    opacity-[0.03]
+                    md:opacity-[0.04]
+                    lg:opacity-[0.05]
+                    [mask-image:linear-gradient(to_bottom,black_0%,black_30%,rgba(0,0,0,0.45)_55%,transparent_100%)]
+                    [-webkit-mask-image:linear-gradient(to_bottom,black_0%,black_30%,rgba(0,0,0,0.45)_55%,transparent_100%)]
+                  "
+        >
+          Categories
+        </h2>
+        <div className="relative mb-6 mt-8 text-center sm:mb-10 sm:mt-10 lg:mb-10 lg:mt-12">
+          <h2 className="text-[28px] font-medium leading-tight text-[#173963] sm:text-[36px] md:text-[42px] lg:text-[52px]">
+            Shop By{" "}
+            <span className="font-semibold text-[#5AA7E8]">
+              Category
+            </span>
           </h2>
         </div>
 
-        <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5">
-          {CATEGORIES.map((category, index) => {
-            const link = result?.contexts?.[index]?.btn_url || "#";
-            const buttonText = result?.contexts?.[index]?.btn_text || "View Products";
+        <div className="overflow-hidden top-10 relative">
+          <div className="flex w-max animate-category-scroll gap-4">
+            {slider.map((category, index) => {
+              const originalIndex = index % CATEGORIES.length;
+              const link =
+                result?.contexts?.[originalIndex]?.btn_url || "#";
 
-            return (
-              <div
-                key={category.title}
-                className="overflow-hidden rounded-[26px] bg-white shadow-[0_16px_38px_rgba(15,39,73,0.08)]"
-              >
-                <div className="aspect-[1.05/1] overflow-hidden bg-[#edf4fa]">
-                  <img src={category.image} alt={category.title} className="h-full w-full object-cover" />
+              return (
+                <div
+                  key={index}
+                  onClick={() => router.push(link)}
+                  className="
+                        group
+                        relative
+                        h-[420px]
+                        w-[310px]
+                        cursor-pointer
+                        overflow-hidden
+                        rounded-[28px]
+                        flex-shrink-0
+                    "
+                >
+                  {/* Image */}
+                  <img
+                    src={category.image}
+                    alt={category.title}
+                    className="
+                            absolute
+                            inset-0
+                            h-full
+                            w-full
+                            object-cover
+                            transition-transform
+                            duration-500
+                            group-hover:scale-105
+                        "
+                  />
+                  {/* Gradient */}
+                  <div className="absolute inset-0 bg-gradient-to-t from-[#08284d] via-[#08284d66] to-transparent" />
+                  {/* Bottom Content */}
+                  <div className="absolute bottom-7 left-6 right-6 flex items-end justify-between">
+                    <h3 className="max-w-[180px] text-[20px] font-semibold leading-tight text-white">
+                      {category.title}
+                    </h3>
+                    <div
+                      className="
+                          flex
+                          h-12
+                          w-12
+                          items-center
+                          justify-center
+                          rounded-full
+                          bg-white
+                          transition-all
+                          duration-300
+                          group-hover:translate-x-1
+                        "
+                    >
+                      <ChevronRight className="h-5 w-5 text-[#173963]" />
+                    </div>
+                  </div>
                 </div>
-
-                <div className="flex flex-col gap-4 p-6">
-                  <h3 className="min-h-[3.5rem] text-center font-['Poppins'] text-[1rem] font-semibold leading-snug text-[#102447]">
-                    {category.title}
-                  </h3>
-
-                  <button
-                    type="button"
-                    onClick={() => router.push(link)}
-                    className="inline-flex items-center justify-center rounded-[12px] bg-[#173864] px-5 py-3 text-[0.92rem] font-semibold text-white transition-colors hover:bg-[#102b4f]"
-                  >
-                    {buttonText}
-                  </button>
-                </div>
-              </div>
-            );
-          })}
+              );
+            })}
+          </div>
         </div>
       </div>
     </section>
