@@ -72,8 +72,8 @@ export default function ShopByCategory({ result }: ShopByCategoryprops) {
           </h2>
         </div>
 
-        <div className="relative top-10 overflow-hidden">
-          <div className="flex w-max gap-4">
+        <div className="relative top-10 w-full px-3 sm:px-5 lg:px-8">
+          <div className="flex w-full gap-4 overflow-x-auto pb-2 lg:overflow-visible">
             {CATEGORIES.map((category, index) => {
               const link = result?.contexts?.[index]?.btn_url || "#";
 
@@ -85,7 +85,9 @@ export default function ShopByCategory({ result }: ShopByCategoryprops) {
                         group
                         relative
                         h-[420px]
-                        w-[310px]
+                        min-w-[280px]
+                        flex-1
+                        lg:min-w-0
                         cursor-pointer
                         overflow-hidden
                         rounded-[28px]
