@@ -14,69 +14,105 @@ const TOPICS = [
   "Advances and achievements in multiplex qPCR technologies",
 ];
 
-const DOT_PATTERN_BG =
-  "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='220' height='320' viewBox='0 0 220 320'%3E%3Cpath d='M40 0C90 40 10 80 60 120C110 160 30 200 80 240C130 280 50 300 100 320' fill='none' stroke='%23bfe0ee' stroke-width='2'/%3E%3Cpath d='M90 0C140 40 60 80 110 120C160 160 80 200 130 240C180 280 100 300 150 320' fill='none' stroke='%23bfe0ee' stroke-width='2'/%3E%3Ccircle cx='40' cy='0' r='4' fill='%237fc4de'/%3E%3Ccircle cx='60' cy='120' r='4' fill='%237fc4de'/%3E%3Ccircle cx='80' cy='240' r='4' fill='%237fc4de'/%3E%3Ccircle cx='90' cy='0' r='4' fill='%237fc4de'/%3E%3Ccircle cx='110' cy='120' r='4' fill='%237fc4de'/%3E%3Ccircle cx='130' cy='240' r='4' fill='%237fc4de'/%3E%3C/svg%3E";
-
 function CheckIcon() {
   return (
-    <span className="mt-0.5 flex h-4 w-4 flex-shrink-0 items-center justify-center rounded-full bg-[#0d63c9]">
-      <svg className="h-2.5 w-2.5 text-white" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
+    <span className="mt-1 flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-[#38B6CF] md:h-6 md:w-6">
+      <svg
+        className="h-3 w-3 text-white md:h-3.5 md:w-3.5"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="3"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      >
         <polyline points="20 6 9 17 4 12" />
       </svg>
     </span>
   );
 }
 
-export default function SupportingScientificCommunity({ result }: SupportCommunityprops) {
+export default function SupportingScientificCommunity({
+  result,
+}: SupportCommunityprops) {
   const router = useRouter();
+
   const btnUrl = result?.contexts?.[0]?.btn_url || "#";
 
   return (
-    <section className="overflow-hidden bg-white">
-      <div className="grid grid-cols-1 overflow-hidden rounded-[40px] md:grid-cols-2 md:items-stretch">
-        <div className="h-[260px] md:h-[440px]">
-          <img
-            src="/fig-preview/images/0377cb72fc5481097071d3d22006c7e168cb930b"
-            alt="Researchers in a laboratory setting"
-            className="h-full w-full object-cover"
-          />
-        </div>
-
+    <section className="bg-white pt-12 md:pt-16 lg:pt-20">
+      <div className="mx-auto w-full px-4 sm:px-5 lg:px-0">
+        {/* Main Card */}
         <div
-          className="relative flex flex-col justify-center overflow-hidden bg-[#eaf5f9] px-6 py-8 md:h-[440px] md:px-12 md:py-10"
-          style={{ backgroundImage: `url("${DOT_PATTERN_BG}")`, backgroundPosition: "right -20px top", backgroundRepeat: "no-repeat" }}
+          className="relative overflow-hidden rounded-[24px] md:rounded-[32px] lg:rounded-[38px]"
+          style={{
+            backgroundImage: 'url("/images/home/supporting-bg.png")',
+            backgroundRepeat: "no-repeat",
+            backgroundPosition: "center",
+            backgroundSize: "cover",
+          }}
         >
-          <h2 className="relative font-['Quicksand'] text-[1.7rem] font-bold leading-tight tracking-[-0.02em] text-[#102447] md:text-[2.15rem]">
-            Supporting the
-            <br />
-            <span className="text-[#3ab5d0]">Scientific</span>
-            <br />
-            <span className="text-[#3ab5d0]">Community</span>
-          </h2>
+          {/* Optional Light Overlay */}
+          <div className="absolute inset-0 bg-white/20" />
 
-          <p className="relative mt-3 max-w-[520px] text-[0.9rem] leading-relaxed text-[#3a5070]">
-            BioPathogenix shares insights and educational resources designed to support researchers
-            working with PCR technologies and pathogen research.
-          </p>
+          <div className="relative grid grid-cols-1 lg:grid-cols-[47%_53%]">
+            {/* LEFT IMAGE */}
+            <div className="p-4 md:p-5 lg:p-0">
+              <div className="overflow-hidden rounded-[24px] md:rounded-[30px] lg:rounded-[34px] shadow-[0_25px_60px_rgba(23,57,99,0.12)] h-full">
+                <img
+                  src="/fig-preview/images/0377cb72fc5481097071d3d22006c7e168cb930c"
+                  alt="Scientific Community"
+                  className="h-[260px] sm:h-[350px] md:h-[450px] lg:h-full w-full object-cover"
+                />
+              </div>
+            </div>
 
-          <p className="relative mt-3 text-[0.9rem] font-semibold text-[#102447]">Our learning resources explore topics such as:</p>
+            {/* RIGHT CONTENT */}
+            <div className="flex items-center px-5 py-8 sm:px-8 sm:py-10 md:px-10 md:py-12 lg:px-16">
+              <div className="max-w-[610px]">
+                <h2 className="font-['Quicksand'] text-[32px] font-bold leading-[1] tracking-[-1px] text-[#173963] sm:text-[38px] md:text-[48px] lg:text-[60px] lg:tracking-[-2px]">
+                  Supporting the
+                  <br />
+                  <span className="text-[#49A9E6]">Scientific</span>
+                  <br />
+                  <span className="text-[#49A9E6]">Community</span>
+                </h2>
 
-          <ul className="relative mt-3 flex flex-col gap-1.5">
-            {TOPICS.map((topic) => (
-              <li key={topic} className="flex items-start gap-2 text-[0.86rem] leading-snug text-[#3a5070]">
-                <CheckIcon />
-                <span>{topic}</span>
-              </li>
-            ))}
-          </ul>
+                <p className="mt-5 max-w-[560px] text-[15px] leading-[1.7] text-[#475467] sm:text-[16px] md:mt-6 md:text-[17px] lg:mt-7 lg:text-[18px]">
+                  BioPathogenix shares insights and educational resources
+                  designed to support researchers working with PCR technologies
+                  and pathogen research.
+                </p>
 
-          <button
-            className="relative mt-5 inline-flex w-fit items-center gap-4 rounded-[12px] bg-[#173864] px-6 py-3 text-[0.92rem] font-semibold text-white transition-colors hover:bg-[#102b4f]"
-            onClick={() => router.push(btnUrl)}
-          >
-            Explore QC &amp; Validation Solutions
-            <span className="border-l border-white/30 pl-4">-&gt;</span>
-          </button>
+                <h3 className="mt-6 text-[18px] font-semibold text-[#173963] sm:text-[20px] md:mt-7 md:text-[21px] lg:mt-8 lg:text-[22px]">
+                  Our learning resources explore topics such as:
+                </h3>
+
+                <ul className="mt-5 space-y-3 md:mt-6 md:space-y-4 lg:mt-7">
+                  {TOPICS.map((topic) => (
+                    <li
+                      key={topic}
+                      className="flex items-start gap-3 md:gap-4 text-[15px] leading-[1.5] text-[#344054] sm:text-[16px] md:text-[17px] lg:text-[18px]"
+                    >
+                      <CheckIcon />
+                      <span>{topic}</span>
+                    </li>
+                  ))}
+                </ul>
+
+                <button
+                  onClick={() => router.push(btnUrl)}
+                  className="mt-8 inline-flex h-[52px] items-center rounded-xl bg-[#0E5C97] px-6 text-[15px] font-semibold text-white transition-all duration-300 hover:bg-[#0B4F82] sm:h-[56px] sm:px-7 sm:text-[16px] md:mt-9 lg:mt-10 lg:h-[62px] lg:px-8 lg:text-[18px]"
+                >
+                  <span>Explore QC &amp; Validation Solutions</span>
+
+                  <span className="ml-6 border-l border-white/30 pl-6 text-[20px] sm:ml-7 sm:pl-7 md:text-[22px] lg:ml-8 lg:pl-8 lg:text-[24px]">
+                    →
+                  </span>
+                </button>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
     </section>

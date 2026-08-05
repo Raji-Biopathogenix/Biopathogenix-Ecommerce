@@ -10,29 +10,37 @@ interface HeroCarouselprops {
 // Flat-top hexagon: width is 2/sqrt(3) (~1.1547) times height. Only set
 // height as a % of the container and let width derive from this ratio,
 // otherwise tiles render as squished/stretched diamonds.
-const HEX_CLIP = "polygon(25% 0%, 75% 0%, 100% 50%, 75% 100%, 25% 100%, 0% 50%)";
-const HEX_RATIO = 1.1547;
+const HEX_CLIP = "polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%)";
+const HEX_RATIO = 0.89;
 
 const HERO_IMAGES = [
   {
-    src: "/fig-preview/images/303490d404583a39e84a9657020d1ad7f04a4965",
+    // Top Left (small)
+    src: "/fig-preview/images/303490d404583a39e84a9657020d1ad7f04a4966",
     alt: "Scientist working in a modern laboratory",
-    className: "left-0 top-[4%] z-20 h-[40%]",
+    className:
+      "left-[5%] top-[15%] h-[24%] sm:left-[6%] sm:top-[15%] sm:h-[25%] md:left-[7%] md:top-[15%] md:h-[27%] lg:left-[8%] lg:top-[14%] lg:h-[29%]",
   },
   {
-    src: "/fig-preview/images/b8563fa9c06f015706a7c5d6998d6726b96468ef",
+    // Top Right (large)
+    src: "/fig-preview/images/b8563fa9c06f015706a7c5d6998d6726b96468eg",
     alt: "Researcher using a microscope",
-    className: "right-0 top-0 z-10 h-[60%]",
+    className:
+      "right-[3%] top-[4%] h-[40%] sm:right-[6%] sm:top-[3%] sm:h-[43%] md:right-[10%] md:top-[2%] md:h-[46%] lg:right-[18%] lg:top-[0%] lg:h-[48%]",
   },
   {
-    src: "/fig-preview/images/794d214fa013d6197197895dda9d981efc8df127",
-    alt: "Scientist writing lab notes beside a microscope",
-    className: "right-[2%] bottom-[8%] z-20 h-[40%]",
-  },
-  {
-    src: "/fig-preview/images/341d4c17677780e3ffe716da598d5cd49fe71a93",
+    // Bottom Center (largest)
+    src: "/fig-preview/images/794d214fa013d6197197895dda9d981efc8df128",
     alt: "Gloved hands holding sample tubes",
-    className: "left-[8%] bottom-0 z-30 h-[60%] translate-y-[10%]",
+    className:
+      "left-[16%] bottom-[2%] h-[46%] sm:left-[18%] sm:bottom-[2%] sm:h-[50%] md:left-[16%] md:bottom-[4%] md:h-[53%] lg:left-[10%] lg:bottom-[7%] lg:h-[56%]",
+  },
+  {
+    // Bottom Right (small)
+    src: "/fig-preview/images/341d4c17677780e3ffe716da598d5cd49fe71a94",
+    alt: "Scientist writing lab notes beside a microscope",
+    className:
+      "right-[2%] bottom-[15%] h-[22%] sm:right-[2%] sm:bottom-[16%] sm:h-[24%] md:right-[5%] md:bottom-[20%] md:h-[26%] lg:right-[10%] lg:bottom-[28%] lg:h-[28%]",
   },
 ] as const;
 
@@ -47,11 +55,15 @@ function HeroImage({
 }) {
   return (
     <div
-      className={`absolute overflow-hidden bg-white p-1.5 shadow-[0_16px_34px_rgba(14,33,61,0.14)] sm:p-2 ${className}`}
+      className={`absolute overflow-hidden shadow-[0_12px_32px_rgba(0,0,0,0.14)] ${className}`}
       style={{ clipPath: HEX_CLIP, aspectRatio: HEX_RATIO }}
     >
       <div className="h-full w-full overflow-hidden" style={{ clipPath: HEX_CLIP }}>
-        <img src={src} alt={alt} className="h-full w-full object-cover" />
+        <img
+          src={src}
+          alt={alt}
+          className="h-full w-full object-cover object-center"
+        />
       </div>
     </div>
   );
@@ -62,42 +74,60 @@ export default function HeroCarousel({ result }: HeroCarouselprops) {
   const btnUrl = result?.contexts?.[0]?.btn_url || "#";
 
   return (
-    <section className="overflow-hidden bg-[linear-gradient(135deg,#f8fbfe_0%,#edf5fb_58%,#f7fbff_100%)] px-6 py-14 md:px-14 md:py-20">
-      <div className="mx-auto flex max-w-[1360px] flex-col gap-12 lg:flex-row lg:items-center lg:justify-between">
-        <div className="w-full max-w-[640px] lg:w-[48%]">
-          <p className="mb-5 text-[0.88rem] font-bold tracking-[0.22em] text-[#16325f]">
-            ADVANCED MULTIPLEX
+    <section
+      className="overflow-hidden bg-[#edf3f8] px-6 py-16 md:px-12 md:py-10 lg:py-14"
+      style={{
+        backgroundImage: "url('/images/home/hero-bg.png')",
+        backgroundSize: "cover",
+        backgroundPosition: "center",
+        backgroundRepeat: "no-repeat",
+      }}
+    >
+      <div className="mx-auto flex max-w-[1360px] flex-col gap-2 lg:flex-row lg:items-center lg:justify-between">
+        <div className="relative h-[520px] w-full max-w-[760px] lg:h-[700px] lg:w-[52%]">
+          {/* Top Label */}
+          <p className="mb-5 text-[13px] font-bold uppercase tracking-[0.22em] text-[#153B67]">
+            ADVANCED MULTIPLEX QPCR SUPPLIER
           </p>
 
-          <h1 className="max-w-[640px] font-['Quicksand'] text-[2.9rem] font-bold leading-[1.05] tracking-[-0.02em] text-[#13254a] sm:text-[3.55rem] md:text-[4.15rem] lg:text-[4.6rem]">
-            qPCR Assays
+          {/* Heading */}
+          <h1 className="font-['Quicksand'] text-[56px] font-bold leading-[1.02] tracking-[-0.05em] text-[#0F2D5C] sm:text-[64px] lg:text-[74px]">
+            Precision you
             <br />
-            and <span className="text-[#3d7ec2]">Integrated</span>
+            can trust.
             <br />
-            <span className="text-[#3d7ec2]">Molecular</span>
+            <span className="text-[#4A97D3]">Partners you</span>
+            <br />
+            <span className="text-[#4A97D3]">can count on.</span>
           </h1>
 
-          <p className="mt-5 max-w-[620px] text-[1.18rem] font-semibold leading-snug text-[#16325d] sm:text-[1.26rem]">
-            Workflow Solutions for Pathogen Detection.
+          <h2 className="mt-8 text-[20px] font-semibold leading-[1.35] tracking-normal text-[#173963]">
+            Complete Workflow Solutions for Pathogen Detection.
+          </h2>
+
+          {/* Description */}
+          <p className="mt-6 max-w-[560px] text-[18px] leading-[1.65] text-[#4E5F73]">
+            From custom qPCR assays and validation-ready quality controls to
+            extraction technologies and scientific support, BioPathogenix gives
+            laboratories everything they need to validate with confidence and keep
+            testing moving.
           </p>
 
-          <p className="mt-6 max-w-[610px] text-[1.02rem] leading-[1.78] text-[#4a5c73]">
-            BioPathogenix, headquartered in Nicholasville, Kentucky, specializes in the
-            development of high-performance multiplex qPCR assays, custom pathogen detection
-            panel and integrated nucleic acid workflow solutions designed to support infectious
-            pathogen detection, scientific research and laboratory innovation.
-          </p>
-
+          {/* Button */}
           <button
-            className="mt-10 inline-flex min-w-[220px] items-center justify-center gap-4 rounded-[12px] bg-[#163864] px-8 py-4 text-[1rem] font-semibold text-white shadow-[0_16px_28px_rgba(22,56,100,0.25)] transition-transform duration-200 hover:-translate-y-0.5 hover:bg-[#102b4f]"
             onClick={() => router.push(btnUrl)}
+            className="mt-10 inline-flex h-[56px] items-center gap-5 rounded-[10px] bg-[#0F4A80] px-8 text-[18px] font-semibold text-white transition hover:bg-[#0b3b66]"
           >
             <span>Shop Now</span>
-            <span className="border-l border-white/30 pl-4">-&gt;</span>
+
+            <span className="h-6 border-l border-white/30" />
+
+            <span className="text-xl">→</span>
           </button>
         </div>
 
-        <div className="relative h-[460px] w-full lg:h-[620px] lg:w-[52%]">
+        <div className="relative h-[520px] w-full max-w-[760px] lg:h-[700px] lg:w-[52%]">
+          <div className="absolute inset-0 opacity-30 " />
           {HERO_IMAGES.map((image) => (
             <HeroImage key={image.src} {...image} />
           ))}

@@ -628,13 +628,14 @@ def get_qb_item_by_sku(access_token: str, realm_id: str, base_url: str, sku: str
 
 def get_qb_shipping_item_id(access_token: str, realm_id: str, base_url: str):
     """
-    Looks up a QuickBooks Item named "Shipping" to use for the shipping
-    line. If your account's Sales form content has "Shipping" enabled
-    and QuickBooks auto-created its reserved shipping Item, using it
-    here is what makes the shipping charge break out into its own
-    SHIPPING summary row on the invoice, instead of an inline Activity
-    row. Returns None if no such Item exists — caller falls back to
-    the default Item, same behavior as before.
+    Looks up, or creates, a dedicated QuickBooks "Shipping" item for
+    invoice shipping charges.
+
+    QuickBooks treats shipping charges as a special kind of item. Using
+    a plain product/service item can cause the charge to render as a
+    normal activity row. A dedicated Other Charge item is much more
+    likely to show in the invoice summary section, matching the layout
+    used by invoices like #7858.
     """
     try:
         response = requests.get(
@@ -643,7 +644,7 @@ def get_qb_shipping_item_id(access_token: str, realm_id: str, base_url: str):
                 "Authorization": f"Bearer {access_token}",
                 "Accept":        "application/json",
             },
-            params={"query": "SELECT * FROM Item WHERE Name = 'Shipping'"},
+            params={"query": "SELECT * FROM Item WHERE Name = 'Shipping' AND Type = 'OtherCharge'"},
             timeout=15,
         )
         items = response.json().get("QueryResponse", {}).get("Item", [])
@@ -654,7 +655,53 @@ def get_qb_shipping_item_id(access_token: str, realm_id: str, base_url: str):
     except Exception as e:
         print(f"QB Shipping item lookup failed: {e}")
 
-    print("No QB Item named 'Shipping' found — using default item")
+    try:
+        account_response = requests.get(
+            f"{base_url}/v3/company/{realm_id}/query",
+            headers={
+                "Authorization": f"Bearer {access_token}",
+                "Accept":        "application/json",
+            },
+            params={"query": "SELECT * FROM Account WHERE Name = 'Sales of Product Income' AND Active = true"},
+            timeout=15,
+        )
+        accounts = account_response.json().get("QueryResponse", {}).get("Account", [])
+        if not accounts:
+            print("No Sales of Product Income account found — using default item")
+            return None
+
+        income_account = accounts[0]
+        create_response = requests.post(
+            f"{base_url}/v3/company/{realm_id}/item",
+            headers={
+                "Authorization": f"Bearer {access_token}",
+                "Content-Type":  "application/json",
+                "Accept":        "application/json",
+            },
+            json={
+                "Name": "Shipping",
+                "Type": "OtherCharge",
+                "Active": True,
+                "Taxable": True,
+                "Description": "Shipping charge",
+                "IncomeAccountRef": {
+                    "value": income_account["Id"],
+                    "name": income_account.get("Name", "Sales of Product Income"),
+                },
+            },
+            timeout=15,
+        )
+        payload = create_response.json()
+        item = payload.get("Item", {})
+        item_id = item.get("Id")
+        if item_id:
+            print(f"QB Shipping item created: {item_id}")
+            return item_id
+        print(f"QB Shipping item creation returned no item id: {payload}")
+    except Exception as e:
+        print(f"QB Shipping item creation failed: {e}")
+
+    print("No QB Shipping item available — using default item")
     return None
 
 

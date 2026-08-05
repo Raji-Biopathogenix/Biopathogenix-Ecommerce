@@ -54,57 +54,61 @@ const PATHWAY_CARDS = [
   },
 ];
 
-const PATTERN_BG =
-  "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120' viewBox='0 0 120 120'%3E%3Ccircle cx='20' cy='20' r='16' fill='%23dcedf5'/%3E%3Ccircle cx='100' cy='90' r='22' fill='%23dcedf5'/%3E%3Cline x1='0' y1='120' x2='120' y2='0' stroke='%23cfe4f2' stroke-width='1'/%3E%3C/svg%3E";
-
 export default function PrimaryConversionPathways({ result }: PrimaryConversionPathwaysprops) {
   const router = useRouter();
   const btnUrl = result?.contexts?.[0]?.btn_url || "#";
 
   return (
     <section
-      className="overflow-hidden px-6 py-16 md:px-14"
-      style={{ backgroundImage: `linear-gradient(180deg,#f2f9fc 0%,#ffffff 100%), url("${PATTERN_BG}")` }}
+      className="relative bg-transparent overflow-hidden bg-cover bg-center bg-no-repeat px-8 py-13 md:px-12 lg:px-16 lg:py-15"
     >
-      <div className="mx-auto flex max-w-[1360px] flex-col gap-12 lg:flex-row lg:items-start lg:justify-between">
-        <div className="w-full max-w-[570px]">
-          <h2 className="font-['Poppins'] text-[2.2rem] font-semibold leading-tight tracking-[-0.03em] text-[#102447] md:text-[2.8rem]">
-            Primary Conversion Pathways
+      <div className="mx-auto flex max-w-[1500px] flex-col items-center gap-20 lg:flex-row lg:items-center lg:justify-between">
+        <div className="w-full max-w-[610px]">
+          <h2 className="font-['Quicksand'] text-[46px] font-semibold leading-[0.95] tracking-[-0.04em] text-[#173963] lg:text-[60px]">
+            Primary{" "}
+            <span className="text-[#58A7E8]">
+              Conversion
+            </span>
+            <span className="block text-[#58A7E8]">
+              Pathways
+            </span>
           </h2>
 
-          <p className="mt-6 text-[1rem] leading-relaxed text-[#3a5070]">
+          <p className="mt-6 max-w-[520px] text-[17px] leading-8 text-[#3a5070]">
             At BioPathogenix, we adhere to stringent quality control processes, ensuring our
             laboratory supplies meet high standards of accuracy, reliability, and workflow
             consistency for researchers working with molecular technologies.
           </p>
 
-          <p className="mt-5 text-[1rem] leading-relaxed text-[#3a5070]">
+          <p className="mt-5 max-w-[520px] text-[17px] leading-8 text-[#3a5070]">
             That same commitment extends beyond our products. BioPathogenix also develops
             tools and resources that help laboratories monitor performance, validate workflows,
             and maintain confidence in their molecular results.
           </p>
 
           <button
-            className="mt-8 inline-flex items-center gap-4 rounded-[12px] bg-[#173864] px-7 py-3.5 text-base font-semibold text-white transition-colors hover:bg-[#102b4f]"
+            className="mt-10 inline-flex h-[56px] items-center rounded-lg bg-[#174372] px-8 text-[16px] font-semibold text-white transition-all duration-300 hover:bg-[#12345a]"
             onClick={() => router.push(btnUrl)}
           >
             Explore QC &amp; Validation Solutions
-            <span className="border-l border-white/30 pl-4">-&gt;</span>
+            <span className="ml-6 border-l border-white/30 pl-6 text-xl">
+              →
+            </span>
           </button>
         </div>
 
-        <div className="grid w-full max-w-[640px] grid-cols-1 gap-5 sm:grid-cols-2">
+        <div className="grid w-full max-w-[720px] grid-cols-1 gap-6 sm:grid-cols-2">
           {PATHWAY_CARDS.map((card) => (
             <button
               key={card.title}
               type="button"
               onClick={() => router.push(card.href)}
-              className="flex flex-col items-center gap-4 rounded-[24px] bg-white p-8 text-center shadow-[0_10px_30px_rgba(13,31,60,0.06)] transition-shadow hover:shadow-[0_14px_36px_rgba(13,31,60,0.12)]"
+              className="flex h-[220px] flex-col items-center justify-center rounded-[18px] bg-white px-8 text-center shadow-[0_12px_40px_rgba(18,53,92,0.08)] transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_18px_55px_rgba(18,53,92,0.12)]"
             >
-              <span className="flex h-16 w-16 items-center justify-center rounded-full bg-[#eaf5f9]">
+              <span className="mb-6 flex h-20 w-20 items-center justify-center rounded-full bg-[#EEF6FC]">
                 {card.icon}
               </span>
-              <p className="whitespace-pre-line text-[1.02rem] font-semibold leading-snug text-[#102447]">
+              <p className="max-w-[180px] whitespace-pre-line text-[22px] font-semibold leading-[1.25] text-[#102447]">
                 {card.title}
               </p>
             </button>

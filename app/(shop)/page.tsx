@@ -46,8 +46,35 @@ export default async function Home() {
     <main className="min-h-screen bg-white">
       <HeroCarousel result={hero} />
       <Shopbycategory result={shopByCategory} />
-      <HighPerformanceMultiplex />
-      <PrimaryConversionPathways result={conversionPathways} />
+      <div className="relative overflow-hidden">
+        <img
+          src="/images/home/primary-bg.png"
+          alt=""
+          className="
+          pointer-events-none
+          absolute
+          opacity-25
+          select-none
+
+          w-[1800px]
+          sm:w-[2200px]
+          md:w-[2600px]
+          lg:w-[3456px]
+
+          max-w-none
+
+          left-1/2
+          -translate-x-1/2
+
+          top-[120px]
+          sm:top-[150px]
+          md:top-[180px]
+          lg:top-[220px]
+        "
+        />
+        <HighPerformanceMultiplex />
+        <PrimaryConversionPathways result={conversionPathways} />
+      </div>
       <SupportingScientificCommunity result={supportingCommunity} />
       <ProductCatalogBanner result={productCatalog} />
     </main>
