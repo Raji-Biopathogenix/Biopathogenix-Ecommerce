@@ -60,11 +60,11 @@ export default function PrimaryConversionPathways({ result }: PrimaryConversionP
 
   return (
     <section
-      className="relative bg-transparent overflow-hidden bg-cover bg-center bg-no-repeat px-8 py-13 md:px-12 lg:px-16 lg:py-15"
+      className="relative overflow-hidden bg-transparent bg-cover bg-center bg-no-repeat px-4 py-10 sm:px-6 md:px-10 lg:px-16 lg:py-15"
     >
-      <div className="mx-auto flex max-w-[1500px] flex-col items-center gap-20 lg:flex-row lg:items-center lg:justify-between">
+      <div className="mx-auto flex max-w-[1500px] flex-col items-center gap-10 md:gap-14 lg:flex-row lg:items-center lg:justify-between lg:gap-20">
         <div className="w-full max-w-[610px]">
-          <h2 className="font-['Quicksand'] text-[46px] font-semibold leading-[0.95] tracking-[-0.04em] text-[#173963] lg:text-[60px]">
+          <h2 className="font-['Quicksand'] text-[34px] font-semibold leading-[0.98] tracking-[-0.03em] text-[#173963] sm:text-[40px] lg:text-[60px]">
             Primary{" "}
             <span className="text-[#58A7E8]">
               Conversion
@@ -74,41 +74,41 @@ export default function PrimaryConversionPathways({ result }: PrimaryConversionP
             </span>
           </h2>
 
-          <p className="mt-6 max-w-[520px] text-[17px] leading-8 text-[#3a5070]">
+          <p className="mt-5 max-w-[520px] text-[15px] leading-7 text-[#3a5070] sm:text-[16px] sm:leading-8">
             At BioPathogenix, we adhere to stringent quality control processes, ensuring our
             laboratory supplies meet high standards of accuracy, reliability, and workflow
             consistency for researchers working with molecular technologies.
           </p>
 
-          <p className="mt-5 max-w-[520px] text-[17px] leading-8 text-[#3a5070]">
+          <p className="mt-4 max-w-[520px] text-[15px] leading-7 text-[#3a5070] sm:mt-5 sm:text-[16px] sm:leading-8">
             That same commitment extends beyond our products. BioPathogenix also develops
             tools and resources that help laboratories monitor performance, validate workflows,
             and maintain confidence in their molecular results.
           </p>
 
           <button
-            className="mt-10 inline-flex h-[56px] items-center rounded-lg bg-[#174372] px-8 text-[16px] font-semibold text-white transition-all duration-300 hover:bg-[#12345a]"
+            className="mt-8 inline-flex h-[50px] w-full items-center justify-center rounded-lg bg-[#174372] px-5 text-[14px] font-semibold text-white transition-all duration-300 hover:bg-[#12345a] sm:mt-10 sm:h-[56px] sm:w-auto sm:px-8 sm:text-[16px]"
             onClick={() => router.push(btnUrl)}
           >
             Explore QC &amp; Validation Solutions
-            <span className="ml-6 border-l border-white/30 pl-6 text-xl">
+            <span className="ml-4 border-l border-white/30 pl-4 text-lg sm:ml-6 sm:pl-6 sm:text-xl">
               →
             </span>
           </button>
         </div>
 
-        <div className="grid w-full max-w-[720px] grid-cols-1 gap-6 sm:grid-cols-2">
+        <div className="grid w-full max-w-[720px] grid-cols-1 gap-4 sm:gap-6 sm:grid-cols-2">
           {PATHWAY_CARDS.map((card) => (
             <button
               key={card.title}
               type="button"
               onClick={() => router.push(card.href)}
-              className="flex h-[220px] flex-col items-center justify-center rounded-[18px] bg-white px-8 text-center shadow-[0_12px_40px_rgba(18,53,92,0.08)] transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_18px_55px_rgba(18,53,92,0.12)]"
+              className="flex h-[180px] flex-col items-center justify-center rounded-[18px] bg-white px-5 text-center shadow-[0_12px_40px_rgba(18,53,92,0.08)] transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_18px_55px_rgba(18,53,92,0.12)] sm:h-[220px] sm:px-8"
             >
-              <span className="mb-6 flex h-20 w-20 items-center justify-center rounded-full bg-[#EEF6FC]">
+              <span className="mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-[#EEF6FC] sm:mb-6 sm:h-20 sm:w-20">
                 {card.icon}
               </span>
-              <p className="max-w-[180px] whitespace-pre-line text-[22px] font-semibold leading-[1.25] text-[#102447]">
+              <p className="max-w-[180px] whitespace-pre-line text-[18px] font-semibold leading-[1.25] text-[#102447] sm:text-[22px]">
                 {card.title}
               </p>
             </button>

@@ -53,11 +53,11 @@ export default async function Home() {
           className="
           pointer-events-none
           absolute
-          opacity-25
+          opacity-15
           select-none
 
-          w-[1800px]
-          sm:w-[2200px]
+          w-[1100px]
+          sm:w-[1800px]
           md:w-[2600px]
           lg:w-[3456px]
 
@@ -66,8 +66,8 @@ export default async function Home() {
           left-1/2
           -translate-x-1/2
 
-          top-[120px]
-          sm:top-[150px]
+          top-[60px]
+          sm:top-[120px]
           md:top-[180px]
           lg:top-[220px]
         "
