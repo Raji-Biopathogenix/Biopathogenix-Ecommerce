@@ -27,40 +27,40 @@ export default function HighPerformanceMultiplex() {
   return (
     <section className="relative py-10 md:py-12">
       <div className="mx-auto max-w-full px-4 lg:px-0">
-        <div className="relative overflow-hidden rounded-[26px] lg:rounded-[30px]">
+        <div className="relative overflow-hidden rounded-[26px] bg-[#090b35] lg:rounded-[30px]">
 
           {/* Background */}
           <img
             src="/images/home/high-perform.png"
             alt=""
-            className="h-[560px] w-full object-cover object-left md:h-[620px] lg:h-[680px]"
+            className="block h-auto w-full object-contain"
           />
 
-          <div className="absolute inset-0 bg-gradient-to-r from-[#0b0d3f]/80 via-[#0b0d3f]/50 to-[#0b0d3f]/30 md:from-transparent md:via-[#0b0d3f]/40 md:to-[#070932]/80" />
+          <div className="absolute inset-0 bg-gradient-to-r from-[#07092d]/20 via-[#07092d]/58 to-[#060720]/88" />
 
           {/* Content */}
           <div className="absolute inset-0 flex items-center">
             <div className="ml-auto w-full px-6 md:mr-[4%] md:w-[56%] md:px-0 lg:w-[48%]">
 
-              <h2 className="font-['Quicksand'] text-[38px] font-bold leading-[0.96] tracking-[-0.02em] text-[#6EC7F3] sm:text-[44px] lg:text-[50px]">
+              <h2 className="font-['Quicksand'] text-[38px] font-bold leading-[0.96] tracking-[-0.02em] !text-[#92DAFF] drop-shadow-[0_1px_2px_rgba(0,0,0,0.45)] sm:text-[44px] lg:text-[50px]">
                 High Performance
                 <br />
                 Multiplex qPCR
               </h2>
 
-              <h3 className="mt-2 font-['Quicksand'] text-[32px] font-medium leading-[1.05] tracking-[-0.02em] text-white sm:text-[38px] lg:text-[44px]">
+              <h3 className="mt-2 font-['Quicksand'] text-[32px] font-medium leading-[1.05] tracking-[-0.02em] !text-white drop-shadow-[0_1px_2px_rgba(0,0,0,0.5)] sm:text-[38px] lg:text-[44px]">
                 Workflows Designed for
                 <br />
                 Modern Laboratories
               </h3>
 
-              <p className="mt-5 text-[15px] leading-[1.7] text-white/90 lg:text-[16px]">
+              <p className="mt-5 text-[15px] leading-[1.7] !text-white lg:text-[16px]">
                 BioPathogenix delivers integrated molecular solutions that empower
                 laboratories working in pathogen research, molecular detection,
                 and nucleic acid analysis.
               </p>
 
-              <h4 className="mt-6 text-[20px] font-semibold text-white lg:text-[22px]">
+              <h4 className="mt-6 text-[20px] font-semibold !text-[#D6EEFF] lg:text-[22px]">
                 Our teams work directly with scientists to develop
               </h4>
 
@@ -68,7 +68,7 @@ export default function HighPerformanceMultiplex() {
                 {CHECKLIST.map((item) => (
                   <li
                     key={item}
-                    className="flex items-start gap-3 text-[16px] leading-[1.5] text-white/90 lg:text-[17px]"
+                    className="flex items-start gap-3 text-[16px] leading-[1.5] !text-white lg:text-[17px]"
                   >
                     <CheckIcon />
                     <span>{item}</span>
