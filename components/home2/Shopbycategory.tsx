@@ -12,27 +12,33 @@ const CATEGORIES = [
   {
     title: "DNA/RNA Extraction Kits",
     image: "/fig-preview/images/060537cbda24b2a5cd4fc145fa7271e599487b7c",
+    link: "https://bio.biopathogenix.com/product/extraction-sample-prep",
   },
   {
     title: "Custom & Standard qPCR Assays",
     image: "/fig-preview/images/964c41576142d9cb765f65a59510cc79a66be001",
+    link: "https://bio.biopathogenix.com/product/qplex-pcr-assays",
   },
   {
     title: "PCR Lab Consumables",
     image: "/fig-preview/images/341d4c17677780e3ffe716da598d5cd49fe71a93",
+    link: "https://bio.biopathogenix.com/product/specimen-collection-supplies",
   },
   {
     title: "Specimen Collection Supplies",
     image: "/fig-preview/images/47de23b4d89bd43c2c82125a838f1ca90b06ab66",
+    link: "https://bio.biopathogenix.com/product/specimen-collection-supplies",
   },
   {
     title: "Personal Protection Equipment",
     image: "/images/PPE/face-mask-img-for-website-1-1000x1000.jpg",
+    link: "https://bio.biopathogenix.com/product/ppe",
   },
 ] as const;
 
-export default function ShopByCategory({ result }: ShopByCategoryprops) {
+export default function ShopByCategory({ result: _result }: ShopByCategoryprops) {
   const router = useRouter();
+  void _result;
 
   return (
     <section className="relative overflow-hidden bg-white py-20">
@@ -74,12 +80,12 @@ export default function ShopByCategory({ result }: ShopByCategoryprops) {
 
         <div className="relative top-10 w-full px-3 sm:px-5 lg:px-8">
           <div className="flex w-full gap-4 overflow-x-auto pb-2 lg:overflow-visible">
-            {CATEGORIES.map((category, index) => {
-              const link = result?.contexts?.[index]?.btn_url || "#";
+            {CATEGORIES.map((category) => {
+              const link = category.link;
 
               return (
                 <div
-                  key={index}
+                  key={category.title}
                   onClick={() => router.push(link)}
                   className="
                         group
@@ -112,8 +118,8 @@ export default function ShopByCategory({ result }: ShopByCategoryprops) {
                   {/* Gradient */}
                   <div className="absolute inset-0 bg-gradient-to-t from-[#08284d] via-[#08284d66] to-transparent" />
                   {/* Bottom Content */}
-                  <div className="absolute bottom-7 left-6 right-6 flex items-end justify-between">
-                    <h3 className="max-w-[180px] text-[20px] font-semibold leading-tight text-white">
+                  <div className="absolute bottom-7 left-6 right-6 z-10 flex items-end justify-between">
+                    <h3 className="max-w-[180px] text-[20px] font-semibold leading-tight !text-white drop-shadow-[0_1px_2px_rgba(0,0,0,0.45)]">
                       {category.title}
                     </h3>
                     <div
