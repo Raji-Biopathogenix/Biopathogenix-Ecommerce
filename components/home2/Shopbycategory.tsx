@@ -79,7 +79,7 @@ export default function ShopByCategory({ result: _result }: ShopByCategoryprops)
         </div>
 
         <div className="relative top-6 w-full px-3 sm:top-8 sm:px-5 lg:top-10 lg:px-8">
-          <div className="grid w-full grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-5">
+          <div className="grid w-full grid-cols-1 gap-3 sm:grid-cols-2 sm:gap-4 lg:grid-cols-5">
             {CATEGORIES.map((category) => {
               const link = category.link;
 
@@ -90,7 +90,7 @@ export default function ShopByCategory({ result: _result }: ShopByCategoryprops)
                   className="
                         group
                         relative
-                        h-[250px]
+                        h-[270px]
                         w-full
                         cursor-pointer
                         overflow-hidden
@@ -118,15 +118,15 @@ export default function ShopByCategory({ result: _result }: ShopByCategoryprops)
                   {/* Gradient */}
                   <div className="absolute inset-0 bg-gradient-to-t from-[#08284d] via-[#08284d66] to-transparent" />
                   {/* Bottom Content */}
-                  <div className="absolute bottom-3 left-3 right-3 z-10 flex items-end justify-between sm:bottom-6 sm:left-5 sm:right-5">
-                    <h3 className="max-w-[92px] text-[11px] font-semibold leading-tight !text-white drop-shadow-[0_1px_2px_rgba(0,0,0,0.45)] sm:max-w-[150px] sm:text-[16px] lg:max-w-[180px] lg:text-[20px]">
+                  <div className="absolute bottom-4 left-4 right-4 z-10 flex items-end justify-between sm:bottom-6 sm:left-5 sm:right-5">
+                    <h3 className="max-w-[210px] text-[14px] font-semibold leading-tight !text-white drop-shadow-[0_1px_2px_rgba(0,0,0,0.45)] sm:max-w-[150px] sm:text-[16px] lg:max-w-[180px] lg:text-[20px]">
                       {category.title}
                     </h3>
                     <div
                       className="
                           flex
-                          h-8
-                          w-8
+                          h-9
+                          w-9
                           items-center
                           justify-center
                           rounded-full
@@ -140,7 +140,7 @@ export default function ShopByCategory({ result: _result }: ShopByCategoryprops)
                           lg:w-12
                         "
                     >
-                      <ChevronRight className="h-3.5 w-3.5 text-[#173963] sm:h-4.5 sm:w-4.5 lg:h-5 lg:w-5" />
+                      <ChevronRight className="h-4 w-4 text-[#173963] sm:h-4.5 sm:w-4.5 lg:h-5 lg:w-5" />
                     </div>
                   </div>
                 </div>
