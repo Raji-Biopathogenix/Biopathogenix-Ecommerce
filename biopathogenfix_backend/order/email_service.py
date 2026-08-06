@@ -39,6 +39,7 @@ def send_order_status_email(order, previous_status: str | None = None, notes: st
             'order_url': f"{configSettings.FRONTEND_URL}/my-account/",
             'support_email': support_email,
             'company_name': company_name,
+            'logo_url': getattr(settings, 'WELCOME_LOGO_URL', ''),
             'order_items': order.items.all(),
             'subtotal': order.subtotal,
             'shipping_cost': order.shipping_cost,
