@@ -870,6 +870,10 @@ class CreateOutboundShipmentView(APIView):
         if suc:
             success, result = create_outbound_shipment(order, item_ids, ups_response)
             if success:
+                # Without this, the order sits at its pre-shipment status (e.g.
+                # "pending") until the next UPS poll (up to 30 min later) instead
+                # of moving to "processing" as soon as the label exists.
+                order.update_status()
                 return Response({"status":"success","message":"Created Successfully!"},status=status.HTTP_201_CREATED
                 )
             return Response({'error': result}, status=status.HTTP_400_BAD_REQUEST)
