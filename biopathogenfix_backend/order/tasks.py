@@ -12,31 +12,19 @@ logger = logging.getLogger(__name__)
 
 ups = UPSService()
 
-# Statuses that mean the order is still moving — we keep polling these
+# Shipment statuses that mean the package is still moving — we keep polling these
 ACTIVE_STATUSES = [
-    InternalStatus.PENDING,
-    InternalStatus.CONFIRMED,
-    InternalStatus.PROCESSING,
-    InternalStatus.SHIPPED,
-    InternalStatus.OUT_FOR_DELIVERY,
-    InternalStatus.FAILED_DELIVERY,  # retry after a failed attempt
+    InternalStatus.LABEL_CREATED,
+    InternalStatus.PICKED_UP,
+    InternalStatus.IN_TRANSIT,
 ]
 
-# Notify customer when order reaches one of these statuses
+# Notify customer when the shipment reaches one of these statuses
 NOTIFY_ON_STATUSES = {
-    InternalStatus.SHIPPED,
-    InternalStatus.OUT_FOR_DELIVERY,
+    InternalStatus.PICKED_UP,
+    InternalStatus.IN_TRANSIT,
     InternalStatus.DELIVERED,
-    InternalStatus.FAILED_DELIVERY,
 }
-
-ACTIVE_STATUSES = [
-    'label_created',
-    'picked_up',
-    'in_transit',
-    'out_for_delivery',
-    'failed_delivery',
-]
 
 
 # Task 1 — Runs every 30 minutes via Celery Beat
