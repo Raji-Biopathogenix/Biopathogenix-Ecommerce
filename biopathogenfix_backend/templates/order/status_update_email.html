@@ -25,6 +25,32 @@
         <p><strong>Update details:</strong> {{ status_notes }}</p>
         {% endif %}
 
+        <h3 style="margin-top: 28px;">Order Details</h3>
+        <table width="100%" cellpadding="8" cellspacing="0" border="1" style="border-collapse: collapse;">
+            <thead>
+                <tr>
+                    <th>Product</th>
+                    <th>Quantity</th>
+                    <th>Price</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for item in order_items %}
+                <tr>
+                    <td>{{ item.product_name }}</td>
+                    <td>{{ item.quantity }}</td>
+                    <td>${{ item.unit_price }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        <p style="margin-top: 12px;">
+            <strong>Subtotal:</strong> ${{ subtotal }}<br>
+            <strong>Shipping:</strong> ${{ shipping_cost }}<br>
+            <strong>Tax:</strong> ${{ tax_amount }}<br>
+            <strong>Total:</strong> ${{ total }}
+        </p>
+
         <p>You can review your order anytime in your account.</p>
         <p>
             <a href="{{ order_url }}" style="display: inline-block; background: #1f3c88; color: #ffffff; text-decoration: none; padding: 12px 18px; border-radius: 6px;">
