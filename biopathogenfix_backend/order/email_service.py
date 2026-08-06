@@ -21,6 +21,42 @@ def _get_order_recipients(order):
     return list(dict.fromkeys(filter(None, to_email)))
 
 
+def _get_related_products(order, limit: int = 4):
+    from product.models import Product
+
+    purchased_product_ids = list(
+        order.items.exclude(product_id=None).values_list('product_id', flat=True)
+    )
+    if not purchased_product_ids:
+        return []
+
+    category_ids = Product.objects.filter(
+        id__in=purchased_product_ids
+    ).values_list('categories__id', flat=True).distinct()
+
+    related = (
+        Product.objects.filter(categories__id__in=list(category_ids), is_active=True)
+        .exclude(id__in=purchased_product_ids)
+        .distinct()
+        .prefetch_related('images')[:limit]
+    )
+
+    backend_url = getattr(settings, 'BACKEND_URL', '')
+    items = []
+    for product in related:
+        primary_image = product.images.filter(is_primary=True).first() or product.images.first()
+        image_url = ''
+        if primary_image and primary_image.image:
+            image_url = f"{backend_url}{primary_image.image.url}"
+        items.append({
+            'name': product.name,
+            'price': product.price,
+            'image_url': image_url,
+            'product_url': f"{configSettings.FRONTEND_URL}/product-detail/{product.slug}",
+        })
+    return items
+
+
 def send_order_status_email(order, previous_status: str | None = None, notes: str = "") -> bool:
     try:
         support_email = 'order@biopathogenix.com'
@@ -45,6 +81,7 @@ def send_order_status_email(order, previous_status: str | None = None, notes: st
             'shipping_cost': order.shipping_cost,
             'tax_amount': order.tax_amount,
             'total': order.amount,
+            'related_products': _get_related_products(order),
         }
 
         html_content = render_to_string('order/status_update_email.html', context)
