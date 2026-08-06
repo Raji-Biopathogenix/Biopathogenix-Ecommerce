@@ -6,6 +6,11 @@
 </head>
 <body style="font-family: Arial, sans-serif; color: #222; margin: 0; padding: 24px; background: #f6f8fb;">
     <div style="max-width: 600px; margin: 0 auto; background: #ffffff; border: 1px solid #e5e7eb; border-radius: 8px; padding: 32px;">
+        {% if logo_url %}
+        <div style="text-align: center; margin-bottom: 16px;">
+            <img src="{{ logo_url }}" alt="{{ company_name }} Logo" style="max-width: 180px;" />
+        </div>
+        {% endif %}
         <h2 style="margin-top: 0; color: #1f3c88;">Order Status Update</h2>
         <p>Hi {{ customer_name }},</p>
         <p>Your order <strong>#{{ order_number }}</strong> has been updated.</p>
