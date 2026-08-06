@@ -23,6 +23,9 @@ def _get_order_recipients(order):
 
 def send_order_status_email(order, previous_status: str | None = None, notes: str = "") -> bool:
     try:
+        support_email = 'order@biopathogenix.com'
+        company_name = configSettings.COMPANY_NAME or 'BioPathogenix'
+
         context = {
             'order': order,
             'customer_name': order.fullName or order.user.get_full_name() or 'Valued Customer',
@@ -34,8 +37,13 @@ def send_order_status_email(order, previous_status: str | None = None, notes: st
             'status_notes': notes,
             'tracking_number': order.tracking_number,
             'order_url': f"{configSettings.FRONTEND_URL}/my-account/",
-            'support_email': configSettings.SUPPORT_EMAIL,
-            'company_name': configSettings.COMPANY_NAME,
+            'support_email': support_email,
+            'company_name': company_name,
+            'order_items': order.items.all(),
+            'subtotal': order.subtotal,
+            'shipping_cost': order.shipping_cost,
+            'tax_amount': order.tax_amount,
+            'total': order.amount,
         }
 
         html_content = render_to_string('order/status_update_email.html', context)
@@ -51,7 +59,7 @@ def send_order_status_email(order, previous_status: str | None = None, notes: st
         )
 
         subject = f"Order #{context['order_number']} Updated to {context['current_status_display']}"
-        from_email = f"{configSettings.COMPANY_NAME} <{configSettings.DEFAULT_FROM_EMAIL}>"
+        from_email = f"{company_name} <{configSettings.DEFAULT_FROM_EMAIL}>"
         to_list = _get_order_recipients(order)
         bcc_list = ['rajeswari.gopu@biopathogenix.com']
         if getattr(settings, 'GRAPH_ENABLED', False):
@@ -65,7 +73,7 @@ def send_order_status_email(order, previous_status: str | None = None, notes: st
                 from_email=from_email,
                 to=to_list,
                 bcc=bcc_list,
-                reply_to=[configSettings.SUPPORT_EMAIL],
+                reply_to=[support_email],
             )
             email.attach_alternative(html_content, 'text/html')
             email.send(fail_silently=False)
