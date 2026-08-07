@@ -196,6 +196,14 @@ export default function ProductDetails({ prdData }: { prdData: ProductDetailData
                   </span>
                 </>
               ) : null}
+              {availableStock > 0 ? (
+                <>
+                  <CircleTickIcon />
+                  <span className="ms-1 font-semibold text-xs text-gray-500"> IN STOCK </span>
+                </>
+              ) : (
+                <span className="ms-1 font-semibold text-xs text-gray-500"> OUT OF STOCK </span>
+              )}
             </div>
           )}
         </div>
