@@ -44,7 +44,7 @@ from rest_framework.views import APIView
 from django.shortcuts import get_object_or_404, render
 from .services import create_outbound_shipment,create_return_shipment
 from django.http import HttpResponse
-from .email_service import send_refund_email,send_cancellation_email
+from .email_service import send_refund_email,send_cancellation_email,_get_related_products
 
 logger = logging.getLogger(__name__)
 ups = UPSService()
@@ -555,6 +555,8 @@ def _create_order(
         'billing_address': f"{order.billing_first_name} {order.billing_last_name}, {order.billing_address_line1}, {order.billing_city}, {order.billing_state}, {order.billing_postal_code}, {order.billing_country}",
         'shipping_address': f"{order.shipping_first_name} {order.shipping_last_name}, {order.shipping_address_line1}, {order.shipping_city}, {order.shipping_state}, {order.shipping_postal_code}, {order.shipping_country}",
         'invoice_note': "Thank you for choosing Invoice as your payment method. Our team will review your order and send you an invoice with payment instructions shortly. If you have any questions, please contact our billing department at order@biopathogenix.com." if order.payment_method == "invoice" else None,
+        'related_products': _get_related_products(order),
+        'shop_url': f"{configSettings.FRONTEND_URL}/shop",
     }
     subject = f"Your BioPathogenix Order Confirmation - {context['order_number']}"
     to_email = [order.user.email]
