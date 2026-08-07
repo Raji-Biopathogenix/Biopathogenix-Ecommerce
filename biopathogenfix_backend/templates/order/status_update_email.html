@@ -23,7 +23,16 @@
         </div>
 
         {% if tracking_number %}
-        <p><strong>Tracking number:</strong> {{ tracking_number }}</p>
+        <p>
+            <strong>Tracking number:</strong>
+            {% if tracking_url %}
+            <a href="{{ tracking_url }}" style="color: #1f3c88; font-weight: bold; text-decoration: none;">
+                {{ tracking_number }} &rarr;
+            </a>
+            {% else %}
+            {{ tracking_number }}
+            {% endif %}
+        </p>
         {% endif %}
 
         {% if status_notes %}

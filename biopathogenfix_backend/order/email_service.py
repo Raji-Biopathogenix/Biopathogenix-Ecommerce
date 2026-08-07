@@ -72,6 +72,7 @@ def send_order_status_email(order, previous_status: str | None = None, notes: st
             'current_status_display': order.get_status_display(),
             'status_notes': notes,
             'tracking_number': order.tracking_number,
+            'tracking_url': f"https://www.ups.com/track?tracknum={order.tracking_number}&requester=ST/trackdetails" if order.tracking_number else None,
             'order_url': f"{configSettings.FRONTEND_URL}/my-account/",
             'shop_url': f"{configSettings.FRONTEND_URL}/shop",
             'support_email': support_email,
@@ -91,7 +92,7 @@ def send_order_status_email(order, previous_status: str | None = None, notes: st
             f"Hi {context['customer_name']},\n\n"
             f"Your order status is now {context['current_status_display']}.\n"
             + (f"Previous status: {context['previous_status_display']}\n" if context['previous_status_display'] else "")
-            + (f"Tracking number: {context['tracking_number']}\n" if context['tracking_number'] else "")
+            + (f"Tracking number: {context['tracking_number']} ({context['tracking_url']})\n" if context['tracking_number'] else "")
             + f"\nView your order: {context['order_url']}\n"
             + f"\nQuestions? {context['support_email']}\n\n"
             + f"{context['company_name']}"
