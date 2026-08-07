@@ -73,6 +73,7 @@ def send_order_status_email(order, previous_status: str | None = None, notes: st
             'status_notes': notes,
             'tracking_number': order.tracking_number,
             'order_url': f"{configSettings.FRONTEND_URL}/my-account/",
+            'shop_url': f"{configSettings.FRONTEND_URL}/shop",
             'support_email': support_email,
             'company_name': company_name,
             'logo_url': getattr(settings, 'WELCOME_LOGO_URL', ''),
