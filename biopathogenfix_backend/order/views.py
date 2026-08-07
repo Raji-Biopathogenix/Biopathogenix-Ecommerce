@@ -870,6 +870,10 @@ class CreateOutboundShipmentView(APIView):
         if suc:
             success, result = create_outbound_shipment(order, item_ids, ups_response)
             if success:
+                # Carry the tracking number onto the order so the status-update
+                # email (sent from update_status() -> save()) can include it.
+                order.tracking_number = result.tracking_number
+                order.save(update_fields=['tracking_number'])
                 # Without this, the order sits at its pre-shipment status (e.g.
                 # "pending") until the next UPS poll (up to 30 min later) instead
                 # of moving to "processing" as soon as the label exists.
