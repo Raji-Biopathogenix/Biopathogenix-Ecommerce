@@ -86,7 +86,7 @@ export default function AboutPage() {
               workflows by providing high-quality lab supplies and innovative
               solutions to laboratories worldwide. Established in 2020 and
               headquartered in Nicholasville, Kentucky, BioPathogenix has quickly
-              become a trusted partner for research and clinical laboratories.
+              become a trusted partner for laboratories.
             </p>
 
             <Link
