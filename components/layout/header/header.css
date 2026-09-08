@@ -402,6 +402,7 @@
     display: flex;
     align-items: center;
     justify-content: space-between;
+    width: auto;
     padding: 0 12px;
     gap: 0;
     height: 60px !important;
