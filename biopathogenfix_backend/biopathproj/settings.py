@@ -34,16 +34,6 @@ DEBUG = os.getenv('DEBUG', 'True').lower() in ('1', 'true', 'yes')
 
 ALLOWED_HOSTS = os.getenv('ALLOWED_HOSTS', 'localhost,127.0.0.1').split(',')
 
-# Railway (and most cloud hosts) terminate HTTPS at a proxy and forward plain
-# HTTP internally — without this, Django thinks every request is insecure,
-# which breaks CSRF checks (Origin header says https, Django expects http).
-SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
-
-CSRF_TRUSTED_ORIGINS = os.getenv(
-    'CSRF_TRUSTED_ORIGINS',
-    'https://bio.biopathogenix.com,https://api.biopathogenix.com,https://*.up.railway.app,https://*.vercel.app'
-).split(',')
-
 
 def _env_bool(name: str, default: str = "False") -> bool:
     return os.getenv(name, default).lower() in ("1", "true", "yes", "on")
@@ -92,7 +82,6 @@ AUTH_USER_MODEL = 'users.CustomUser'
 MIDDLEWARE = [
     "corsheaders.middleware.CorsMiddleware", 
     'django.middleware.security.SecurityMiddleware',
-    'whitenoise.middleware.WhiteNoiseMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -227,8 +216,7 @@ EMAIL_HOST_PASSWORD = os.environ.get("EMAIL_HOST_PASSWORD", "Ras05143")  # set t
 DEFAULT_FROM_EMAIL = os.environ.get("DEFAULT_FROM_EMAIL", EMAIL_HOST_USER)
 CAREERS_RECIPIENT_EMAIL = os.environ.get("CAREERS_RECIPIENT_EMAIL", "careers@biopathogenix.com")
 EMAIL_TIMEOUT = int(os.environ.get("EMAIL_TIMEOUT", 20))
-WELCOME_LOGO_URL = os.environ.get("WELCOME_LOGO_URL","https://bio.biopathogenix.com/images/logo/BioPathogenix-Horizontal-1.svg")
-BACKEND_URL = os.environ.get("BACKEND_URL", "https://api.biopathogenix.com")
+WELCOME_LOGO_URL = os.environ.get("WELCOME_LOGO_URL","http://localhost:3000/images/logo/BioPathogenix-Horizontal-1.svg")
 # Guard against enabling both TLS and SSL at the same time.
 if EMAIL_USE_TLS and EMAIL_USE_SSL:
     EMAIL_USE_SSL = False
@@ -276,8 +264,8 @@ from celery.schedules import crontab
  
 CELERY_BEAT_SCHEDULE = {
     "ups-poll-every-30-min": {
-        "task":     "order.poll_all_active_orders",
-        "schedule": crontab(minute="*/30"),  # every 30 minutes
+    "task":     "order.poll_all_active_orders",
+        "schedule": crontab(minute="*/1"),  # every 30 minutes
     },
 }
 
@@ -315,24 +303,10 @@ STATICFILES_DIRS = [
     BASE_DIR / 'static',
 ]
 
-STORAGES = {
-    "default": {
-        "BACKEND": "django.core.files.storage.FileSystemStorage",
-    },
-    "staticfiles": {
-        "BACKEND": "whitenoise.storage.CompressedManifestStaticFilesStorage",
-    },
-}
-
 
 
 MEDIA_URL = '/media/'
-# Railway injects RAILWAY_VOLUME_MOUNT_PATH automatically once a Volume is
-# attached to this service -- write media there so uploads survive redeploys
-# (the container's own filesystem is wiped on every deploy). Falls back to a
-# local folder when no volume is attached (e.g. local dev).
-_railway_volume_path = os.environ.get('RAILWAY_VOLUME_MOUNT_PATH')
-MEDIA_ROOT = os.path.join(_railway_volume_path, 'media') if _railway_volume_path else os.path.join(BASE_DIR, 'media')
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 SIMPLE_JWT = {
     'ACCESS_TOKEN_LIFETIME': timedelta(minutes=3600), 

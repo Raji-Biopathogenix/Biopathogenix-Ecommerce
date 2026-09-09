@@ -396,7 +396,7 @@ def _calculate_with_quickbooks(
             "SalesItemLineDetail": {
                 "Qty":        1,
                 "UnitPrice":  float(shipping_cost),
-                "ItemRef":    { "value": item_id },
+                "ItemRef":    { "value": "SHIPPING_ITEM_ID" },
                 "TaxCodeRef": { "value": "TAX" },
             },
         })

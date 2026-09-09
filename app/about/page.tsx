@@ -186,7 +186,7 @@ export default function AboutPage() {
 
           {/* Content */}
           <div className="flex flex-col justify-center" style={{padding: "60px 88px 60px 44px"}}>
-            <h2 className="text-3xl font-semibold mb-4">
+            <h2 className="text-3xl font-semibold mb-4 text-white">
               Quality and Innovation
             </h2>
 

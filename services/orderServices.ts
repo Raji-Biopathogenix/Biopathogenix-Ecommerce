@@ -1,7 +1,7 @@
 "use client";
 
 import AxiosInstance from "@/lib/axios";
-import { OrderSummary } from "@/types/order";
+import { OrderSummary, QuickBooksInvoice } from "@/types/order";
 import { CreateShipmentPayload,AllOrderResponse ,OrderItemResponse,AllOrderPayload,orderEditPayload,OrderUpdateResponse,OrderShipmentResponse,CreateOrderShipmentResponse,CancelResult,CancelOrderItemResponse,RefundResult,LabelData} from "../types/admin_order";
 
 type OrderListResponse = {
@@ -13,6 +13,20 @@ type OrderListResponse = {
 };
 
 export const OrderServices = {
+  async fetchInvoice(orderId: number): Promise<QuickBooksInvoice> {
+    const response = await AxiosInstance.get(`/orders/${orderId}/invoice/`);
+    return response.data;
+  },
+
+  async fetchInvoicePdf(orderId: number): Promise<Blob> {
+    const response = await AxiosInstance.get(`/orders/${orderId}/invoice/?download=pdf`, {
+      responseType: "blob",
+    });
+    if (!response.headers["content-type"]?.includes("application/pdf")) {
+      throw new Error("Invoice PDF unavailable");
+    }
+    return response.data;
+  },
   async fetchUserOrders(): Promise<OrderListResponse> {
     const response = await AxiosInstance.get("/orders/");
     return response.data;
