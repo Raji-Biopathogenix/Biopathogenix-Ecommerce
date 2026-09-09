@@ -11,24 +11,26 @@ export interface ProductImages{
     alt_text:string
 }
 
-export default function ProductImages({product_images}:{product_images:ProductImages[]}){
+export default function ProductImages({product_images = []}:{product_images:ProductImages[]}){
 
     const [activeImg, setActiveImg] = useState(0);
     const [fading, setFading] = useState(false);
     const [primaryImage, setPrimaryImage] = useState<string | null>(null);
     const [primaryImageAltText, setPrimaryImageAltText] = useState<string | null>(null);
     const [modalOpen, setModalOpen] = useState(false);
+    const [imageFailed, setImageFailed] = useState(false);
 
 
 
 
     const switchImage = (idx: number) => {
-        if (idx === activeImg) return;
+        if (idx === activeImg || idx < 0 || idx >= product_images.length) return;
         setFading(true);
         setTimeout(() => { 
             setActiveImg(idx); 
             setPrimaryImage(product_images?.[idx]?.image)
             setPrimaryImageAltText(product_images?.[idx]?.alt_text)
+            setImageFailed(false);
             setFading(false); 
         }, 200);
     };
@@ -38,14 +40,13 @@ export default function ProductImages({product_images}:{product_images:ProductIm
 
 
     useEffect(()=>{
-        let primary_img = product_images?.filter((item)=> item.is_primary == true)
-        if(primary_img){
-            setPrimaryImage(primary_img?.[0]?.image)
-        }
-
-
-        let active_img_index = product_images?.findIndex((item)=> item.is_primary == true)
-        setActiveImg(active_img_index)
+        const markedIndex = product_images.findIndex((item) => item.is_primary && item.image);
+        const firstImageIndex = product_images.findIndex((item) => item.image);
+        const index = markedIndex >= 0 ? markedIndex : firstImageIndex;
+        setActiveImg(Math.max(0, index));
+        setPrimaryImage(product_images[index]?.image ?? null);
+        setPrimaryImageAltText(product_images[index]?.alt_text || "Product image");
+        setImageFailed(false);
 
     },[product_images])
 
@@ -60,6 +61,7 @@ export default function ProductImages({product_images}:{product_images:ProductIm
                 className="flex items-center gap-1.5 text-xs text-gray-500 hover:text-gray-800 transition-colors"
                 style={{ fontFamily: "sans-serif" }}
                 onClick={() => setModalOpen(true)}
+                disabled={!primaryImage || imageFailed}
               >
                 <span className="font-semibold tracking-widest uppercase text-xs">ZOOM</span>
                 <ZoomIcon />
@@ -76,14 +78,15 @@ export default function ProductImages({product_images}:{product_images:ProductIm
             <div className={`relative w-full bg-gray-50 rounded-sm border border-gray-100 flex items-center justify-center overflow-hidden`}
             >
             <div className="relative w-full aspect-[3/2] bg-white">
-            <Image
-                src={`${primaryImage}`}
+            {primaryImage && !imageFailed ? <Image
+                src={primaryImage}
                 fill
-                alt={`${primaryImageAltText}-primary-image`}
+                alt={primaryImageAltText || "Product image"}
+                onError={() => setImageFailed(true)}
                 unoptimized
                 sizes="(max-width: 724px) 100vw, 50vw"
                 className={`object-contain p-4 ${fading ? "opacity-0" : "opacity-100"}`}
-                />
+                /> : <div className="flex h-full items-center justify-center p-6 text-sm text-gray-500">Product image unavailable</div>}
             </div>
               <button
                 onClick={(e) => { e.stopPropagation(); prev(); }}
@@ -111,15 +114,15 @@ export default function ProductImages({product_images}:{product_images:ProductIm
                       : "border-gray-200 hover:border-gray-400"
                   }`}
                 >
-                 <Image
+                 {img?.image ? <Image
                     src={img?.image}
-                    alt={`Thumbnail ${img?.alt_text}-img-${i}`}
+                    alt={img.alt_text || `Product image ${i + 1}`}
                     width={80}
                     height={80}
                     unoptimized
                     loading="lazy"
                     className="object-contain"
-                    />
+                    /> : <span className="text-xs text-gray-500">No image</span>}
                 </button>
               ))}
             </div>
