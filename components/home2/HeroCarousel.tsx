@@ -75,7 +75,7 @@ export default function HeroCarousel({ result }: HeroCarouselprops) {
 
   return (
     <section
-      className="overflow-hidden bg-[#edf3f8] px-4 py-10 sm:px-6 sm:py-12 md:px-10 md:py-10 lg:px-12 lg:py-14"
+      className="overflow-hidden bg-[#edf3f8] px-5 pb-6 pt-7 sm:px-6 sm:py-12 md:px-10 md:py-10 lg:px-12 lg:py-14"
       style={{
         backgroundImage: "url('/images/home/hero-bg.png')",
         backgroundSize: "cover",
@@ -83,15 +83,15 @@ export default function HeroCarousel({ result }: HeroCarouselprops) {
         backgroundRepeat: "no-repeat",
       }}
     >
-      <div className="mx-auto flex max-w-[1360px] flex-col gap-8 lg:flex-row lg:items-center lg:justify-between">
-        <div className="relative w-full max-w-[760px] lg:h-[700px] lg:w-[52%]">
+      <div className="mx-auto flex max-w-[1360px] flex-col items-center gap-5 sm:items-start sm:gap-8 lg:flex-row lg:items-center lg:justify-between">
+        <div className="relative w-full max-w-[760px] text-center sm:text-left lg:h-[700px] lg:w-[52%]">
           {/* Top Label */}
-          <p className="mb-4 text-[11px] font-bold uppercase tracking-[0.2em] text-[#153B67] sm:mb-5 sm:text-[13px] sm:tracking-[0.22em]">
+          <p className="mx-auto mb-4 w-fit rounded-full border border-[#c8dcea] bg-white/70 px-3 py-2 text-[9px] font-bold uppercase tracking-[0.12em] text-[#153B67] sm:mx-0 sm:mb-5 sm:w-auto sm:rounded-none sm:border-0 sm:bg-transparent sm:p-0 sm:text-[13px] sm:tracking-[0.22em]">
             ADVANCED MULTIPLEX QPCR SUPPLIER
           </p>
 
           {/* Heading */}
-          <h1 className="font-['Quicksand'] text-[42px] font-bold leading-[1.02] tracking-[-0.04em] text-[#0F2D5C] sm:text-[56px] md:text-[64px] lg:text-[74px]">
+          <h1 className="font-['Quicksand'] text-[clamp(32px,9vw,46px)] font-bold leading-[1.08] tracking-[-0.035em] text-[#0F2D5C] sm:text-[56px] sm:leading-[1.02] sm:tracking-[-0.04em] md:text-[64px] lg:text-[74px]">
             Precision you
             <br />
             can trust.
@@ -101,12 +101,12 @@ export default function HeroCarousel({ result }: HeroCarouselprops) {
             <span className="text-[#4A97D3]">can count on.</span>
           </h1>
 
-          <h2 className="mt-6 text-[18px] font-semibold leading-[1.35] tracking-normal text-[#173963] sm:mt-7 sm:text-[20px]">
+          <h2 className="mx-auto mt-4 max-w-[340px] text-[16px] font-semibold leading-[1.4] tracking-normal text-[#173963] sm:mx-0 sm:mt-7 sm:max-w-none sm:text-[20px] sm:leading-[1.35]">
             Complete Workflow Solutions for Pathogen Detection.
           </h2>
 
           {/* Description */}
-          <p className="mt-5 max-w-[560px] text-[16px] leading-[1.6] text-[#4E5F73] sm:mt-6 sm:text-[18px] sm:leading-[1.65]">
+          <p className="mx-auto mt-3 max-w-[380px] text-[14px] leading-[1.65] text-[#4E5F73] sm:mx-0 sm:mt-6 sm:max-w-[560px] sm:text-[18px]">
             From custom qPCR assays and validation-ready quality controls to
             extraction technologies and scientific support, BioPathogenix gives
             laboratories everything they need to validate with confidence and keep
@@ -116,7 +116,7 @@ export default function HeroCarousel({ result }: HeroCarouselprops) {
           {/* Button */}
           <button
             onClick={() => router.push(btnUrl)}
-            className="mt-8 inline-flex h-[50px] items-center gap-4 rounded-[10px] bg-[#0F4A80] px-6 text-[16px] font-semibold text-white transition hover:bg-[#0b3b66] sm:mt-10 sm:h-[56px] sm:gap-5 sm:px-8 sm:text-[18px]"
+            className="mt-5 inline-flex min-h-[50px] w-full max-w-[340px] items-center justify-center gap-4 rounded-xl bg-[#0F4A80] px-6 py-3 text-[16px] font-semibold text-white shadow-[0_6px_18px_rgba(15,74,128,0.18)] transition hover:bg-[#0b3b66] focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#0F4A80] sm:mt-10 sm:h-[56px] sm:w-auto sm:max-w-none sm:gap-5 sm:rounded-[10px] sm:px-8 sm:py-0 sm:text-[18px] sm:shadow-none"
           >
             <span>Shop Now</span>
 
@@ -126,7 +126,7 @@ export default function HeroCarousel({ result }: HeroCarouselprops) {
           </button>
         </div>
 
-        <div className="relative h-[320px] w-full max-w-[760px] sm:h-[420px] md:h-[520px] lg:h-[700px] lg:w-[52%]">
+        <div className="relative h-[230px] w-full max-w-[360px] sm:h-[420px] sm:max-w-[760px] md:h-[520px] lg:h-[700px] lg:w-[52%]">
           <div className="absolute inset-0 opacity-30 " />
           {HERO_IMAGES.map((image) => (
             <HeroImage key={image.src} {...image} />
@@ -136,5 +136,4 @@ export default function HeroCarousel({ result }: HeroCarouselprops) {
     </section>
   );
 }
-
 
