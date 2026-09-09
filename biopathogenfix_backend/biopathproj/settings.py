@@ -306,7 +306,10 @@ STATICFILES_DIRS = [
 
 
 MEDIA_URL = '/media/'
-MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+# Uploaded files must live on a persistent volume in production. Keep the
+# existing location by default so attaching /app/media preserves stored paths.
+# MEDIA_ROOT allows deployments with a different volume mount to opt in.
+MEDIA_ROOT = Path(os.environ.get('MEDIA_ROOT') or BASE_DIR / 'media').resolve()
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 SIMPLE_JWT = {
     'ACCESS_TOKEN_LIFETIME': timedelta(minutes=3600), 
