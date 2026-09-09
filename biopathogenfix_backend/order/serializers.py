@@ -63,6 +63,11 @@ class OrderDetailSerializer(serializers.ModelSerializer):
         fields = (
             "id",
             "order_number",
+            "subtotal",
+            "shipping_cost",
+            "tax_amount",
+            "coupon_amt",
+            "paymet_status",
             "transaction_id",
             "amount",
             "status",

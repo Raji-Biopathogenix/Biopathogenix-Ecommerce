@@ -32,7 +32,7 @@ export default function ValidationSuccessfulSection() {
         <div className="relative flex min-h-[640px] flex-col justify-between px-6 py-8 md:px-10 md:py-10">
           <div className="flex items-start justify-between gap-6">
             <div className="max-w-[540px] text-white">
-              <h2 className="font-['Quicksand'] text-[2.15rem] font-bold leading-[0.95] tracking-[-0.03em] md:text-[3.4rem]">
+              <h2 className="font-['Quicksand'] text-white text-[2.15rem] font-bold leading-[0.95] tracking-[-0.03em] md:text-[3.4rem]">
                 What a <span className="text-[#50a7d7]">Successful</span>
                 <br />
                 <span className="text-[#50a7d7]">Validation</span> Looks Like
@@ -44,7 +44,7 @@ export default function ValidationSuccessfulSection() {
           </div>
 
           <div className="max-w-[640px] pb-2 text-white">
-            <h3 className="font-['Quicksand'] text-[2.1rem] font-bold leading-none md:text-[3.25rem]">
+            <h3 className="font-['Quicksand'] text-white text-[2.1rem] font-bold leading-none md:text-[3.25rem]">
               It carries pressure.
             </h3>
             <ul className="mt-5 space-y-2.5 md:mt-7 md:space-y-3">

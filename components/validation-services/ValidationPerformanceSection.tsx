@@ -14,7 +14,7 @@ export default function ValidationPerformanceSection() {
     <section className="bg-[#0a1735] px-4 py-6 md:px-6 md:py-8">
       <div className="mx-auto grid max-w-[1440px] items-center gap-8 overflow-hidden rounded-[28px] bg-[#091a3d] px-6 py-8 shadow-[0_24px_60px_rgba(5,12,30,0.26)] md:grid-cols-[1.02fr_0.98fr] md:px-8 md:py-10">
         <div className="text-white">
-          <h2 className="max-w-[560px] font-['Quicksand'] text-[2.05rem] font-bold leading-[0.98] tracking-[-0.04em] md:text-[3.45rem]">
+          <h2 className="max-w-[560px] font-['Quicksand'] text-white text-[2.05rem] font-bold leading-[0.98] tracking-[-0.04em] md:text-[3.45rem]">
             Validation Services
             <br />
             That <span className="text-[#3a8ac8]">Deliver Verified</span>

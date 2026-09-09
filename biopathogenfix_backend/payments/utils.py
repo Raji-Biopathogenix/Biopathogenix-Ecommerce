@@ -626,92 +626,13 @@ def get_qb_item_by_sku(access_token: str, realm_id: str, base_url: str, sku: str
     return None
 
 
-def get_qb_shipping_item_id(access_token: str, realm_id: str, base_url: str):
-    """
-    Looks up, or creates, a dedicated QuickBooks "Shipping" item for
-    invoice shipping charges.
-
-    QuickBooks treats shipping charges as a special kind of item. Using
-    a plain product/service item can cause the charge to render as a
-    normal activity row. A dedicated Other Charge item is much more
-    likely to show in the invoice summary section, matching the layout
-    used by invoices like #7858.
-    """
-    try:
-        response = requests.get(
-            f"{base_url}/v3/company/{realm_id}/query",
-            headers={
-                "Authorization": f"Bearer {access_token}",
-                "Accept":        "application/json",
-            },
-            params={"query": "SELECT * FROM Item WHERE Name = 'Shipping' AND Type = 'OtherCharge'"},
-            timeout=15,
-        )
-        items = response.json().get("QueryResponse", {}).get("Item", [])
-        matches = [i for i in items if i.get("Active", True)]
-        if matches:
-            print(f"QB Shipping item found: {matches[0].get('Id')} ({matches[0].get('Name')})")
-            return matches[0]["Id"]
-    except Exception as e:
-        print(f"QB Shipping item lookup failed: {e}")
-
-    try:
-        account_response = requests.get(
-            f"{base_url}/v3/company/{realm_id}/query",
-            headers={
-                "Authorization": f"Bearer {access_token}",
-                "Accept":        "application/json",
-            },
-            params={"query": "SELECT * FROM Account WHERE Name = 'Sales of Product Income' AND Active = true"},
-            timeout=15,
-        )
-        accounts = account_response.json().get("QueryResponse", {}).get("Account", [])
-        if not accounts:
-            print("No Sales of Product Income account found — using default item")
-            return None
-
-        income_account = accounts[0]
-        create_response = requests.post(
-            f"{base_url}/v3/company/{realm_id}/item",
-            headers={
-                "Authorization": f"Bearer {access_token}",
-                "Content-Type":  "application/json",
-                "Accept":        "application/json",
-            },
-            json={
-                "Name": "Shipping",
-                "Type": "OtherCharge",
-                "Active": True,
-                "Taxable": True,
-                "Description": "Shipping charge",
-                "IncomeAccountRef": {
-                    "value": income_account["Id"],
-                    "name": income_account.get("Name", "Sales of Product Income"),
-                },
-            },
-            timeout=15,
-        )
-        payload = create_response.json()
-        item = payload.get("Item", {})
-        item_id = item.get("Id")
-        if item_id:
-            print(f"QB Shipping item created: {item_id}")
-            return item_id
-        print(f"QB Shipping item creation returned no item id: {payload}")
-    except Exception as e:
-        print(f"QB Shipping item creation failed: {e}")
-
-    print("No QB Shipping item available — using default item")
-    return None
-
-
 def _build_invoice_line_items(
     access_token: str, realm_id: str, base_url: str,
     order, orderItems: list, default_item_id: str,
 ) -> list:
     """
     Builds QB invoice line items from order items.
-    Includes products, shipping, and tax as separate lines.
+    Includes product lines and native shipping; QuickBooks calculates tax.
     """
     line_items = []
     products_subtotal = 0.0
@@ -755,15 +676,8 @@ def _build_invoice_line_items(
             },
         })
 
-    #  Shipping line — uses the account's reserved "Shipping" Item when
-    #  one exists, so it can render as its own summary row like it does
-    #  on MyWorks-synced invoices, falling back to the default Item.
-    #
-    #  A SubTotalLineDetail marker is inserted right before it — this
-    #  structural line (confirmed from a real MyWorks-synced invoice's
-    #  raw API data) is what appears to signal to QuickBooks' invoice
-    #  template that everything before it is "products" and what
-    #  follows is a separate charge, rather than the ItemRef name alone.
+    # QuickBooks reserves this ItemRef for shipping in the totals section.
+    # Requires SalesFormsPrefs.AllowShipping in the connected company.
     if float(order.shipping_cost) > 0:
         line_items.append({
             "Amount":     round(products_subtotal, 2),
@@ -771,7 +685,6 @@ def _build_invoice_line_items(
             "SubTotalLineDetail": {},
         })
 
-        shipping_item_id = get_qb_shipping_item_id(access_token, realm_id, base_url)
         line_items.append({
             "Amount":      float(order.shipping_cost),
             "Description": "Shipping",
@@ -779,7 +692,7 @@ def _build_invoice_line_items(
             "SalesItemLineDetail": {
                 "Qty":         1,
                 "UnitPrice":   float(order.shipping_cost),
-                "ItemRef":     { "value": shipping_item_id or default_item_id },
+                "ItemRef":     { "value": "SHIPPING_ITEM_ID" },
                 "TaxCodeRef":  { "value": "TAX" },
             },
         })
@@ -971,6 +884,13 @@ def create_qb_invoice(access_token: str, order, orderItems: list, payment_method
         f"QB Invoice #{invoice_id} created | "
         f"Order #{order.id} | method={payment_method} | amount={order.amount}"
     )
+
+    # Persist the link before payment recording so a payment-sync failure
+    # never loses the invoice or requires creating a duplicate invoice.
+    order.qb_invoice_id = str(invoice_id)
+    order.qb_realm_id = str(realm_id)
+    order.qb_customer_id = str(customer_id)
+    order.save(update_fields=["qb_invoice_id", "qb_realm_id", "qb_customer_id"])
 
     #  Step 5: Mark as PAID for card payments 
     if payment_method == "card":

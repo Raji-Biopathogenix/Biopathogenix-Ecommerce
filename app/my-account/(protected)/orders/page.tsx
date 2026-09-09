@@ -6,6 +6,7 @@ import { OrderSummary, OrderShipment, OrderItem } from "@/types/order";
 import { useAuth } from "@/context/AuthContext";
 import { useToast } from "@/context/ToastContext";
 import ReturnRequestModal from "@/components/Modal/Order/ReturnRequestModal";
+import CustomerOrderInvoice from "@/components/orders/CustomerOrderInvoice";
 
 // ─── Label maps ────────────────────────────────────────────────────────────────
 const STATUS_LABELS: Record<string, string> = {
@@ -402,6 +403,8 @@ export default function OrdersPage() {
                 </button>
               </div>
             </div>
+
+            <CustomerOrderInvoice order={order} />
 
             {/* ── Order-level Progress Bar ── */}
             <div className="px-6 py-5 border-b border-[#e6eef5]">

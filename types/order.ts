@@ -24,6 +24,11 @@ export interface OrderStatusUpdate {
 }
 
 export interface OrderSummary {
+  subtotal?: string | number;
+  shipping_cost?: string | number;
+  tax_amount?: string | number;
+  coupon_amt?: string | number;
+  paymet_status?: string;
   id: number;
   order_number: string;
   transaction_id: string;
@@ -47,6 +52,20 @@ export interface OrderSummary {
   ups_tracking_url:string | null
   shipment_id?:string | null
   shipping_label?:string | null
+}
+
+export interface QuickBooksInvoice {
+  available: boolean;
+  message?: string;
+  number?: string;
+  status?: "paid" | "unpaid" | "partially_paid" | "voided";
+  overdue?: boolean;
+  total?: string;
+  balance?: string;
+  currency?: string;
+  due_date?: string | null;
+  payment_sync_pending?: boolean;
+  payment_url?: string | null;
 }
 
 
