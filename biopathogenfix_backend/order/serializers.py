@@ -223,6 +223,16 @@ class ShipmentItemSerializer(serializers.ModelSerializer):
 
 
 class ShipmentSerializer(serializers.ModelSerializer):
+    shipping_label = serializers.SerializerMethodField()
+
+    def get_shipping_label(self, obj):
+        if not obj.shipping_label:
+            return None
+        from django.urls import reverse
+        url = reverse('shipment-label-download', kwargs={'shipment_id': obj.id})
+        request = self.context.get('request')
+        return request.build_absolute_uri(url) if request else url
+
     item_count = serializers.SerializerMethodField()
     items = ShipmentItemSerializer(many=True, read_only=True)
 

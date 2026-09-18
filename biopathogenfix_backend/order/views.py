@@ -1,4 +1,5 @@
 import logging
+import base64
 import uuid
 from decimal import Decimal, InvalidOperation
 from django.db import transaction as db_transaction
@@ -15,6 +16,7 @@ from cart.services import UPSService
 from services.emailService import send_graph_email
 from rest_framework.pagination import PageNumberPagination
 from django.db.models import Count, Sum, Q, F
+from .permissions import IsOrderAdmin, accessible_orders
 from .models import Order,OrderItem,OrderVariants,OrderStatusUpdate,Shipment
 from .tax_service import calculate_tax_and_shipping
 from .serializers import OrderDetailSerializer,AllOrderSerializer,FetchOrderItemSerializer,ShipmentOrderSerailizer,ShipmentSerializer,CancelOrderSerializer,RefundOrderSerializer
@@ -115,40 +117,40 @@ def CheckoutView(request):
     cart_items = Cart.objects.filter(user=request.user.id,selected=True)
 
 
-    data         = request.data
+    data         = request.data.copy()
     user         = request.user
     payment_method = data.get("payment_method", "card")
 
-    # Layer 1: Validate request payload
-    try:
-        validate_checkout_payload(data)
-    except ValidationError as e:
-        return Response({"status":"error", "message": str(e.detail[0]) }, status=400)
-
-    print("---> validated ")
-
-    
-
-    amount          = float(data.get("amount", 0))
-    idempotency_key = data.get("idempotency_key")
-
-    # Layer 2: Duplicate payment check
+    # A completed checkout has already consumed its cart. Recover it before
+    # validating the new payload, but never expose another user's order.
+    idempotency_key = str(data.get("idempotency_key") or "").strip()
+    if not idempotency_key or len(idempotency_key) > 100:
+        return Response({"message": "A valid idempotency key is required."}, status=400)
     existing_order = Order.objects.filter(idempotency_key=idempotency_key).first()
     if existing_order:
-        logger.info(f"Duplicate order prevented for idempotency_key={idempotency_key}")
-        return Response({
-            "status":         "success",
-            "message":        "Order already processed.",
-            "order_number":   f"ORD-{existing_order.id:06d}",
-            "transaction_id": existing_order.transaction_id,
-            "total":          str(existing_order.amount),
-        }, status=200)
-
-    print("---> verfied Duplicate check")
-
-
-
-
+        if existing_order.user_id != user.id:
+            return Response({"message": "This checkout key is unavailable."}, status=409)
+        return Response({"status": "success", "message": "Order already processed.",
+                         "order_number": f"ORD-{existing_order.id:06d}",
+                         "transaction_id": existing_order.transaction_id,
+                         "total": str(existing_order.amount)}, status=200)
+    try:
+        validate_checkout_payload(data)
+        from .pricing import checkout_quote, money
+        submitted_amount = money(data.get("amount"))
+        cart_items = list(cart_items.select_related('product'))
+        quote = checkout_quote(cart_items, user, data['shipping'])
+    except (ValidationError, ValueError, KeyError, TypeError) as exc:
+        return Response({"status": "error", "message": str(exc), "retry": True}, status=400)
+    except Exception:
+        logger.exception("Checkout quote failed for user %s", user.id)
+        return Response({"status": "error", "message": "Unable to verify the order total. Please try again.",
+                         "retry": True}, status=503)
+    if submitted_amount != quote['amount']:
+        return Response({"status": "error", "message": "Your total has changed. Review the updated total and submit again.",
+                         "retry": True, "quote": quote}, status=409)
+    data.update(quote)
+    amount = quote['amount']
 
     # CARD PAYMENT FLOW
     if payment_method == "card":
@@ -338,7 +340,7 @@ def _create_order(
     checkout_stage = "prepare_cart_items"
     try:
         prepared_items = []
-        for item in cartItems.select_related("product"):
+        for item in cartItems:
             product = getattr(item, "product", None)
             if not product:
                 raise ValueError("One of the cart products is no longer available.")
@@ -406,6 +408,10 @@ def _create_order(
                 billing_country       = billing_country,
 
                 # Financials
+                coupon_code   = data.get("coupon_code", ""),
+                coupon_val    = data.get("coupon_val", 0),
+                coupon_type   = data.get("coupon_type", ""),
+                coupon_amt    = data.get("coupon_amt", 0),
                 subtotal      = data.get("subtotal",      0),
                 shipping_cost = data.get("shipping_cost", 0),
                 tax_amount    = data.get("tax_amount",    0),
@@ -691,7 +697,8 @@ def AllOrdersView(request):
 @api_view(["GET"])
 @permission_classes([IsAuthenticated])
 def orderItemsView(request):    
-    orderItems=OrderItem.objects.filter(order__id=request.query_params['order_id'])
+    order = get_object_or_404(accessible_orders(request.user), id=request.query_params.get('order_id'))
+    orderItems = OrderItem.objects.filter(order=order)
     serializer = FetchOrderItemSerializer(orderItems, many=True)
     return Response({
         "status": "success",
@@ -705,7 +712,7 @@ def orderItemsView(request):
 @api_view(["GET"])
 @permission_classes([IsAuthenticated])
 def ShippmentOrderItemsView(request):    
-    orderData=Order.objects.filter(id=request.query_params['order_id']).prefetch_related('items','shipments').first()
+    orderData = get_object_or_404(accessible_orders(request.user).prefetch_related('items', 'shipments'), id=request.query_params.get('order_id'))
     serializer = ShipmentOrderSerailizer(orderData,  context={'request': request})
     return Response({
         "status": "success",
@@ -723,8 +730,9 @@ def ShippmentOrderItemsView(request):
 @api_view(["GET"])
 @permission_classes([IsAuthenticated])
 def orderReturnRequestView(request):    
-    Order.objects.filter(id=request.query_params['order_id']).update(return_requested_reason=request.query_params['note'])
-    order = Order.objects.filter(id=request.query_params['order_id']).first()
+    order = get_object_or_404(accessible_orders(request.user), id=request.query_params.get('order_id'))
+    order.return_requested_reason = request.query_params['note']
+    order.save(update_fields=['return_requested_reason'])
     context = {
         "order": {"id":order.id,"created_at":order.created_at,"amount":order.amount,"payment_method":order.payment_method,"status":order.status},
         "user" : {"get_full_name":f"{order.user.first_name} {order.user.last_name}","email":order.user.email,"phone":order.user.phone_number},
@@ -763,7 +771,7 @@ def orderReturnRequestView(request):
 
 
 @api_view(["GET"])
-@permission_classes([IsAuthenticated])
+@permission_classes([IsOrderAdmin])
 def AdminorderReturnRequestView(request):
 
     if request.query_params['type'] == "return_approved":
@@ -810,7 +818,7 @@ def AdminorderReturnRequestView(request):
 
 
 @api_view(["POST"])
-@permission_classes([IsAuthenticated])
+@permission_classes([IsOrderAdmin])
 def AdminorderUpdateView(request):
     print("request.data",request.data)
     orderData = Order.objects.filter(id=request.data.get('orderId')).first()
@@ -848,7 +856,7 @@ def AdminorderUpdateView(request):
 
 
 class CreateOutboundShipmentView(APIView):
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsOrderAdmin]
     def post(self, request, order_id):
         order    = get_object_or_404(Order, id=order_id)
         item_ids = request.data.get('item_ids', [])
@@ -856,6 +864,11 @@ class CreateOutboundShipmentView(APIView):
             return Response({'error': 'item_ids is required'},status=status.HTTP_400_BAD_REQUEST)
 
 
+        if not isinstance(item_ids, list) or not all(type(value) is int for value in item_ids):
+            return Response({'error': 'item_ids must be a list of integer IDs.'}, status=400)
+        items = OrderItem.objects.filter(order=order, id__in=item_ids)
+        if len(set(item_ids)) != len(item_ids) or items.count() != len(item_ids):
+            return Response({'error': 'Some items do not belong to this order.'}, status=400)
         package = _build_package_from_order_items(item_ids)
 
         weight_override = request.data.get('weight_lb')
@@ -888,7 +901,7 @@ class CreateOutboundShipmentView(APIView):
 
 
 class InitiateReturnView(APIView):
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsOrderAdmin]
 
     def post(self, request, order_id):
         order    = get_object_or_404(Order, id=order_id)
@@ -904,7 +917,15 @@ class InitiateReturnView(APIView):
                 status=status.HTTP_400_BAD_REQUEST
             )
         
+        if not isinstance(item_ids, list) or not all(type(value) is int for value in item_ids):
+            return Response({'error': 'item_ids must be a list of integer IDs.'}, status=400)
+        items = OrderItem.objects.filter(order=order, id__in=item_ids)
+        if len(set(item_ids)) != len(item_ids) or items.count() != len(item_ids):
+            return Response({'error': 'Some items do not belong to this order.'}, status=400)
         package = _build_package_from_order_items(item_ids)
+
+        if any(not item.is_returnable for item in items):
+            return Response({'error': 'Some selected items cannot be returned.'}, status=400)
 
         suc,ups_response = ups.call_ups_return_api(order,package)
 
@@ -923,7 +944,7 @@ class InitiateReturnView(APIView):
 
 
 class DownloadLabelView(APIView):
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsOrderAdmin]
 
     def get(self, request, shipment_id):
         shipment = get_object_or_404(Shipment, id=shipment_id)
@@ -940,6 +961,7 @@ class DownloadLabelView(APIView):
             prefix   = 'return_label' if shipment.is_return else 'label'
             filename = f"{prefix}_{shipment.tracking_number}.gif"
             response = HttpResponse(content, content_type='image/gif')
+            response['Cache-Control'] = 'private, no-store'
             response['Content-Disposition'] = (
                 f'attachment; filename="{filename}"'
             )
@@ -950,7 +972,7 @@ class DownloadLabelView(APIView):
 
 
 class CancelOrderView(APIView):
-    permission_classes = [IsAdminUser]
+    permission_classes = [IsOrderAdmin]
 
     def post(self, request, order_id):
         order = get_object_or_404(Order, id=order_id)
@@ -984,7 +1006,7 @@ class CancelOrderView(APIView):
 
 
 class RefundOrderView(APIView):
-    permission_classes = [IsAdminUser]
+    permission_classes = [IsOrderAdmin]
 
 
     def post(self, request, order_id):
@@ -1138,7 +1160,7 @@ class RefundOrderView(APIView):
 
 
 class CancelOrderItemView(APIView):
-    permission_classes = [IsAdminUser]
+    permission_classes = [IsOrderAdmin]
 
     def post(self, request, order_id, item_id):
         order = get_object_or_404(Order, id=order_id)
@@ -1203,7 +1225,7 @@ class CancelOrderItemView(APIView):
 
 
 class PrintLabelView(APIView):
-    permission_classes = [IsAdminUser]
+    permission_classes = [IsOrderAdmin]
 
     def get(self, request, shipment_id):
         shipment = get_object_or_404(Shipment, id=shipment_id)
@@ -1240,7 +1262,10 @@ class PrintLabelView(APIView):
         tax      = round(float(order.tax_amount or 0), 2)
         total    = round(subtotal + tax, 2)
 
-        return Response({
+        with shipment.shipping_label.open('rb') as label_file:
+            label_data = base64.b64encode(label_file.read()).decode('ascii')
+
+        response = Response({
             'status':"success",
             "message": "Data Fetched Successfully!",
             'shipment_id': shipment.id,
@@ -1248,7 +1273,7 @@ class PrintLabelView(APIView):
             'is_return': shipment.is_return,
             'tracking_number':  shipment.tracking_number,
             'carrier':  shipment.carrier,
-            'label_url':  request.build_absolute_uri(shipment.shipping_label.url),
+            'label_url': f'data:image/gif;base64,{label_data}',
             'order_id': order.id,
             'order_number': f"ORD-{str(order.id).zfill(6)}",
             'label_created_at': shipment.label_created_at,
@@ -1287,3 +1312,5 @@ class PrintLabelView(APIView):
                 'website': configSettings.FRONTEND_URL,
             },
         })
+        response['Cache-Control'] = 'private, no-store'
+        return response

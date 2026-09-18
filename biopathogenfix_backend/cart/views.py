@@ -304,112 +304,16 @@ class ShippingRateView(APIView):
 
     def post(self, request):
         try:
-            data = request.data
-            length_in = 0
-            width_in = 0
-            height_in = 0
-            weight_lb = 0
-
-            recipient_address = data['shipping']
-            record = get_or_none(Settings, name="shipping_exemption")
-            exemption_threshold = float(record.value) if record and record.value else 0
-
-            cart_items = Cart.objects.filter(user=request.user.id,selected=True)
-
-            # Category-based shipping fee: qPLEX PCR Assays / Extraction & Sample Prep
-            # (group A) get a flat fee only when their own subtotal is under $500;
-            # Consumables & Lab Supplies / PPE (group B) always add a fee per distinct
-            # product line, on top, regardless of cart total.
-            group_a_subtotal = Decimal("0.00")
-            group_b_line_count = 0
-            has_group_a = False
-            has_group_b = False
-            category_cart_ids = set()
-            for item in cart_items:
-                group = _category_group(item.product)
-                if group == 'A':
-                    has_group_a = True
-                    group_a_subtotal += item.total_price or Decimal("0.00")
-                    category_cart_ids.add(item.id)
-                elif group == 'B':
-                    has_group_b = True
-                    group_b_line_count += 1
-                    category_cart_ids.add(item.id)
-
-            category_fee = Decimal("0.00")
-            if has_group_a and group_a_subtotal < GROUP_A_FREE_THRESHOLD:
-                category_fee += GROUP_A_FLAT_FEE
-            if has_group_b:
-                category_fee += GROUP_B_PER_ITEM_FEE * group_b_line_count
-
-            shippment_req_prds = cart_items.filter(product__is_shipping_required = True)
-            shippment_not_req_prds_qs = cart_items.filter(product__is_shipping_required = False)
-            shippment_not_req_prds = shippment_not_req_prds_qs.aggregate(cart_total=Sum('total_price'))
-            other_cart_total = shippment_not_req_prds['cart_total'] or 0
-            total_shipment_items = shippment_req_prds
-            if not other_cart_total >= exemption_threshold:
-                total_shipment_items= shippment_req_prds | shippment_not_req_prds_qs
-
-            if len(total_shipment_items) == 0:
-                if category_fee > 0:
-                    Cart.objects.filter(user=request.user.id,selected=True).update(shipping_amt = category_fee)
-                    result = [{
-                        "service_code": "20",
-                        "service_name": "Flat Rate Shipping",
-                        "currency": "USD",
-                        "total_charge": str(category_fee),
-                    }]
-                    return Response({"status": "success","message": "Data fetched successfully","result":result},status=status.HTTP_200_OK)
-                return Response({"status": "success","message": "Free Shipping","type":"free_shipping"},status=status.HTTP_200_OK)
-
-            has_other_items = bool(
-                set(total_shipment_items.values_list('id', flat=True)) - category_cart_ids
-            )
-
-            for  eachItem in  total_shipment_items:
-                prdSKU = get_or_none(ProductSKU,product=eachItem.product,sku_code=eachItem.sku_code)
-                length_in += prdSKU.length
-                width_in += prdSKU.width
-                height_in += prdSKU.height
-                weight_lb += prdSKU.weight
-
-            # UPS rejects zero-weight packages, so send a minimal fallback when data is missing.
-            if weight_lb <= 0:
-                weight_lb = 0.10
-
-            package={
-                'length_in':length_in,
-                'width_in':width_in,
-                'height_in':height_in,
-                'weight_lb':weight_lb,
-                'totalCartItems' : len(data['cartData'])
-            }
-            rates = ups.get_rates(recipient_address=recipient_address,package=package)
-            print("rates ====>",rates)
-
-            ups_rate = Decimal(str(rates[0]['total_charge'])) if rates else Decimal("0.00")
-
-            if category_fee > 0:
-                # UPS is still called above for weight/tracking data, but the charged
-                # amount for category-priced items is the flat/per-item fee, not the
-                # UPS quote — the quote is only added on top for any non-categorized
-                # ("other") items sharing the same package.
-                final_amount = category_fee + (ups_rate if has_other_items else Decimal("0.00"))
-                base_entry = dict(rates[0]) if rates else {
-                    "service_code": "03",
-                    "service_name": "UPS Ground",
-                    "currency": "USD",
-                }
-                base_entry["total_charge"] = str(final_amount)
-                result = [base_entry]
-            else:
-                final_amount = ups_rate
-                result = rates
-
-            if category_fee > 0 or rates:
-                Cart.objects.filter(user=request.user.id,selected=True).update(shipping_amt = final_amount)
-
-            return Response({"status": "success","message": "Data fetched successfully","result":result},status=status.HTTP_200_OK)
+            from order.pricing import price_items, shipping_quote
+            items = list(Cart.objects.filter(user=request.user, selected=True).select_related('product'))
+            price_items(items, request.user)
+            amount = shipping_quote(items, request.data['shipping'])
+            if amount == 0:
+                return Response({"status": "success", "message": "Free Shipping", "type": "free_shipping"})
+            return Response({"status": "success", "result": [{
+                "service_code": "03", "service_name": "Shipping", "currency": "USD",
+                "total_charge": str(amount),
+            }]})
         except KeyError as e:
             return Response({"error": f"Missing field: {e}"}, status=status.HTTP_400_BAD_REQUEST)
         except Exception as e:

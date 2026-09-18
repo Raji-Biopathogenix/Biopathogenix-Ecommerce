@@ -1,3 +1,4 @@
+import { API_BASE_URL } from "@/config/env";
 import React, { useState } from 'react';
 import { Shipment } from '@/types/admin_order';
 import StatusBadge from './StatusBadge';
@@ -44,7 +45,12 @@ export default function ShipmentCard({ shipment, defaultOpen = false }: Shipment
     setShowMainPageLoader(true);
 
     try {
-      const res  = await fetch(shipment.shipping_label);
+      const token = localStorage.getItem('access_token');
+      const res = await fetch(`${API_BASE_URL}/v1/shipments/${shipment.id}/label/download/`, {
+        headers: { Authorization: `Bearer ${token}` },
+        cache: 'no-store',
+      });
+      if (!res.ok) throw new Error('Download failed');
       const blob = await res.blob();
 
       const blobUrl  = window.URL.createObjectURL(blob);

@@ -43,7 +43,7 @@ export default function ViewLabelButton({
         try {
             const token =localStorage.getItem('access_token')
 
-            const res = await fetch(`${API_BASE_URL}/v1/shipments/${shipmentId}/label/download`,{
+            const res = await fetch(`${API_BASE_URL}/v1/shipments/${shipmentId}/label/download/`,{
                 headers: { Authorization: `Bearer ${token}` },
                 cache: 'no-store',
             });
