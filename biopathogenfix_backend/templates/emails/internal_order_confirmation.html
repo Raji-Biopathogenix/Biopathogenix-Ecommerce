@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html><head><meta charset="UTF-8"><title>New order {{ order_number }}</title></head>
+<body style="margin:0;padding:24px;background:#f5f6f8;font-family:Arial,sans-serif;color:#172b4d;">
+<table role="presentation" width="100%" cellspacing="0" cellpadding="0"><tr><td align="center">
+<table role="presentation" width="640" cellspacing="0" cellpadding="28" style="max-width:640px;width:100%;background:#fff;"><tr><td>
+  <img src="{{ logo_url }}" alt="BioPathogenix" width="190" style="max-width:190px;height:auto;">
+  <h1 style="font-size:24px;margin:30px 0 16px;">New order: {{ order_number }}</h1>
+  <p>You've received a new order from {{ user_name }}.</p>
+  <h2 style="font-size:18px;">Order summary</h2>
+  <p>{{ order_number }} &middot; {{ order_date }}</p>
+  <table width="100%" cellspacing="0" cellpadding="9" style="border-collapse:collapse;">
+    <thead><tr style="background:#f3f4f6;"><th align="left">Product</th><th>Quantity</th><th align="right">Total</th></tr></thead>
+    <tbody>{% for item in purchased_items %}<tr>
+      <td style="border-bottom:1px solid #e5e7eb;">
+        {% if item.image_url %}<img src="{{ item.image_url }}" width="48" alt="" style="vertical-align:middle;margin-right:8px;">{% endif %}
+        {{ item.name }}<br><span style="font-size:12px;color:#52647a;">SKU: {{ item.sku }}</span>
+      </td><td align="center" style="border-bottom:1px solid #e5e7eb;">{{ item.quantity }}</td>
+      <td align="right" style="border-bottom:1px solid #e5e7eb;">${{ item.total|floatformat:2 }}</td>
+    </tr>{% endfor %}</tbody>
+  </table>
+  <table width="100%" cellspacing="0" cellpadding="5" style="margin-top:15px;">
+    <tr><td>Subtotal</td><td align="right">${{ subtotal|floatformat:2 }}</td></tr>
+    {% if coupon_amt %}<tr><td>Coupon discount</td><td align="right">-${{ coupon_amt|floatformat:2 }}</td></tr>{% endif %}
+    <tr><td>Shipping: UPS</td><td align="right">${{ shipping_cost|floatformat:2 }}</td></tr>
+    <tr><td>Tax</td><td align="right">${{ tax_amount|floatformat:2 }}</td></tr>
+    <tr><td><strong>Total</strong></td><td align="right"><strong>${{ total|floatformat:2 }}</strong></td></tr>
+    <tr><td>Payment method</td><td align="right">{{ payment_method }}{% if card_last4 %} &middot; {{ card_brand }} ending {{ card_last4 }}{% endif %}</td></tr>
+  </table>
+  <table width="100%" cellspacing="0" cellpadding="0" style="margin-top:24px;"><tr>
+    <td width="50%" valign="top"><strong>Billing address</strong><p>{% for line in billing_lines %}{{ line }}<br>{% endfor %}</p></td>
+    <td width="50%" valign="top"><strong>Shipping address</strong><p>{% for line in shipping_lines %}{{ line }}<br>{% endfor %}</p></td>
+  </tr></table>
+  <p>{{ contact_email }}<br>{{ contact_phone }}</p>
+  <p style="margin:28px 0;"><a href="{{ packing_slip_url }}" style="display:inline-block;padding:13px 20px;background:#153b67;color:white;text-decoration:none;border-radius:4px;">View / download packing slip</a></p>
+  <p style="font-size:12px;color:#52647a;">Internal fulfillment copy. Staff sign-in is required to open the packing slip.</p>
+  <p style="font-size:12px;color:#52647a;border-top:1px solid #e5e7eb;padding-top:16px;">BioPathogenix<br>{{ company_address|linebreaksbr }}</p>
+</td></tr></table></td></tr></table></body></html>

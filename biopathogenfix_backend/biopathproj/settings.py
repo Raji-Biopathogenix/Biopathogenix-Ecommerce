@@ -227,7 +227,18 @@ EMAIL_HOST_PASSWORD = os.environ.get("EMAIL_HOST_PASSWORD", "Ras05143")  # set t
 DEFAULT_FROM_EMAIL = os.environ.get("DEFAULT_FROM_EMAIL", EMAIL_HOST_USER)
 CAREERS_RECIPIENT_EMAIL = os.environ.get("CAREERS_RECIPIENT_EMAIL", "careers@biopathogenix.com")
 EMAIL_TIMEOUT = int(os.environ.get("EMAIL_TIMEOUT", 20))
-WELCOME_LOGO_URL = os.environ.get("WELCOME_LOGO_URL","http://localhost:3000/images/logo/BioPathogenix-Horizontal-1.svg")
+WELCOME_LOGO_URL = os.environ.get("WELCOME_LOGO_URL") or (
+    (os.getenv('BACKEND_URL') or 'https://api.biopathogenix.com').rstrip('/')
+    + '/static/images/email-logo.png'
+)
+# Internal new-order notifications are sent separately from customer emails.
+ORDER_NOTIFICATION_BCC = [email.strip() for email in os.getenv(
+    'ORDER_NOTIFICATION_BCC',
+    'scope@biopathogenix.com,rajeswari.gopu@biopathogenix.com,order@biopathogenix.com',
+).split(',') if email.strip()]
+PACKING_SLIP_COMPANY_ADDRESS = os.getenv(
+    'PACKING_SLIP_COMPANY_ADDRESS', '3004 Park Central Ave\nNicholasville, KY 40356',
+)
 # Guard against enabling both TLS and SSL at the same time.
 if EMAIL_USE_TLS and EMAIL_USE_SSL:
     EMAIL_USE_SSL = False
@@ -319,6 +330,7 @@ STATICFILES_DIRS = [
 MEDIA_URL = '/media/'
 # Email clients need a public absolute URL for uploaded product images.
 BACKEND_URL = (os.getenv('BACKEND_URL') or 'https://api.biopathogenix.com').rstrip('/')
+ORDER_EMAIL_LOGO_URL = os.getenv('ORDER_EMAIL_LOGO_URL') or f'{BACKEND_URL}/static/images/email-logo.png'
 # Uploaded files must live on a persistent volume in production. Keep the
 # existing location by default so attaching /app/media preserves stored paths.
 # MEDIA_ROOT allows deployments with a different volume mount to opt in.

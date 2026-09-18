@@ -46,7 +46,7 @@ from rest_framework.views import APIView
 from django.shortcuts import get_object_or_404, render
 from .services import create_outbound_shipment,create_return_shipment
 from django.http import HttpResponse
-from .email_service import send_refund_email,send_cancellation_email,_get_related_products
+from .email_service import send_refund_email,send_cancellation_email,send_order_confirmation_emails
 
 logger = logging.getLogger(__name__)
 ups = UPSService()
@@ -521,6 +521,10 @@ def _create_order(
 
 
 
+    # Notify both audiences once the new order and all its items are committed.
+    # This is independent of later status updates and accounting synchronization.
+    db_transaction.on_commit(lambda: send_order_confirmation_emails(order))
+
     # STEP 2: Create QB Invoice (outside atomic — never fails the order) 
     if access_token:
         order_items = OrderItem.objects.filter(order= order.id)
@@ -542,55 +546,6 @@ def _create_order(
             )
     else:
         logger.warning(f"QB Invoice skipped for Order #{order.id} — no access token")
-    # Send order confirmation email to user and BCC to scope
-   
-
-    # Prepare email context
-    order_items = OrderItem.objects.filter(order=order)
-    context = {
-        'logo_url': getattr(settings, 'WELCOME_LOGO_URL', ''),
-        'user_name': f"{order.user.first_name} {order.user.last_name}",
-        'order_number': f"ORD-{order.id:06d}",
-        'order_date': order.created_at.strftime('%B %d, %Y') if order.created_at else datetime.now().strftime('%B %d, %Y'),
-        'order_items': order_items,
-        'subtotal': order.subtotal,
-        'shipping_cost': order.shipping_cost,
-        'tax_amount': order.tax_amount,
-        'total': order.amount,
-        'payment_method': order.payment_method,
-        'billing_address': f"{order.billing_first_name} {order.billing_last_name}, {order.billing_address_line1}, {order.billing_city}, {order.billing_state}, {order.billing_postal_code}, {order.billing_country}",
-        'shipping_address': f"{order.shipping_first_name} {order.shipping_last_name}, {order.shipping_address_line1}, {order.shipping_city}, {order.shipping_state}, {order.shipping_postal_code}, {order.shipping_country}",
-        'invoice_note': "Thank you for choosing Invoice as your payment method. Our team will review your order and send you an invoice with payment instructions shortly. If you have any questions, please contact our billing department at order@biopathogenix.com." if order.payment_method == "invoice" else None,
-        'related_products': _get_related_products(order),
-        'shop_url': f"{configSettings.FRONTEND_URL}/shop",
-    }
-    subject = f"Your BioPathogenix Order Confirmation - {context['order_number']}"
-    to_email = [order.user.email]
-    if order.user.laboratory:
-        lab_users= CustomUser.objects.filter(laboratory=order.user.laboratory).exclude(id=order.user.id)
-        to_email += [lab_user.email for lab_user in lab_users]
-
-    bcc_email = ["scope@biopathogenix.com"]
-    from_email = getattr(settings, 'DEFAULT_FROM_EMAIL', 'noreply@biopathogenix.com')
-    html_message = render_to_string('emails/order_confirmation_email.html', context)
-    try:
-        if getattr(settings, 'GRAPH_ENABLED', False):
-            send_graph_email(to_email, subject, html_body=html_message, from_email=from_email, cc_list=bcc_email)
-        else:
-            email = EmailMessage(
-                subject=subject,
-                body=html_message,
-                from_email=from_email,
-                to=to_email,
-                bcc=bcc_email,
-            )
-            email.content_subtype = 'html'
-            email.send(fail_silently=False)
-        logger.info(f"Order confirmation email sent to {to_email} (bcc: {bcc_email}) for order {order.id}")
-    except Exception as e:
-        logger.error(f"Failed to send order confirmation email for order {order.id}: {e}")
-
-
     return Response({
         "status":"success",
         "message":"Successfully Order Created",
