@@ -1,6 +1,7 @@
 # services/email_service.py
 
 import logging
+from urllib.parse import urljoin
 from django.core.mail  import EmailMultiAlternatives
 from django.template.loader  import render_to_string
 from django.conf  import settings
@@ -47,7 +48,9 @@ def _get_related_products(order, limit: int = 4):
         primary_image = product.images.filter(is_primary=True).first() or product.images.first()
         image_url = ''
         if primary_image and primary_image.image:
-            image_url = f"{backend_url}{primary_image.image.url}"
+            # Preserve absolute storage/CDN URLs; resolve local media paths
+            # against the public backend origin for recipients outside the site.
+            image_url = urljoin(f"{backend_url.rstrip('/')}/", primary_image.image.url)
         items.append({
             'name': product.name,
             'price': product.price,

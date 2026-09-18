@@ -317,6 +317,8 @@ STATICFILES_DIRS = [
 
 
 MEDIA_URL = '/media/'
+# Email clients need a public absolute URL for uploaded product images.
+BACKEND_URL = (os.getenv('BACKEND_URL') or 'https://api.biopathogenix.com').rstrip('/')
 # Uploaded files must live on a persistent volume in production. Keep the
 # existing location by default so attaching /app/media preserves stored paths.
 # MEDIA_ROOT allows deployments with a different volume mount to opt in.
