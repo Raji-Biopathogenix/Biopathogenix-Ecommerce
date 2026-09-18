@@ -13,6 +13,7 @@ from cart.views import CartViewset,ShippingRateView,TrackShipmentView,CalculateT
 from shipping.views import AddressViewset
 from order.views import CheckoutView,UserOrdersView,AllOrdersView,orderItemsView,orderReturnRequestView,AdminorderReturnRequestView,AdminorderUpdateView,ShippmentOrderItemsView,CreateOutboundShipmentView,InitiateReturnView,DownloadLabelView,CancelOrderView,CancelOrderItemView,RefundOrderView,PrintLabelView
 from order.invoice_views import OrderInvoiceView
+from order.packing_slips import PackingSlipView
 
 from home.views import HeaderMenuViewset, CareerOpenRoleViewset, CareerApplicationCreateView,LandingPageView,BlogPostViewset
 
@@ -88,6 +89,7 @@ urlpatterns += [
     path("checkout/",CheckoutView,name="checkout"),
     path("orders/", UserOrdersView, name="user_orders"),
     path("orders/<int:order_id>/invoice/", OrderInvoiceView, name="order_invoice"),
+    path("orders/<int:order_id>/packing-slip/", PackingSlipView, name="order-packing-slip"),
     path("all_orders/", AllOrdersView, name="all_orders"),
     path("orderItems/", orderItemsView, name="orderItems"),
     path("shipment_orderItems/", ShippmentOrderItemsView, name="shipment_orderItems"),

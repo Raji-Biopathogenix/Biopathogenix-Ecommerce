@@ -6,7 +6,7 @@ import InitiateReturnModal from "./InitiateReturnModal";
 import AddShipmentDropdown from "./AddShipmentDropdown";
 import ShipmentCard from "./ShipmentCard";
 import CancelItemModal from "./CancelItemModal";
-import { Ban } from 'lucide-react';
+import { Ban, FileText } from 'lucide-react';
 
 
 interface OrderEditModalProps {
@@ -109,6 +109,18 @@ export default function AdminOrderEditModal({ order, onRefresh, onClose, onSubmi
 
 
                 <ModalHeader order={order} onRefresh={onRefresh} setShowReturnModal={setShowReturnModal} />
+
+                <div className="px-5 pb-4">
+                    <a
+                        href={`/orders/${order.id}/packing-slip`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="inline-flex items-center gap-2 rounded-lg bg-indigo-600 px-4 py-2 text-sm font-medium text-white hover:bg-indigo-700"
+                    >
+                        <FileText size={16} aria-hidden="true" />
+                        View Packing Slip
+                    </a>
+                </div>
 
                 <div className="px-5 pb-1 flex flex-col gap-1.5">
                     <label htmlFor="order_status" className="text-xs font-medium text-gray-600">
@@ -477,4 +489,3 @@ function ReturnSection({ order }: { order: OrderShipment }) {
         )}
     </>)
 }
-

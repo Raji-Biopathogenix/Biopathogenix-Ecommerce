@@ -34,6 +34,7 @@ export default function PrintLabelPage() {
   const [label, setLabel] = useState<LabelData | null>(null);
   const [loading, setLoading] = useState(true);
   const [labelImageLoaded, setLabelImageLoaded] = useState(false);
+  const [logoLoaded, setLogoLoaded] = useState(false);
 
   const params = useParams();
   const searchParams = useSearchParams();
@@ -65,11 +66,11 @@ export default function PrintLabelPage() {
   }, [searchParams]);
 
   useEffect(() => {
-    if (labelImageLoaded) {
+    if (labelImageLoaded && (printMode !== 'paper' || logoLoaded)) {
       const timeout = window.setTimeout(() => window.print(), 500);
       return () => window.clearTimeout(timeout);
     }
-  }, [labelImageLoaded, printMode]);
+  }, [labelImageLoaded, logoLoaded, printMode]);
 
   const date = useMemo(() => {
     if (!label?.label_created_at) {
@@ -235,11 +236,12 @@ export default function PrintLabelPage() {
           margin-bottom: 8px;
         }
 
-        .slip-co-name {
-          font-size: 14px;
-          font-weight: 900;
-          letter-spacing: 1px;
-          text-transform: uppercase;
+        .slip-co-logo {
+          display: block;
+          width: 160px;
+          max-width: 100%;
+          height: auto;
+          margin-bottom: 5px;
         }
 
         .slip-co-web {
@@ -761,7 +763,13 @@ export default function PrintLabelPage() {
               <div className="slip">
                 <div className="slip-header">
                   <div>
-                    <div className="slip-co-name">{label.company.name}</div>
+                    <img
+                      className="slip-co-logo"
+                      src="/images/logo/BioPathogenix-Horizontal-1.svg"
+                      alt="BioPathogenix"
+                      onLoad={() => setLogoLoaded(true)}
+                      onError={() => setLogoLoaded(true)}
+                    />
                     <div className="slip-co-web">{label.company.website}</div>
                   </div>
                   <div className="slip-meta">
@@ -802,7 +810,7 @@ export default function PrintLabelPage() {
                   </div>
                   <div className="addr-block">
                     <div className="addr-label">Ship From</div>
-                    <div className="addr-name">{label.ship_from.name}</div>
+                    <div className="addr-name">BioPathogenix</div>
                     <div className="addr-line">
                       {label.ship_from.address}
                       <br />

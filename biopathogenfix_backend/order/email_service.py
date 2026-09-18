@@ -14,6 +14,86 @@ from services.emailService import send_graph_email
 logger = logging.getLogger(__name__)
 
 
+def _send_confirmation_message(*, to, bcc, subject, html, text):
+    sender = settings.DEFAULT_FROM_EMAIL
+    if getattr(settings, 'GRAPH_ENABLED', False):
+        send_graph_email(to, subject, html_body=html, text_body=text,
+                         from_email=sender, bcc_list=bcc)
+    else:
+        email = EmailMultiAlternatives(subject, text, sender, to, bcc=bcc)
+        email.attach_alternative(html, 'text/html')
+        email.send(fail_silently=False)
+
+
+def send_order_confirmation_emails(order):
+    """Two different bodies: customer confirmation and internal fulfillment copy."""
+    from .packing_slips import address_lines
+
+    try:
+        number = f'ORD-{order.id:06d}'
+        frontend = (configSettings.FRONTEND_URL or 'https://biopathogenix.com').rstrip('/')
+        items = list(order.items.select_related('product').prefetch_related('product__images'))
+        context = {
+            'logo_url': settings.ORDER_EMAIL_LOGO_URL,
+            'user_name': f'{order.user.first_name or ""} {order.user.last_name or ""}'.strip(),
+            'order_number': number,
+            'order_date': order.created_at.strftime('%B %d, %Y'),
+            'order_items': items, 'subtotal': order.subtotal,
+            'shipping_cost': order.shipping_cost, 'tax_amount': order.tax_amount,
+            'coupon_amt': order.coupon_amt, 'total': order.amount,
+            'payment_method': _format_payment_method(order.payment_method),
+            'billing_address': ', '.join(address_lines(order, 'billing')),
+            'shipping_address': ', '.join(address_lines(order)),
+            'shop_url': f'{frontend}/shop',
+            'invoice_note': ('Our team will review your order and send an invoice with payment instructions.'
+                             if order.payment_method == 'invoice' else None),
+        }
+    except Exception:
+        logger.exception('Unable to prepare order confirmation for order %s', order.id)
+        return
+
+    # Separate try blocks ensure an internal mail failure cannot suppress the
+    # customer confirmation (or vice versa). No real recipient is put in CC.
+    try:
+        customer_context = dict(context, related_products=_get_related_products(order))
+        _send_confirmation_message(
+            to=_get_order_recipients(order), bcc=[],
+            subject=f'Your BioPathogenix Order Confirmation - {number}',
+            html=render_to_string('emails/order_confirmation_email.html', customer_context),
+            text=f'Thank you for your order {number}. Total: ${order.amount}.',
+        )
+    except Exception:
+        logger.exception('Customer confirmation failed for order %s', order.id)
+
+    try:
+        recipients = list(dict.fromkeys(settings.ORDER_NOTIFICATION_BCC))
+        if not recipients:
+            return
+        purchased = []
+        for item in items:
+            image_url = ''
+            if item.product:
+                image = item.product.images.filter(is_primary=True).first() or item.product.images.first()
+                if image and image.image:
+                    image_url = urljoin(settings.BACKEND_URL + '/', image.image.url)
+            purchased.append({'name': item.product_name, 'sku': item.sku_code,
+                              'quantity': item.quantity, 'total': item.total, 'image_url': image_url})
+        slip_url = f'{frontend}/orders/{order.id}/packing-slip'
+        internal_context = dict(context, purchased_items=purchased,
+            packing_slip_url=slip_url, billing_lines=address_lines(order, 'billing'),
+            shipping_lines=address_lines(order), contact_email=order.shipping_email or order.user.email,
+            contact_phone=order.shipping_phone,
+            company_address=settings.PACKING_SLIP_COMPANY_ADDRESS,
+            card_brand=order.card_brand, card_last4=order.card_last4)
+        _send_confirmation_message(
+            to=[], bcc=recipients, subject=f'[BioPathogenix] New order: {number}',
+            html=render_to_string('emails/internal_order_confirmation.html', internal_context),
+            text=f'New order {number}. Total: ${order.amount}.\nPacking slip (staff sign-in required): {slip_url}',
+        )
+    except Exception:
+        logger.exception('Internal order notification failed for order %s', order.id)
+
+
 def _get_order_recipients(order):
     to_email = [order.user.email]
     if order.user.laboratory:
@@ -28,19 +108,29 @@ def _get_related_products(order, limit: int = 4):
     purchased_product_ids = list(
         order.items.exclude(product_id=None).values_list('product_id', flat=True)
     )
-    if not purchased_product_ids:
+    if limit <= 0:
         return []
 
     category_ids = Product.objects.filter(
         id__in=purchased_product_ids
     ).values_list('categories__id', flat=True).distinct()
 
-    related = (
+    related = list(
         Product.objects.filter(categories__id__in=list(category_ids), is_active=True)
         .exclude(id__in=purchased_product_ids)
         .distinct()
         .prefetch_related('images')[:limit]
     )
+    # Some products have no category peers. Fill remaining spaces from the
+    # active catalog, excluding purchased products and those already selected.
+    if len(related) < limit:
+        excluded_ids = purchased_product_ids + [product.pk for product in related]
+        related.extend(
+            Product.objects.filter(is_active=True)
+            .exclude(id__in=excluded_ids)
+            .order_by('-is_featured', 'id')
+            .prefetch_related('images')[:limit - len(related)]
+        )
 
     backend_url = getattr(settings, 'BACKEND_URL', '')
     items = []
@@ -55,7 +145,7 @@ def _get_related_products(order, limit: int = 4):
             'name': product.name,
             'price': product.price,
             'image_url': image_url,
-            'product_url': f"{configSettings.FRONTEND_URL}/product-detail/{product.slug}",
+            'product_url': f"{(configSettings.FRONTEND_URL or 'https://biopathogenix.com').rstrip('/')}/product-detail/{product.slug}",
         })
     return items
 
@@ -80,7 +170,7 @@ def send_order_status_email(order, previous_status: str | None = None, notes: st
             'shop_url': f"{configSettings.FRONTEND_URL}/shop",
             'support_email': support_email,
             'company_name': company_name,
-            'logo_url': getattr(settings, 'WELCOME_LOGO_URL', ''),
+            'logo_url': settings.ORDER_EMAIL_LOGO_URL,
             'order_items': order.items.all(),
             'subtotal': order.subtotal,
             'shipping_cost': order.shipping_cost,
@@ -104,7 +194,9 @@ def send_order_status_email(order, previous_status: str | None = None, notes: st
         subject = f"Order #{context['order_number']} Updated to {context['current_status_display']}"
         from_email = f"{company_name} <{configSettings.DEFAULT_FROM_EMAIL}>"
         to_list = _get_order_recipients(order)
-        bcc_list = ['rajeswari.gopu@biopathogenix.com']
+        # Internal recipients receive the new-order notification at placement,
+        # not a copy of every subsequent customer status update.
+        bcc_list = []
         if getattr(settings, 'GRAPH_ENABLED', False):
             # Graph's sendMail wants a bare mailbox address, not a "Name <email>"
             # string -- that display-name format is only valid for the SMTP From header.
@@ -213,6 +305,7 @@ def send_refund_email(order, refund_data: dict) -> bool:
 def _format_payment_method(method: str) -> str:
     return {
         'card':          'Credit / Debit Card',
+        'invoice':       'Invoice',
     }.get(method or '', 'Card')
 
 
