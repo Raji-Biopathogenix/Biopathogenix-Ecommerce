@@ -34,6 +34,16 @@ DEBUG = os.getenv('DEBUG', 'True').lower() in ('1', 'true', 'yes')
 
 ALLOWED_HOSTS = os.getenv('ALLOWED_HOSTS', 'localhost,127.0.0.1').split(',')
 
+# The public admin uses HTTPS even when the upstream connection to Django
+# uses HTTP. Trust only the explicit public origin for CSRF validation.
+CSRF_TRUSTED_ORIGINS = [
+    origin.strip()
+    for origin in os.getenv(
+        'CSRF_TRUSTED_ORIGINS', 'https://api.biopathogenix.com'
+    ).split(',')
+    if origin.strip()
+]
+
 
 def _env_bool(name: str, default: str = "False") -> bool:
     return os.getenv(name, default).lower() in ("1", "true", "yes", "on")
