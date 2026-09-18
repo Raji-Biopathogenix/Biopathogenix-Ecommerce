@@ -202,6 +202,7 @@ def calculate_tax_and_shipping(
     shipping_city: str = "",
     shipping_address_line1: str = "",
     item_quantity: int,
+    shipping_cost: Decimal | None = None,
 ) -> dict:
     zip5, provider_zip = _normalize_us_zip(shipping_postal_code)
 
@@ -210,7 +211,7 @@ def calculate_tax_and_shipping(
 
     safe_subtotal = Decimal(subtotal or 0)
     quantity = max(int(item_quantity or 0), 0)
-    shipping_cost = _quantize_money(Decimal("20.00") * Decimal(quantity))
+    shipping_cost = _quantize_money(Decimal("20.00") * Decimal(quantity) if shipping_cost is None else shipping_cost)
     cfg = _get_runtime_tax_config()
 
     tax_rate = Decimal("0.0000")
@@ -219,56 +220,6 @@ def calculate_tax_and_shipping(
     county = ""
 
     if country_code == "US" and cfg["enabled"]:
-        # --- TaxJar path (commented out in favor of QuickBooks) ---
-        # if cfg["provider"] == "taxjar":
-        #     if not cfg["api_key"]:
-        #         logger.warning("TaxJar quote blocked: missing API key in TaxConfig/settings.")
-        #         raise ValueError("TaxJar is not configured. Please contact support.")
-        #     try:
-        #         tax_amount, tax_rate, county = _calculate_with_taxjar(
-        #             api_key=cfg["api_key"],
-        #             api_base=cfg["api_base"],
-        #             nexus_country=cfg["nexus_country"],
-        #             nexus_zip=cfg["nexus_zip"],
-        #             nexus_state=cfg["nexus_state"],
-        #             nexus_city=cfg["nexus_city"],
-        #             nexus_street=cfg["nexus_street"],
-        #             subtotal=safe_subtotal,
-        #             shipping_cost=shipping_cost,
-        #             to_state=state_code,
-        #             to_zip=provider_zip,
-        #             to_country=country_code,
-        #             to_city=shipping_city,
-        #             to_street=shipping_address_line1,
-        #         )
-        #         provider = "taxjar"
-        #     except requests.HTTPError as exc:
-        #         status_code = exc.response.status_code if exc.response is not None else "unknown"
-        #         detail = _extract_taxjar_error_message(exc.response)
-        #         logger.error(
-        #             "TaxJar HTTP error while quoting tax | status=%s | to_state=%s | to_zip=%s | detail=%s",
-        #             status_code,
-        #             state_code,
-        #             provider_zip,
-        #             detail,
-        #         )
-        #         raise ValueError(_humanize_taxjar_error(detail)) from exc
-        #     except requests.RequestException as exc:
-        #         logger.error(
-        #             "TaxJar network/request error while quoting tax | to_state=%s | to_zip=%s | error=%s",
-        #             state_code,
-        #             provider_zip,
-        #             exc,
-        #         )
-        #         raise ValueError("Unable to calculate tax from TaxJar right now. Please try again.") from exc
-        #     except Exception as exc:
-        #         logger.exception(
-        #             "Unexpected TaxJar quote error | to_state=%s | to_zip=%s",
-        #             state_code,
-        #             provider_zip,
-        #         )
-        #         raise ValueError("Unable to calculate tax from TaxJar. Please verify shipping address.") from exc
-
         if cfg["provider"] == "quickbooks":
             try:
                 tax_amount, tax_rate, county = _calculate_with_quickbooks(
@@ -288,6 +239,18 @@ def calculate_tax_and_shipping(
                     provider_zip,
                 )
                 raise ValueError("Unable to calculate tax from QuickBooks. Please verify shipping address.") from exc
+        elif cfg["provider"] == "taxjar":
+            if not cfg["api_key"]:
+                raise ValueError("Tax service is not configured.")
+            tax_amount, tax_rate, county = _calculate_with_taxjar(
+                api_key=cfg["api_key"], api_base=cfg["api_base"],
+                nexus_country=cfg["nexus_country"], nexus_zip=cfg["nexus_zip"],
+                nexus_state=cfg["nexus_state"], nexus_city=cfg["nexus_city"],
+                nexus_street=cfg["nexus_street"], subtotal=safe_subtotal,
+                shipping_cost=shipping_cost, to_state=state_code, to_zip=provider_zip,
+                to_country=country_code, to_city=shipping_city, to_street=shipping_address_line1,
+            )
+            provider = "taxjar"
         elif cfg["provider"] == "fallback":
             tax_rate = US_STATE_TAX_RATES.get(state_code, Decimal("0.0000"))
             tax_amount = _quantize_money(safe_subtotal * tax_rate)

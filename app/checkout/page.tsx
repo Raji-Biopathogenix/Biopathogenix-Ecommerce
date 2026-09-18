@@ -790,6 +790,16 @@ export default function CheckoutPage() {
         return;
       }
     } catch (err: unknown) {
+      const quote = (err as { payload?: { quote?: {
+        amount: number; shipping_cost: number; tax_amount: number; tax_rate: number;
+      } } })?.payload?.quote;
+      if (quote) {
+        await loadCart();
+        setShippingCost(Number(quote.shipping_cost));
+        setTaxAmount(Number(quote.tax_amount));
+        setTaxRate(Number(quote.tax_rate));
+        setTotal(Number(quote.amount));
+      }
       const canRetry =
         typeof err === "object" && err !== null && "retry" in err ? Boolean((err as { retry?: unknown }).retry) : true;
       const transactionId =

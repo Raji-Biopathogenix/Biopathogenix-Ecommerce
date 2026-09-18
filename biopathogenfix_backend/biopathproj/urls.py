@@ -18,9 +18,14 @@ from django.contrib import admin
 from django.urls import path,include, re_path
 from django.conf import settings
 from django.views.static import serve
+from django.http import Http404
+import posixpath
 
 
 def cached_media_serve(request, path):
+    normalized = posixpath.normpath(path.replace('\\', '/')).lstrip('/')
+    if normalized == 'shipping_labels' or normalized.startswith('shipping_labels/'):
+        raise Http404
     response = serve(request, path, document_root=settings.MEDIA_ROOT)
     response['Cache-Control'] = 'public, max-age=2592000, immutable'  # 30 days
     return response
