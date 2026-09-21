@@ -76,7 +76,10 @@ AxiosInstance.interceptors.response.use(
         if (status === 401) {
             if (typeof window !== "undefined") {
                 localStorage.removeItem("access_token");
-                window.location.href = "/my-account";
+                const path = window.location.pathname;
+                window.location.href = /^\/orders\/\d+\/edit$/.test(path)
+                    ? `/my-account?next=${encodeURIComponent(path)}`
+                    : "/my-account";
             }
         }
 

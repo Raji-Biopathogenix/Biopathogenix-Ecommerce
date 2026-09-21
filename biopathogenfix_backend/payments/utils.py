@@ -661,6 +661,9 @@ def _build_invoice_line_items(
             catalog_number = ""
 
         description = catalog_number or item.product.name
+        sku = (item.sku_code or "").strip()
+        if sku:
+            description = f"{description}\nSKU: {sku}"
 
         line_items.append({
             "Id":          str(i),

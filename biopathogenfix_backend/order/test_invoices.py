@@ -104,6 +104,22 @@ class InvoiceTests(SimpleTestCase):
         token.assert_not_called()
 
     @patch("payments.utils.get_qb_item_by_sku", return_value="product-id")
+    def test_invoice_description_includes_order_sku(self, lookup):
+        for catalog in ("", "RNase P Verification Plate"):
+            for sku in ("EPCR-5", "", None):
+                with self.subTest(catalog=catalog, sku=sku):
+                    item = SimpleNamespace(unit_price=Decimal("250"), quantity=1, sku_code=sku,
+                        product=SimpleNamespace(name="Product name",
+                            assay_detail=SimpleNamespace(catalog_number=catalog)))
+                    lines = _build_invoice_line_items("token", "realm", "url",
+                        SimpleNamespace(shipping_cost=Decimal("0")), [item], "default")
+                    expected = catalog or "Product name"
+                    if sku:
+                        expected += f"\nSKU: {sku}"
+                    self.assertEqual(lines[0]["Description"], expected)
+                    self.assertEqual(lines[0]["Amount"], 250)
+
+    @patch("payments.utils.get_qb_item_by_sku", return_value="product-id")
     def test_shipping_uses_native_summary_item(self, lookup):
         item = SimpleNamespace(unit_price=Decimal("250"), quantity=1, sku_code="kit",
                                product=SimpleNamespace(name="Extraction kit"))

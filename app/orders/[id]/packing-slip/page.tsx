@@ -1,11 +1,13 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useParams } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 import { API_BASE_URL } from "@/config/env";
 
 export default function PackingSlipPage() {
   const { id } = useParams<{ id: string }>();
+  const router = useRouter();
+  const signInUrl = `/my-account?next=${encodeURIComponent(`/orders/${id}/packing-slip`)}`;
   const [pdfUrl, setPdfUrl] = useState("");
   const [error, setError] = useState("");
   const [signInRequired, setSignInRequired] = useState(false);
@@ -17,7 +19,8 @@ export default function PackingSlipPage() {
       const token = localStorage.getItem("access_token");
       if (!token) {
         setSignInRequired(true);
-        setError("Sign in with your staff account, then return here and reload this page.");
+        setError("Sign in with your staff account to view this packing slip.");
+        router.replace(signInUrl);
         return;
       }
       try {
@@ -26,7 +29,8 @@ export default function PackingSlipPage() {
         });
         if (response.status === 401) {
           setSignInRequired(true);
-          throw new Error("Your session expired. Sign in, then reload this page.");
+          router.replace(signInUrl);
+          throw new Error("Your session expired. Sign in to view this packing slip.");
         }
         if (response.status === 403) throw new Error("Only authorized staff can access packing slips.");
         if (response.status === 404) throw new Error("This order could not be found.");
@@ -44,7 +48,7 @@ export default function PackingSlipPage() {
       controller.abort();
       if (objectUrl) URL.revokeObjectURL(objectUrl);
     };
-  }, [id]);
+  }, [id, router, signInUrl]);
 
   return (
     <main className="mx-auto max-w-6xl px-6 py-10">
@@ -57,7 +61,7 @@ export default function PackingSlipPage() {
       </div>
       {error ? <div role="alert" className="rounded border border-slate-200 p-6">
         <p>{error}</p>
-        {signInRequired && <a href="/my-account" target="_blank" rel="noopener noreferrer" className="mt-4 inline-block text-blue-800 underline">Sign in</a>}
+        {signInRequired && <a href={signInUrl} className="mt-4 inline-block text-blue-800 underline">Sign in</a>}
       </div> : pdfUrl ? <iframe title="Order packing slip PDF" src={pdfUrl} className="h-[80vh] w-full rounded border" />
         : <p role="status">Preparing packing slip…</p>}
     </main>

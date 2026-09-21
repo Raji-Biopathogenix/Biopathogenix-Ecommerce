@@ -164,7 +164,7 @@ const DEFAULT_REGISTER: RegisterState = {
   phone_number: "",
 };
 
-export default function LoginForm() {
+export default function LoginForm({ returnTo = '/my-account/dashboard' }: { returnTo?: string }) {
 
   const router = useRouter()
   const {setShowMainPageLoader,login:userLogin} = useAuth()
@@ -244,7 +244,7 @@ export default function LoginForm() {
           userLogin(response?.access_token)
           setShowMainPageLoader(false)
           setToastNotification({type: 'success',message: 'Account created! Please check your email ✉️'})
-          router.replace('/my-account/dashboard')
+          router.replace(returnTo)
         }
     } catch (error: unknown) {
           setShowMainPageLoader(false)

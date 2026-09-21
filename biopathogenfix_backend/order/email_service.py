@@ -78,9 +78,9 @@ def send_order_confirmation_emails(order):
                     image_url = urljoin(settings.BACKEND_URL + '/', image.image.url)
             purchased.append({'name': item.product_name, 'sku': item.sku_code,
                               'quantity': item.quantity, 'total': item.total, 'image_url': image_url})
-        slip_url = f'{frontend}/orders/{order.id}/packing-slip'
+        edit_url = f'{frontend}/orders/{order.id}/edit'
         internal_context = dict(context, purchased_items=purchased,
-            packing_slip_url=slip_url, billing_lines=address_lines(order, 'billing'),
+            order_edit_url=edit_url, billing_lines=address_lines(order, 'billing'),
             shipping_lines=address_lines(order), contact_email=order.shipping_email or order.user.email,
             contact_phone=order.shipping_phone,
             company_address=settings.PACKING_SLIP_COMPANY_ADDRESS,
@@ -88,7 +88,7 @@ def send_order_confirmation_emails(order):
         _send_confirmation_message(
             to=[], bcc=recipients, subject=f'[BioPathogenix] New order: {number}',
             html=render_to_string('emails/internal_order_confirmation.html', internal_context),
-            text=f'New order {number}. Total: ${order.amount}.\nPacking slip (staff sign-in required): {slip_url}',
+            text=f'New order {number}. Total: ${order.amount}.\nView / edit order and access packing slip (staff sign-in required): {edit_url}',
         )
     except Exception:
         logger.exception('Internal order notification failed for order %s', order.id)
