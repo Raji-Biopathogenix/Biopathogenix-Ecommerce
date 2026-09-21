@@ -13,6 +13,16 @@ export type SavedPaymentMethod = {
 };
 
 export const PaymentMethodServices = {
+  async removeQuickBooksCard(payment_method_id: string): Promise<void> {
+    await AxiosInstance.delete("/v1/qb-payment-methods/", { data: { payment_method_id } });
+  },
+  async saveQuickBooksCard(payload: {
+    card_name: string; card_number: string; card_exp_month: string; card_exp_year: string;
+    save_payment_method: boolean; billing: { postal_code: string };
+  }): Promise<{ status: string; result: { data: SavedPaymentMethod } }> {
+    const response = await AxiosInstance.post("/v1/qb-payment-methods/", payload);
+    return response.data;
+  },
   async createSetupIntent(): Promise<{ client_secret: string; customer_id: string }> {
     const response = await AxiosInstance.post("/v1/payment-methods/setup-intent/");
     return response.data;
@@ -34,7 +44,7 @@ export const PaymentMethodServices = {
   },
 
   async listPaymentMethods(): Promise<{ status: string; result: { data: SavedPaymentMethod[] } }> {
-    const response = await AxiosInstance.get("/v1/payment-methods/");
+    const response = await AxiosInstance.get("/v1/qb-payment-methods/");
     return response.data;
   },
 };

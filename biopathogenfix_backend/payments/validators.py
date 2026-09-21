@@ -52,6 +52,11 @@ def validate_checkout_payload(data: dict) -> None:
 
     # Card payment specific fields
     if data.get("payment_method") == "card":
+        if data.get("saved_payment_method_id"):
+            if not isinstance(data['saved_payment_method_id'], str):
+                raise ValidationError("Please select a valid saved card.")
+            # Ownership is verified against the user's vault before charging.
+            return
         # --- Stripe path (commented out in favor of QuickBooks Payments) ---
         # if not str(data.get("stripe_payment_intent_id", "")).strip():
         #     raise ValidationError("Stripe payment reference is required.")
@@ -66,4 +71,3 @@ def validate_checkout_payload(data: dict) -> None:
         for field, label in required_card_fields:
             if not str(data.get(field, "")).strip():
                 raise ValidationError(f"{label} is required.")
-

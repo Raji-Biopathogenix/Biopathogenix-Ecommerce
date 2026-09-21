@@ -9,6 +9,7 @@ import { detectCardType, getCardBrandColorClass, getCardBrandIconElement } from 
 interface QbCardInputProps {
   cardData: QbCardData;
   onCardChange: (data: QbCardData) => void;
+  collectCvv?: boolean;
 }
 
 function luhnCheck(num: string): boolean {
@@ -29,7 +30,7 @@ function luhnCheck(num: string): boolean {
   return sum % 10 === 0;
 }
 
-export default function QbCardInput({ cardData, onCardChange }: QbCardInputProps) {
+export default function QbCardInput({ cardData, onCardChange, collectCvv = true }: QbCardInputProps) {
   const [focused, setFocused] = useState<string | null>(null);
   const [errors, setErrors] = useState<{ cardNumber?: string; cvv?: string; cardHolder?: string; expiry?: string }>({});
 
@@ -201,7 +202,7 @@ export default function QbCardInput({ cardData, onCardChange }: QbCardInputProps
           {errors.expiry && <p className="text-xs text-red-600">{errors.expiry}</p>}
         </div>
 
-        <div className="flex flex-col gap-1.5" style={{ width: 120 }}>
+        {collectCvv && <div className="flex flex-col gap-1.5" style={{ width: 120 }}>
           <label htmlFor="card-cvv" className="text-xs font-semibold uppercase tracking-wide text-gray-500">
             Security Code <span className="text-red-500">*</span>
           </label>
@@ -221,7 +222,7 @@ export default function QbCardInput({ cardData, onCardChange }: QbCardInputProps
             className={inputClass("cvv")}
           />
           {errors.cvv && <p className="text-xs text-red-600">{errors.cvv}</p>}
-        </div>
+        </div>}
       </div>
 
       <div className="flex items-center gap-1.5 mt-1">

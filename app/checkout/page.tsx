@@ -676,7 +676,7 @@ export default function CheckoutPage() {
     //   effectiveBilling.country_code ||
     //   "US";
 
-    if (form.payment_method === "card") {
+    if (form.payment_method === "card" && !selectedSavedPaymentMethodId) {
       if (!qbCardData.cardHolder.trim()) {
         setError({ message: "Cardholder name is required.", retry: false });
         setLoading(false);
@@ -752,11 +752,15 @@ export default function CheckoutPage() {
     // }
 
     if (form.payment_method === "card") {
-      payload.card_name = qbCardData.cardHolder.trim();
-      payload.card_number = qbCardData.cardNumber.replace(/\D/g, "");
-      payload.card_exp_month = qbCardData.expMonth;
-      payload.card_exp_year = qbCardData.expYear;
-      payload.card_cvv = qbCardData.cvv;
+      payload.saved_payment_method_id = selectedSavedPaymentMethodId || undefined;
+      payload.save_payment_method = !selectedSavedPaymentMethodId && savePaymentMethod;
+      if (!selectedSavedPaymentMethodId) {
+        payload.card_name = qbCardData.cardHolder.trim();
+        payload.card_number = qbCardData.cardNumber.replace(/\D/g, "");
+        payload.card_exp_month = qbCardData.expMonth;
+        payload.card_exp_year = qbCardData.expYear;
+        payload.card_cvv = qbCardData.cvv;
+      }
     }
 
     try {
