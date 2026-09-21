@@ -725,6 +725,8 @@ def _record_qb_payment(
         json={
             "TotalAmt":    amount,
             "CustomerRef": { "value": customer_id },
+            # 1011 Cash, Checking Acct (4687) South Central.
+            "DepositToAccountRef": { "value": "162" },
             "PrivateNote": f"QB Payments Transaction ID: {transaction_id}",
             "Line": [
                 {
