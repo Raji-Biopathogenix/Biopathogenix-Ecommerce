@@ -208,7 +208,7 @@ def tokenize_card(access_token: str, card_data: dict) -> str:  #Not in Use
     return token
 
 
-def charge_card(access_token: str,card_data: dict , amount: float, idempotency_key: str,billing_address: dict) -> dict:
+def charge_card(access_token: str,card_data: dict , amount: float, idempotency_key: str,billing_address: dict, *, saved_card_id=None) -> dict:
     """
     Charge the card using the QB token.
     Returns the full QB charge response dict.
@@ -232,13 +232,13 @@ def charge_card(access_token: str,card_data: dict , amount: float, idempotency_k
             "Authorization": f"Bearer {access_token}",
             "Content-Type":"application/json",
             "Accept":"application/json",
-            "Request-Id":str(uuid.uuid4()),
+            "Request-Id":str(uuid.uuid5(uuid.NAMESPACE_URL, f'charge:{config.realm_id}:{idempotency_key}')),
         },
         json={
             "amount":   f"{float(amount):.2f}",
             "currency": "USD",
             "context":  {"mobile": "false", "isEcommerce": "true"},  # ← strings not bools
-            "card": {
+            **({"cardOnFile": saved_card_id} if saved_card_id else {"card": {
                 "name":     card_data.get("card_name", ""),
                 "number":   card_data.get("card_number", "").replace(" ", ""),
                 "expMonth": card_data.get("card_exp_month", ""),
@@ -257,7 +257,7 @@ def charge_card(access_token: str,card_data: dict , amount: float, idempotency_k
                     # "streetAddress": "1130 Kifer Rd", 
                     # "city": "Sunnyvale"
                 }
-            },
+            }}),
         },
         timeout=30,
         )
@@ -284,7 +284,7 @@ def charge_card(access_token: str,card_data: dict , amount: float, idempotency_k
 
         #  Unexpected status 
         if status != "CAPTURED":
-            logger.error(f"Unexpected QB charge status: {result}")
+            logger.error("Unexpected QB charge status: %s", status)
             raise ValueError("Payment could not be processed. Please try again.")
 
 

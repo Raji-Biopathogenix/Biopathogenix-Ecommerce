@@ -260,7 +260,6 @@ export default function PaymentTab({
 
           {form.payment_method === "card" && (
             <div className="bg-gray-50 border-2 border-gray-300 rounded-lg p-6 space-y-4">
-              {/* --- Stripe saved-card path (commented out in favor of QuickBooks Payments) ---
               {paymentMethodsLoading ? (
                 <div className="rounded border border-[#E6EEF5] bg-white px-4 py-3 text-sm text-[#0B3C5D]">
                   Loading saved payment methods...
@@ -306,11 +305,14 @@ export default function PaymentTab({
                   {paymentMethodsError}
                 </div>
               )}
-              --- end Stripe saved-card path --- */}
 
-              <div className="space-y-4 rounded border border-[#d5deea] bg-white p-4">
+              {!selectedSavedPaymentMethodId && <div className="space-y-4 rounded border border-[#d5deea] bg-white p-4">
                 <QbCardInput cardData={qbCardData} onCardChange={setQbCardData} />
-              </div>
+                <label className="flex items-center gap-2 text-sm text-[#0b2e59]">
+                  <input type="checkbox" checked={savePaymentMethod} onChange={(event) => setSavePaymentMethod(event.target.checked)} />
+                  Save this card securely for future purchases
+                </label>
+              </div>}
             </div>
           )}
 

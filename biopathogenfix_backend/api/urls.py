@@ -19,6 +19,7 @@ from home.views import HeaderMenuViewset, CareerOpenRoleViewset, CareerApplicati
 
 from api.views import AssayInquiryView, ContactValidationView, CustomTargetRequestView, QualityControlAvailabilityView
 from payments.views import create_payment_intent, create_setup_intent, list_payment_methods, save_payment_method, stripe_config
+from payments.qb_cards import payment_methods as qb_payment_methods
 
 
 router = routers.DefaultRouter()
@@ -122,6 +123,7 @@ urlpatterns += [
     path("payment-methods/payment-intent/", create_payment_intent, name="payment_methods_payment_intent"),
     path("payment-methods/setup-intent/", create_setup_intent, name="payment_methods_setup_intent"),
     path("payment-methods/", list_payment_methods, name="payment_methods_list"),
+    path("qb-payment-methods/", qb_payment_methods, name="qb_payment_methods"),
     path("payment-methods/save/", save_payment_method, name="payment_methods_save"),
     path("payment-methods/stripe-config/", stripe_config, name="payment_methods_stripe_config"),
 ]

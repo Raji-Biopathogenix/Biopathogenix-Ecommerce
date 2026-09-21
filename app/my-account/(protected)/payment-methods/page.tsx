@@ -14,6 +14,25 @@ export default function PaymentMethodsPage() {
   const [methods, setMethods] = useState<SavedPaymentMethod[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [removingId, setRemovingId] = useState<string | null>(null);
+  const [confirmId, setConfirmId] = useState<string | null>(null);
+  const [message, setMessage] = useState("");
+
+  async function removeMethod(method: SavedPaymentMethod) {
+    setRemovingId(method.id);
+    setError(null);
+    setMessage("");
+    try {
+      await PaymentMethodServices.removeQuickBooksCard(method.id);
+      setMethods((current) => current.filter((card) => card.id !== method.id));
+      setConfirmId(null);
+      setMessage(`${formatBrand(method.brand)} ending in ${method.last4} removed.`);
+    } catch {
+      setError("Unable to remove this card. Please try again.");
+    } finally {
+      setRemovingId(null);
+    }
+  }
 
   useEffect(() => {
     const loadPaymentMethods = async () => {
@@ -47,7 +66,7 @@ export default function PaymentMethodsPage() {
           {methods.map((method) => (
             <div
               key={method.id}
-              className="flex items-center justify-between rounded border border-[#E6EEF5] bg-white px-6 py-5"
+              className="flex flex-wrap items-center justify-between gap-4 rounded border border-[#E6EEF5] bg-white px-6 py-5"
             >
               <div>
                 <p className="text-sm font-semibold text-[#0B3C5D]">
@@ -65,13 +84,23 @@ export default function PaymentMethodsPage() {
                   Default
                 </span>
               )}
+              <div className="flex items-center gap-3 text-sm">
+                {confirmId === method.id ? <>
+                  <span>Remove this card?</span>
+                  <button type="button" disabled={removingId !== null} onClick={() => void removeMethod(method)} className="rounded border border-red-300 px-3 py-2 text-red-700 disabled:opacity-50">
+                    {removingId === method.id ? "Removing..." : "Confirm remove"}
+                  </button>
+                  <button type="button" disabled={removingId !== null} onClick={() => setConfirmId(null)} className="px-3 py-2 text-[#0B3C5D]">Cancel</button>
+                </> : <button type="button" disabled={removingId !== null} onClick={() => setConfirmId(method.id)} aria-label={`Remove ${formatBrand(method.brand)} ending in ${method.last4}`} className="rounded border border-red-300 px-3 py-2 text-red-700 disabled:opacity-50">Remove</button>}
+              </div>
             </div>
           ))}
         </div>
       )}
 
+      {message && <p role="status" className="text-sm text-[#0B3C5D]">{message}</p>}
       {error && (
-        <div className="rounded border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
+        <div role="alert" className="rounded border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
           {error}
         </div>
       )}
