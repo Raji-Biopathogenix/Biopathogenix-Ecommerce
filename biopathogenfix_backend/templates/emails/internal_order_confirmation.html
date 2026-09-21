@@ -31,7 +31,7 @@
     <td width="50%" valign="top"><strong>Shipping address</strong><p>{% for line in shipping_lines %}{{ line }}<br>{% endfor %}</p></td>
   </tr></table>
   <p>{{ contact_email }}<br>{{ contact_phone }}</p>
-  <p style="margin:28px 0;"><a href="{{ packing_slip_url }}" style="display:inline-block;padding:13px 20px;background:#153b67;color:white;text-decoration:none;border-radius:4px;">View / download packing slip</a></p>
-  <p style="font-size:12px;color:#52647a;">Internal fulfillment copy. Staff sign-in is required to open the packing slip.</p>
+  <p style="margin:28px 0;"><a href="{{ order_edit_url }}" style="display:inline-block;padding:13px 20px;background:#153b67;color:white;text-decoration:none;border-radius:4px;">View / edit order</a></p>
+  <p style="font-size:12px;color:#52647a;">Internal fulfillment copy. Sign in with your staff account to edit this order and view or download its packing slip.</p>
   <p style="font-size:12px;color:#52647a;border-top:1px solid #e5e7eb;padding-top:16px;">BioPathogenix<br>{{ company_address|linebreaksbr }}</p>
 </td></tr></table></td></tr></table></body></html>

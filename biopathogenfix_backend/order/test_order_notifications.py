@@ -53,7 +53,9 @@ class OrderNotificationTests(SimpleTestCase):
         self.assertEqual(internal.args[0], [])
         self.assertEqual(internal.kwargs['bcc_list'], ['scope@biopathogenix.com', 'rajeswari.gopu@biopathogenix.com', 'order@biopathogenix.com'])
         self.assertNotIn('cc_list', internal.kwargs)
-        self.assertIn('/orders/9033/packing-slip', internal.kwargs['html_body'])
+        self.assertIn('/orders/9033/edit', internal.kwargs['html_body'])
+        self.assertIn('/orders/9033/edit', internal.kwargs['text_body'])
+        self.assertNotIn('/orders/9033/edit', customer.kwargs['html_body'])
         self.assertIn('3004 Park Central Ave', internal.kwargs['html_body'])
         self.assertNotIn('120 Dewey', internal.kwargs['html_body'])
         self.assertIn('3976', internal.kwargs['html_body'])
@@ -67,7 +69,7 @@ class OrderNotificationTests(SimpleTestCase):
         self.assertEqual(mail.outbox[1].to, [])
         self.assertIn('order@biopathogenix.com', mail.outbox[1].bcc)
         self.assertNotIn('/packing-slip', mail.outbox[0].alternatives[0].content)
-        self.assertIn('/packing-slip', mail.outbox[1].alternatives[0].content)
+        self.assertIn('/orders/9033/edit', mail.outbox[1].alternatives[0].content)
 
     @override_settings(GRAPH_ENABLED=True)
     def test_internal_delivery_still_attempted_if_customer_delivery_fails(self):
