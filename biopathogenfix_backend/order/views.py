@@ -822,8 +822,9 @@ def AdminorderUpdateView(request):
 
 class CreateOutboundShipmentView(APIView):
     permission_classes = [IsOrderAdmin]
+    @db_transaction.atomic
     def post(self, request, order_id):
-        order    = get_object_or_404(Order, id=order_id)
+        order    = get_object_or_404(Order.objects.select_for_update(), id=order_id)
         item_ids = request.data.get('item_ids', [])
         if not item_ids:
             return Response({'error': 'item_ids is required'},status=status.HTTP_400_BAD_REQUEST)
@@ -831,7 +832,7 @@ class CreateOutboundShipmentView(APIView):
 
         if not isinstance(item_ids, list) or not all(type(value) is int for value in item_ids):
             return Response({'error': 'item_ids must be a list of integer IDs.'}, status=400)
-        items = OrderItem.objects.filter(order=order, id__in=item_ids)
+        items = OrderItem.objects.filter(order=order, id__in=item_ids, is_cancelled=False)
         if len(set(item_ids)) != len(item_ids) or items.count() != len(item_ids):
             return Response({'error': 'Some items do not belong to this order.'}, status=400)
         package = _build_package_from_order_items(item_ids)
@@ -884,7 +885,7 @@ class InitiateReturnView(APIView):
         
         if not isinstance(item_ids, list) or not all(type(value) is int for value in item_ids):
             return Response({'error': 'item_ids must be a list of integer IDs.'}, status=400)
-        items = OrderItem.objects.filter(order=order, id__in=item_ids)
+        items = OrderItem.objects.filter(order=order, id__in=item_ids, is_cancelled=False)
         if len(set(item_ids)) != len(item_ids) or items.count() != len(item_ids):
             return Response({'error': 'Some items do not belong to this order.'}, status=400)
         package = _build_package_from_order_items(item_ids)
@@ -939,8 +940,12 @@ class DownloadLabelView(APIView):
 class CancelOrderView(APIView):
     permission_classes = [IsOrderAdmin]
 
+    @db_transaction.atomic
     def post(self, request, order_id):
-        order = get_object_or_404(Order, id=order_id)
+        order = get_object_or_404(Order.objects.select_for_update(), id=order_id)
+
+        if order.item_cancellations.exists():
+            return Response({'error': 'Cancel remaining items individually so each refund is reconciled.'}, status=400)
 
         # Guard 
         if not order.is_cancellable:
@@ -974,8 +979,12 @@ class RefundOrderView(APIView):
     permission_classes = [IsOrderAdmin]
 
 
+    @db_transaction.atomic
     def post(self, request, order_id):
-        order = get_object_or_404(Order, id=order_id)
+        order = get_object_or_404(Order.objects.select_for_update(), id=order_id)
+
+        if order.item_cancellations.exists():
+            return Response({'status': 'error', 'message': 'This order has item refunds. Use the item cancellation workflow to avoid refunding the same money twice.'}, status=400)
 
         if not order.is_refundable:
             return Response({"status":"error",'message': f'Order not eligible for refund.'},status=400)
@@ -1127,66 +1136,44 @@ class RefundOrderView(APIView):
 class CancelOrderItemView(APIView):
     permission_classes = [IsOrderAdmin]
 
+    def get(self, request, order_id, item_id):
+        from .item_cancellations import cancellation_quote, financial_summary
+        order = get_object_or_404(Order, pk=order_id)
+        item = get_object_or_404(OrderItem, pk=item_id, order=order)
+        try:
+            quote = cancellation_quote(order, item)
+            return Response({'status': 'success', 'data': {
+                **quote, 'paid': order.paymet_status == 'success',
+                'remaining_total': str(Decimal(financial_summary(order)['remaining_total']) - Decimal(quote['amount']))
+                    if not hasattr(item, 'cancellation') else financial_summary(order)['remaining_total'],
+            }})
+        except ValueError as exc:
+            return Response({'error': str(exc)}, status=400)
+
     def post(self, request, order_id, item_id):
-        order = get_object_or_404(Order, id=order_id)
-        item  = get_object_or_404(OrderItem, id=item_id, order=order)
+        from .item_cancellations import prepare, process, notify_customer, financial_summary
+        get_object_or_404(OrderItem, pk=item_id, order_id=order_id)
+        notes = str(request.data.get('cancel_notes', '')).strip()
+        if not notes or len(notes) > 500:
+            return Response({'error': 'Enter a cancellation reason of up to 500 characters.'}, status=400)
+        try:
+            op = prepare(order_id, item_id, request.user, notes, request.data.get('expected_amount'))
+            op = process(op)
+            notify_customer(op)
+        except ValueError as exc:
+            return Response({'error': str(exc)}, status=400)
+        except Exception:
+            logger.exception('Unable to prepare item cancellation for order %s', order_id)
+            return Response({'error': 'Unable to verify this cancellation. Check the order and payment status before retrying.'}, status=503)
+        return Response({'status': 'success', 'data': {
+            'item_id': item_id, 'product_name': op.item.product_name,
+            'cancel_notes': op.notes, 'cancelled_at': op.item.cancelled_at,
+            'state': op.state, 'refund_status': op.refund_status,
+            'amount': str(op.amount), 'financials': financial_summary(op.order),
+        }, 'message': ('Item cancelled; refund and invoice adjustment completed.' if op.state == 'complete' and op.paid else
+                       'Item cancelled; invoice adjusted.' if op.state == 'complete' else
+                       op.error or 'Item cancelled. Refund or accounting confirmation is pending.')})
 
-        # Guard — only unshipped items can be cancelled 
-        if item.status:
-            return Response(
-                {
-                    'error': (
-                        f'Cannot cancel — item is already '
-                        f'{item.status.replace("_", " ")}.'
-                    )
-                },
-                status=400
-            )
-
-        if item.is_returned or item.return_status != 'none':
-            return Response({'error': 'Cannot cancel — item has an active return.'},status=400)
-
-        # Cancel the item 
-        cancel_notes = request.data.get('cancel_notes', '').strip()
-
-        item.is_cancelled = True
-        item.cancel_notes = cancel_notes
-        item.cancelled_at = timezone.now()
-        item.cancelled_by = request.user
-        item.save(update_fields=[
-            'is_cancelled', 'cancel_notes',
-            'cancelled_at', 'cancelled_by',
-        ])
-
-        # Update order status if all items cancelled 
-        all_cancelled = not order.items.exclude(is_cancelled=True).exists()
-
-        if all_cancelled:
-            order.status = 'cancelled'
-            order.save(update_fields=['status'])
-
-        response_data = {
-            'status':        'cancelled',
-            'cancelled_at':  timezone.now(),
-            'cancel_reason': request.data.get('cancel_notes', ''),
-            'cancelled_by':  request.user.get_full_name or request.user.email,
-            'message':       f'Order #{order.id} cancelled successfully.', 
-        }
-
-        send_cancellation_email(order,response_data)
-        
-
-        return Response({
-            "status": "success",
-            "data": {
-            'status':       'cancelled',
-            'item_id':      item.id,
-            'product_name': item.product.name,
-            'cancel_notes': cancel_notes,
-            'cancelled_at': item.cancelled_at,
-            },
-            'message':      f'{item.product.name} has been cancelled.',
-        },status=200)
 
 
 class PrintLabelView(APIView):

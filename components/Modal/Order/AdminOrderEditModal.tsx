@@ -349,6 +349,7 @@ function StatStrip({ order  }: { order: OrderShipment }) {
     const stats = useMemo(() => {
         let delivered = 0, inTransit = 0, unshipped = 0;
         order.items.forEach((item) => {
+            if (item.is_cancelled) return;
             if (item.status === 'delivered') delivered += item.quantity;
             else if (item.status === 'in_transit') inTransit += item.quantity;
             else unshipped += item.quantity;
@@ -361,7 +362,7 @@ function StatStrip({ order  }: { order: OrderShipment }) {
 
         <div className="grid grid-cols-4 p-5 gap-3">
             {[
-                { label: 'Total items', value: order.items.length, color: 'text-gray-900' },
+                { label: 'Active items', value: order.items.filter(item => !item.is_cancelled).reduce((sum, item) => sum + item.quantity, 0), color: 'text-gray-900' },
                 { label: 'Delivered', value: stats.delivered, color: 'text-green-600' },
                 { label: 'In transit', value: stats.inTransit, color: 'text-purple-600' },
                 { label: 'Unshipped', value: stats.unshipped, color: stats.unshipped > 0 ? 'text-amber-600' : 'text-green-600' },
@@ -383,6 +384,10 @@ function OrderItemSection({ order,onRefresh }: { order: OrderShipment , onRefres
     const [cancelItem, setCancelItem] = useState<OrderItemShipment | null>(null);
 
     const getItemStatusPill = (item: OrderItemShipment) => {
+        if (item.is_cancelled && item.cancellation_state === 'complete')
+            return <span className="text-xs text-gray-500">Cancelled ? adjusted</span>;
+        if (item.is_cancelled)
+            return <button className="text-xs text-amber-700 underline" onClick={() => setCancelItem(item)}>Review cancellation</button>;
         if (item.is_returned)
             return <span className="text-[10px] px-2 py-0.5 rounded-full font-medium bg-orange-100 text-orange-700">Returned</span>;
         else if (item.return_status === 'initiated')

@@ -379,7 +379,7 @@ export default function OrdersPage() {
                 <div className="w-px h-7 bg-[#e0eaf2]" />
                 <div>
                   <p className="text-[10px] uppercase tracking-[0.25em] text-gray-400 mb-0.5">Total</p>
-                  <p className="text-sm font-bold text-[#0b2e59]">${Number(order.amount).toFixed(2)}</p>
+                  <p className="text-sm font-bold text-[#0b2e59]">${Number(order.cancellation_financials?.remaining_total ?? order.amount).toFixed(2)}</p>
                 </div>
                 <div className="w-px h-7 bg-[#e0eaf2]" />
                 <div>

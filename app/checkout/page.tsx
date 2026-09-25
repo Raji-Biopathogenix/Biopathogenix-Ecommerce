@@ -349,13 +349,8 @@ export default function CheckoutPage() {
 
         if (cancelled) return;
         if(quote?.status=="success"){
-          if(quote?.result?.amount_to_collect){
-            setTaxAmount(Number(quote?.result?.amount_to_collect));
-          }
-          if(quote?.result?.rate){
-            setTaxRate(Number(quote?.result?.rate));
-
-          }
+          setTaxAmount(Number(quote?.result?.amount_to_collect ?? 0));
+          setTaxRate(Number(quote?.result?.rate ?? 0));
         }
         setTaxQuoteError(null);
       } catch (err: unknown) {
@@ -381,6 +376,7 @@ export default function CheckoutPage() {
     form.shipping.state,
     form.shipping.state_code,
     selectedQuantity,
+    couponAmount,
     shippingCost,
     state,
     subtotal,

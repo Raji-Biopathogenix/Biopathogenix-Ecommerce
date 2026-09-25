@@ -20,7 +20,7 @@
   </table>
   <table width="100%" cellspacing="0" cellpadding="5" style="margin-top:15px;">
     <tr><td>Subtotal</td><td align="right">${{ subtotal|floatformat:2 }}</td></tr>
-    {% if coupon_amt %}<tr><td>Coupon discount</td><td align="right">-${{ coupon_amt|floatformat:2 }}</td></tr>{% endif %}
+    {% if coupon_amt %}<tr><td>Coupon discount{% if coupon_code %} ({{ coupon_code }}){% endif %}</td><td align="right">-${{ coupon_amt|floatformat:2 }}</td></tr>{% endif %}
     <tr><td>Shipping: UPS</td><td align="right">${{ shipping_cost|floatformat:2 }}</td></tr>
     <tr><td>Tax</td><td align="right">${{ tax_amount|floatformat:2 }}</td></tr>
     <tr><td><strong>Total</strong></td><td align="right"><strong>${{ total|floatformat:2 }}</strong></td></tr>

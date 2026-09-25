@@ -53,6 +53,8 @@ export default function CustomerOrderInvoice({ order }: { order: OrderSummary })
     }
   }
 
+  const adjustments = invoice?.cancellation_financials ?? order.cancellation_financials;
+
   const invoiceLabel = invoice?.payment_sync_pending ? "Payment received · Invoice updating"
     : invoice?.status ? labels[invoice.status] : "";
   const buttonClass = "rounded-lg border border-[#c8dcea] px-3 py-2 text-xs font-semibold text-[#0b2e59] hover:bg-[#eef5fb] disabled:opacity-50";
@@ -72,8 +74,16 @@ export default function CustomerOrderInvoice({ order }: { order: OrderSummary })
         {Number(order.coupon_amt) > 0 && <div><dt className="text-gray-500">Discount</dt><dd>−{money(order.coupon_amt)}</dd></div>}
         <div><dt className="text-gray-500">Shipping</dt><dd>{money(order.shipping_cost)}</dd></div>
         <div><dt className="text-gray-500">Tax</dt><dd>{money(order.tax_amount)}</dd></div>
-        <div><dt className="text-gray-500">Total</dt><dd className="font-semibold text-[#0b2e59]">{money(order.amount)}</dd></div>
+        <div><dt className="text-gray-500">{adjustments && Number(adjustments.cancelled_amount) > 0 ? "Original total" : "Total"}</dt><dd className="font-semibold text-[#0b2e59]">{money(order.amount)}</dd></div>
       </dl>
+      {adjustments && Number(adjustments.cancelled_amount) > 0 && <div className="mt-3 rounded-lg bg-blue-50 p-3 text-sm text-[#0b2e59]">
+        <p>Cancelled items (including shipping and tax): {money(adjustments.cancelled_amount)}</p>
+        <p>Refund confirmed: {money(adjustments.refunded_amount)}</p>
+        <p className="font-semibold">Remaining order value: {money(adjustments.remaining_total)}</p>
+        {adjustments.refund_pending && <p>Refund confirmation is pending.</p>}
+        {adjustments.accounting_pending && <p>The invoice adjustment is being reconciled.</p>}
+        <p className="mt-1 text-xs">Paid invoices retain the original payment history and show item refunds separately.</p>
+      </div>}
       {open && <div id={`invoice-${order.id}`} className="mt-4 rounded-xl border border-[#e0eaf2] bg-[#f7faff] p-4" aria-live="polite">
         {loading && <p className="text-sm text-gray-500">Checking your invoice…</p>}
         {invoice?.available && <>

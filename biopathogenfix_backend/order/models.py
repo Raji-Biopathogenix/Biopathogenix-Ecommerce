@@ -424,3 +424,25 @@ class Shipment(models.Model):
     @property
     def item_count(self):
         return self.items.count()
+
+
+class ItemCancellation(models.Model):
+    """Durable record of one item cancellation and its external financial steps."""
+    import uuid
+    key = models.UUIDField(default=uuid.uuid4, unique=True, editable=False)
+    item = models.OneToOneField(OrderItem, on_delete=models.PROTECT, related_name='cancellation')
+    order = models.ForeignKey(Order, on_delete=models.PROTECT, related_name='item_cancellations')
+    amount = models.DecimalField(max_digits=10, decimal_places=2)
+    breakdown = models.JSONField(default=dict)
+    accounting_payload = models.JSONField(default=dict)
+    paid = models.BooleanField(default=False)
+    state = models.CharField(max_length=32, default='ready')
+    refund_id = models.CharField(max_length=100, blank=True)
+    refund_status = models.CharField(max_length=32, blank=True)
+    accounting_id = models.CharField(max_length=100, blank=True)
+    error = models.TextField(blank=True)
+    notes = models.TextField(blank=True)
+    created_by = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.PROTECT)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+    email_sent = models.BooleanField(default=False)

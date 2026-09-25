@@ -5,7 +5,7 @@ from unittest.mock import MagicMock, patch
 
 from django.http import Http404
 from django.db.models import QuerySet
-from django.test import SimpleTestCase
+from django.test import TestCase
 from rest_framework.response import Response
 from rest_framework.test import APIRequestFactory, force_authenticate
 
@@ -14,7 +14,7 @@ from order import pricing, views
 from order.permissions import accessible_orders, is_order_admin
 
 
-class CheckoutSecurityTests(SimpleTestCase):
+class CheckoutSecurityTests(TestCase):
     def setUp(self):
         self.user = SimpleNamespace(id=7, pk=7, is_authenticated=True, is_active=True,
                                     is_staff=False, is_superuser=False, laboratory_id=None)
@@ -129,9 +129,10 @@ class CheckoutSecurityTests(SimpleTestCase):
         with patch.object(pricing, 'price_items', return_value=Decimal('100')), \
                 patch.object(pricing, 'coupon_discount', return_value=(None, Decimal('10'))), \
                 patch.object(pricing, 'shipping_quote', return_value=Decimal('20')), \
-                patch.object(pricing, 'calculate_tax_and_shipping', return_value={'tax_amount': 6, 'tax_rate': .06}) as tax:
+                patch.object(pricing, 'calculate_tax_and_shipping', return_value={'tax_amount': 5.40, 'tax_rate': .06}) as tax:
             quote = pricing.checkout_quote([SimpleNamespace(quantity=1)], self.user, {'country': 'US', 'state': 'KY'})
-            self.assertEqual(quote['amount'], Decimal('116'))
+            self.assertEqual(quote['amount'], Decimal('115.40'))
+            self.assertEqual(tax.call_args.kwargs['subtotal'], Decimal('90'))
             self.assertEqual(tax.call_args.kwargs['shipping_cost'], Decimal('20'))
 
     def test_provider_failure_never_calls_payment(self):

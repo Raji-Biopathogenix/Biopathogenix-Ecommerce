@@ -146,5 +146,46 @@ class InvoiceTests(SimpleTestCase):
         with self.assertRaises(RuntimeError):
             create_qb_invoice("test", order, [], "card", SimpleNamespace(quickbook_customer_id="789"))
         self.assertEqual(order.qb_invoice_id, "123")
+        self.assertIs(post.call_args.kwargs['json']['ApplyTaxAfterDiscount'], True)
         self.assertEqual(order.qb_customer_id, "789")
         order.save.assert_called_once_with(update_fields=["qb_invoice_id", "qb_realm_id", "qb_customer_id"])
+
+    @patch('payments.utils.get_qb_item_by_sku', return_value='product-id')
+    def test_coupon_reconciles_invoice_with_checkout_payment(self, lookup):
+        items = [SimpleNamespace(unit_price=Decimal(price), quantity=1, sku_code='sku',
+                                 product=SimpleNamespace(name='Product'))
+                 for price in ('60.00', '250.00', '35.00')]
+        for shipping in ('35.53', '0.00'):
+            for discount in ('34.50', '15.00', '345.00', '0.00'):
+                with self.subTest(shipping=shipping, discount=discount):
+                    order = SimpleNamespace(shipping_cost=Decimal(shipping),
+                        coupon_amt=Decimal(discount), coupon_code='WELCOME')
+                    lines = _build_invoice_line_items('token', 'realm', 'url', order, items, 'default')
+                    discounts = [line for line in lines if line['DetailType'] == 'DiscountLineDetail']
+                    self.assertEqual(len(discounts), 1 if Decimal(discount) else 0)
+                    if discounts:
+                        self.assertEqual(lines[3]['DetailType'], 'SubTotalLineDetail')
+                        self.assertEqual(lines[3]['Amount'], 345)
+                        self.assertEqual(lines[4], discounts[0])
+                        self.assertEqual(discounts[0]['Amount'], float(discount))
+                        self.assertFalse(discounts[0]['DiscountLineDetail']['PercentBased'])
+                        self.assertIn('WELCOME', discounts[0]['Description'])
+                    sales = sum(Decimal(str(line['Amount'])) for line in lines
+                                if line['DetailType'] == 'SalesItemLineDetail')
+                    tax = ((Decimal('345.00') - Decimal(discount)) * Decimal('.06')).quantize(Decimal('.01'))
+                    tax += (Decimal(shipping) * Decimal('.06')).quantize(Decimal('.01'))
+                    total = sales - Decimal(discount) + tax
+                    self.assertEqual(total, Decimal('345.00') - Decimal(discount)
+                                     + Decimal(shipping) + tax)
+                    if shipping == '35.53' and discount == '34.50':
+                        self.assertEqual(tax, Decimal('20.76'))
+                        self.assertEqual(total, Decimal('366.79'))
+
+    @patch('payments.utils.get_qb_item_by_sku', return_value='product-id')
+    def test_invalid_coupon_amount_is_not_sent_to_quickbooks(self, lookup):
+        item = SimpleNamespace(unit_price=Decimal('60.00'), quantity=1, sku_code='sku',
+                               product=SimpleNamespace(name='Product'))
+        for discount in ('-1.00', '60.01'):
+            with self.assertRaises(ValueError):
+                _build_invoice_line_items('token', 'realm', 'url',
+                    SimpleNamespace(shipping_cost=0, coupon_amt=Decimal(discount)), [item], 'default')
