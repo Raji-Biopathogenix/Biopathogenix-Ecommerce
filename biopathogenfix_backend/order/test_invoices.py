@@ -7,7 +7,7 @@ from django.test import SimpleTestCase
 from rest_framework.test import APIRequestFactory, force_authenticate
 
 from order.invoice_views import OrderInvoiceView, invoice_summary
-from payments.utils import _build_invoice_line_items, create_qb_invoice
+from payments.utils import _build_invoice_line_items, create_qb_invoice, get_qb_location_id
 
 
 class InvoiceTests(SimpleTestCase):
@@ -149,6 +149,30 @@ class InvoiceTests(SimpleTestCase):
         self.assertIs(post.call_args.kwargs['json']['ApplyTaxAfterDiscount'], True)
         self.assertEqual(order.qb_customer_id, "789")
         order.save.assert_called_once_with(update_fields=["qb_invoice_id", "qb_realm_id", "qb_customer_id"])
+
+    @patch("payments.utils.requests.get")
+    def test_location_matches_shipping_state_name(self, get):
+        get.return_value = Mock(json=lambda: {"QueryResponse": {"Department": [
+            {"Id": "1", "Name": "Ohio", "Active": True},
+            {"Id": "2", "Name": "Kentucky", "Active": True},
+        ]}})
+        self.assertEqual(get_qb_location_id("t", "r", "b", "kentucky"), "2")
+        self.assertIsNone(get_qb_location_id("t", "r", "b", "Texas"))
+        self.assertIsNone(get_qb_location_id("t", "r", "b", ""))
+
+    @patch("payments.utils.get_qb_location_id", return_value="2")
+    @patch("payments.utils.requests.post")
+    @patch("payments.utils._build_invoice_line_items", return_value=[])
+    @patch("payments.utils.get_or_create_qb_item", return_value="item")
+    @patch("payments.utils.is_qb_customer_active", return_value=True)
+    @patch("payments.utils.QBConfig.get")
+    def test_invoice_sets_location_from_shipping_state(self, config, customer, item, lines, post, location):
+        config.return_value = SimpleNamespace(realm_id="456", environment="sandbox")
+        order = Mock(id=90, customer_notes="", shipping_state="Kentucky", shipping_state_code="KY")
+        post.return_value = Mock(status_code=200, text="{}", json=lambda: {"Invoice": self.invoice})
+        create_qb_invoice("test", order, [], "invoice", SimpleNamespace(quickbook_customer_id="789"))
+        self.assertEqual(location.call_args.args[3], "Kentucky")
+        self.assertEqual(post.call_args.kwargs['json']['DepartmentRef'], {"value": "2"})
 
     @patch('payments.utils.get_qb_item_by_sku', return_value='product-id')
     def test_coupon_reconciles_invoice_with_checkout_payment(self, lookup):

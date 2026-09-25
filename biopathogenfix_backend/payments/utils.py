@@ -627,6 +627,53 @@ def get_qb_item_by_sku(access_token: str, realm_id: str, base_url: str, sku: str
     return None
 
 
+def _shipping_state_name(order):
+    """Full state name for the order, e.g. "Kentucky" even if only "KY" was stored."""
+    name = getattr(order, "shipping_state", "")
+    code = getattr(order, "shipping_state_code", "")
+    if isinstance(name, str) and len(name.strip()) > 2:
+        return name.strip()
+    code = code if isinstance(code, str) and code.strip() else name
+    if not isinstance(code, str) or not code.strip():
+        return ""
+    from country.models import State
+    state = State.objects.filter(code__iexact=code.strip()).first()
+    return state.name if state else code.strip()
+
+
+def get_qb_location_id(access_token: str, realm_id: str, base_url: str, state_name: str):
+    """
+    Finds the QuickBooks Location (a "Department" in the API) whose name
+    matches the order's shipping state, e.g. "Kentucky". Locations are
+    maintained by hand in QuickBooks, so an unmatched state just leaves
+    the invoice's Location blank rather than creating a new one.
+    """
+    if not isinstance(state_name, str) or not state_name.strip():
+        return None
+
+    wanted = state_name.strip().lower()
+    try:
+        response = requests.get(
+            f"{base_url}/v3/company/{realm_id}/query",
+            headers={
+                "Authorization": f"Bearer {access_token}",
+                "Accept":        "application/json",
+            },
+            params={"query": "SELECT * FROM Department MAXRESULTS 1000"},
+            timeout=15,
+        )
+        departments = response.json().get("QueryResponse", {}).get("Department", [])
+        for dept in departments:
+            if dept.get("Active", True) and (dept.get("Name") or "").strip().lower() == wanted:
+                print(f"QB Location matched for state '{state_name}': {dept.get('Id')} ({dept.get('Name')})")
+                return dept["Id"]
+    except Exception as e:
+        print(f"QB Location lookup for state '{state_name}' failed: {e}")
+
+    print(f"No QB Location match for state '{state_name}' — leaving Location blank")
+    return None
+
+
 def _build_invoice_line_items(
     access_token: str, realm_id: str, base_url: str,
     order, orderItems: list, default_item_id: str,
@@ -859,6 +906,11 @@ def create_qb_invoice(access_token: str, order, orderItems: list, payment_method
         "BillEmail":   { "Address": order.shipping_email },
         "EmailStatus": "NeedToSend" if payment_method == "invoice" else "NotSet",
     }
+
+    # Location = customer's shipping state, matched to the QB Location list
+    location_id = get_qb_location_id(access_token, realm_id, base_url, _shipping_state_name(order))
+    if location_id:
+        invoice_payload["DepartmentRef"] = {"value": location_id}
 
     #  Step 4: Create invoice in QB
     print(f"QB invoice payload for Order #{order.id}: {invoice_payload}")
