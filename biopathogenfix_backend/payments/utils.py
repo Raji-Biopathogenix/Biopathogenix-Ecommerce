@@ -2,6 +2,7 @@ import uuid
 import base64
 import logging
 import requests
+from decimal import Decimal
 from datetime import datetime, timedelta
 from django.conf import settings
 from django.core.mail import send_mail
@@ -632,10 +633,10 @@ def _build_invoice_line_items(
 ) -> list:
     """
     Builds QB invoice line items from order items.
-    Includes product lines and native shipping; QuickBooks calculates tax.
+    Includes products, the saved coupon discount, and native shipping.
     """
     line_items = []
-    products_subtotal = 0.0
+    products_subtotal = Decimal('0.00')
 
     # Lines are marked taxable ("TAX") so QuickBooks' own Automated
     # Sales Tax engine calculates and displays tax in its native TAX
@@ -649,7 +650,7 @@ def _build_invoice_line_items(
     #  Product lines — matched to the real QB Item by SKU when possible,
     #  falling back to the generic default Item otherwise.
     for i, item in enumerate(orderItems, start=1):
-        line_amount = float(item.unit_price) * int(item.quantity)
+        line_amount = Decimal(str(item.unit_price)) * int(item.quantity)
         products_subtotal += line_amount
         matched_item_id = get_qb_item_by_sku(access_token, realm_id, base_url, item.sku_code)
 
@@ -668,7 +669,7 @@ def _build_invoice_line_items(
         line_items.append({
             "Id":          str(i),
             "LineNum":     i,
-            "Amount":      line_amount,
+            "Amount":      float(line_amount),
             "Description": description,
             "DetailType":  "SalesItemLineDetail",
             "SalesItemLineDetail": {
@@ -679,15 +680,30 @@ def _build_invoice_line_items(
             },
         })
 
-    # QuickBooks reserves this ItemRef for shipping in the totals section.
-    # Requires SalesFormsPrefs.AllowShipping in the connected company.
-    if float(order.shipping_cost) > 0:
+    # Use the saved amount, including for percentage coupons: recomputing a
+    # percentage here could accidentally discount shipping as well.
+    discount = Decimal(str(getattr(order, 'coupon_amt', 0) or 0))
+    if discount < 0 or discount > products_subtotal:
+        raise ValueError('Invoice coupon discount must be between zero and the product subtotal.')
+    if discount > 0 or float(order.shipping_cost) > 0:
         line_items.append({
-            "Amount":     round(products_subtotal, 2),
+            "Amount":     float(products_subtotal.quantize(Decimal('0.01'))),
             "DetailType": "SubTotalLineDetail",
             "SubTotalLineDetail": {},
         })
 
+    if discount > 0:
+        coupon_code = getattr(order, 'coupon_code', '') or ''
+        line_items.append({
+            "Amount": float(discount.quantize(Decimal('0.01'))),
+            "Description": f"Coupon discount ({coupon_code})" if coupon_code else "Coupon discount",
+            "DetailType": "DiscountLineDetail",
+            "DiscountLineDetail": {"PercentBased": False},
+        })
+
+    # QuickBooks reserves this ItemRef for shipping in the totals section.
+    # Requires SalesFormsPrefs.AllowShipping in the connected company.
+    if float(order.shipping_cost) > 0:
         line_items.append({
             "Amount":      float(order.shipping_cost),
             "Description": "Shipping",
@@ -810,6 +826,8 @@ def create_qb_invoice(access_token: str, order, orderItems: list, payment_method
     # Step 3: Build invoice payload 
     invoice_payload = {
         "Line":        line_items,
+        # Match checkout_quote: subtract the coupon before calculating tax.
+        "ApplyTaxAfterDiscount": True,
         "CustomerRef": { "value": customer_id },
         # No DocNumber override — QuickBooks assigns its own next
         # sequential invoice number, same as it always has. The order
@@ -916,6 +934,7 @@ def refund_qb_charge(
     charge_id:    str,
     amount:       float,
     description:  str = '',
+    request_id: str = '',
 ) -> dict:
     """
     Refund a QuickBooks Payments charge (full or partial).
@@ -943,7 +962,7 @@ def refund_qb_charge(
         "Content-Type":   "application/json",
         "Accept":         "application/json",
         # Required — must be unique per request
-        "request-Id":     str(uuid.uuid4()),
+        "request-Id":     request_id or str(uuid.uuid4()),
         "Company-Id":     realm_id,
     }
 
@@ -958,7 +977,7 @@ def refund_qb_charge(
 
 
 
-    response = requests.post(url, json=payload, headers=headers)
+    response = requests.post(url, json=payload, headers=headers, timeout=30)
 
     if not response.ok:
         raise Exception(

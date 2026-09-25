@@ -148,6 +148,7 @@ export type OrderStatus =
   | 'refunded';
 
 export interface OrderItemShipment {
+  cancellation_state?: string;
   id: number;
   product_name: string;
   product_sku: string;

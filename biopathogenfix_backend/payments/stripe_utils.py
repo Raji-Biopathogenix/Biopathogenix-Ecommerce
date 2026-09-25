@@ -89,14 +89,15 @@ def verify_checkout_payment_intent(payment_intent_id: str, expected_amount: floa
     }
 
 
-def refund_stripe_payment(payment_intent_id: str, amount: float):
+def refund_stripe_payment(payment_intent_id: str, amount: float, idempotency_key=None):
     ensure_stripe_configured()
     client = get_stripe_client()
     refund = client.refunds.create(
         params={
             "payment_intent": payment_intent_id,
             "amount": int(round(float(amount) * 100)),
-        }
+        },
+        options={"idempotency_key": idempotency_key} if idempotency_key else {},
     )
 
     return {

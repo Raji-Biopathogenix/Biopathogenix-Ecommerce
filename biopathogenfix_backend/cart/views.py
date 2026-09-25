@@ -332,120 +332,43 @@ class TrackShipmentView(APIView):
             logger.error(f"UPS tracking error: {e}")
             return Response({"error": "Failed to fetch tracking info"}, status=status.HTTP_502_BAD_GATEWAY)
 class CalculateTaxView(APIView):
+    permission_classes = [permissions.IsAuthenticated]
+
     def post(self, request):
+        from order.pricing import price_items, coupon_discount, money
+        from order.tax_service import calculate_tax_and_shipping
+
         data = request.data
+        required = ('shipping_country', 'shipping_postal_code', 'shipping_state')
+        missing = [field for field in required if not data.get(field)]
+        if missing:
+            return Response({'error': f"Missing required field(s): {', '.join(missing)}"}, status=400)
 
-        tax_row= TaxConfig.objects.first()
-        if not tax_row:
-            return Response({"error": "Tax configuration is missing."}, status=status.HTTP_400_BAD_REQUEST)
-
-        cart_items = Cart.objects.filter(user=request.user.id,selected=True)
-        if not cart_items.exists():
-            return Response({"error": "No selected cart items found for tax calculation."}, status=status.HTTP_400_BAD_REQUEST)
-
-        required_fields = {
-            "shipping_country": data.get("shipping_country"),
-            "shipping_postal_code": data.get("shipping_postal_code"),
-            "shipping_state": data.get("shipping_state"),
-            "amount": data.get("amount"),
-        }
-        missing_fields = [field for field, value in required_fields.items() if value in (None, "", [])]
-        if missing_fields:
-            return Response(
-                {"error": f"Missing required field(s): {', '.join(missing_fields)}"},
-                status=status.HTTP_400_BAD_REQUEST
+        try:
+            items = list(Cart.objects.filter(user=request.user, selected=True).select_related('product'))
+            # Match final checkout using validated catalog prices and coupon,
+            # rather than trusting the browser's pre-discount amount.
+            subtotal = price_items(items, request.user)
+            _, discount = coupon_discount(items, request.user, subtotal)
+            discounted_subtotal = money(subtotal - discount)
+            quote = calculate_tax_and_shipping(
+                subtotal=discounted_subtotal,
+                shipping_cost=money(data.get('shipping', 0) or 0),
+                shipping_state=data['shipping_state'],
+                shipping_country=data['shipping_country'],
+                shipping_postal_code=data['shipping_postal_code'],
+                shipping_city=data.get('shipping_city', ''),
+                shipping_address_line1=data.get('shipping_address_line1', ''),
+                item_quantity=sum(item.quantity for item in items),
             )
+        except ValueError as exc:
+            return Response({'error': str(exc)}, status=400)
+        except Exception:
+            logger.exception('Unable to calculate checkout tax preview')
+            return Response({'error': 'Unable to calculate tax. Please try again.'}, status=503)
 
-        # --- QuickBooks tax path ---
-        if tax_row.provider == "quickbooks":
-            from decimal import Decimal
-            from order.tax_service import _calculate_with_quickbooks
-            try:
-                qb_tax_amount, qb_tax_rate, _county = _calculate_with_quickbooks(
-                    subtotal=Decimal(str(data['amount'])),
-                    shipping_cost=Decimal(str(data.get('shipping', 0) or 0)),
-                    to_state=data['shipping_state'],
-                    to_zip=data['shipping_postal_code'],
-                    to_country=data['shipping_country'],
-                    to_city=data.get('shipping_city', ''),
-                    to_street=data.get('shipping_address_line1', ''),
-                )
-            except Exception as e:
-                logger.warning("QuickBooks tax calculation failed | error=%s", e)
-                return Response({'error': f'Unable to calculate tax from QuickBooks: {e}'}, status=status.HTTP_400_BAD_REQUEST)
-
-            return Response({"status": "success", "result": {
-                "amount_to_collect": float(qb_tax_amount),
-                "rate":              float(qb_tax_rate),
-                "has_nexus":         float(qb_tax_amount) > 0,
-                "taxable_amount":    float(data['amount']),
-                "freight_taxable":   False,
-            }}, status=200)
-
-        # --- TaxJar path (used when provider is set to "taxjar") ---
-        payload = {
-            # Ship FROM — your warehouse
-            'from_country': tax_row.nexus_country ,
-            'from_zip':    tax_row.nexus_zip ,
-            'from_state':  tax_row.nexus_state ,
-            'from_city':   tax_row.nexus_city ,
-            'from_street':  tax_row.nexus_street ,
-
-            # Ship TO — customer
-            'to_country': data['shipping_country'],   # 'US'
-            'to_zip':     data['shipping_postal_code'],        # required for US
-            'to_state':   data['shipping_state'],      # required for US
-            'to_city':    data.get('shipping_city', ''),
-            'to_street':  data.get('shipping_address_line1', ''),
-
-            # Order amounts
-            'amount':   data['amount'],          # subtotal excl. shipping
-            'shipping': data.get('shipping', 0),
-
-            # Line items
-            'line_items': [
-                {
-                    'id':str(item.id),
-                    'quantity':int(item.quantity),
-                    'unit_price':float(item.price),
-                    'discount':float(0),
-                    # item.get('discount', 0),
-                    # 'product_tax_code':  item.get('product_tax_code', ''),
-                }
-                for item in cart_items
-            ],
-
-        }
-        response = requests.post(f'{get_base_url(tax_row)}/taxes',headers=get_taxjar_headers(tax_row),json=payload,)
-        # TaxJar returned an error
-        if response.status_code != 200:
-            try:
-                error_payload = response.json()
-            except ValueError:
-                error_payload = {}
-
-            detail = (
-                error_payload.get('detail')
-                or error_payload.get('error')
-                or error_payload.get('message')
-                or response.text
-                or 'TaxJar error'
-            )
-            logger.warning(
-                "Tax calculation failed | status=%s | payload=%s | detail=%s",
-                response.status_code,
-                payload,
-                detail,
-            )
-            return Response(
-                {'error': detail},
-                status=status.HTTP_400_BAD_REQUEST
-            )
-        tax = response.json()['tax']
-        return Response({"status": "success", "result": {
-            "amount_to_collect": tax['amount_to_collect'],
-            "rate":              tax['rate'],
-            "has_nexus":         tax['has_nexus'],
-            "taxable_amount":    tax['taxable_amount'],
-            "freight_taxable":   tax['freight_taxable'],
-        }}, status=200)
+        return Response({'status': 'success', 'result': {
+            'amount_to_collect': quote['tax_amount'],
+            'rate': quote['tax_rate'],
+            'taxable_amount': float(discounted_subtotal),
+        }})

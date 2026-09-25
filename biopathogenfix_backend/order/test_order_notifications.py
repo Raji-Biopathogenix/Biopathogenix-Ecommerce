@@ -40,6 +40,61 @@ def sample_order():
                    EMAIL_BACKEND='django.core.mail.backends.locmem.EmailBackend')
 class OrderNotificationTests(SimpleTestCase):
     @override_settings(GRAPH_ENABLED=True)
+    def test_coupon_is_shown_below_subtotal_in_both_confirmations(self):
+        order = sample_order()
+        order.coupon_amt = Decimal('34.50')
+        order.coupon_code = 'SAVE10'
+        with patch.object(email_service, 'send_graph_email') as send, \
+                patch.object(email_service, '_get_related_products', return_value=[]):
+            for discount in (Decimal('34.50'), Decimal('0.00')):
+                order.coupon_amt = discount
+                send.reset_mock()
+                email_service.send_order_confirmation_emails(order)
+                self.assertEqual(send.call_count, 2)
+                for call in send.call_args_list:
+                    html = call.kwargs['html_body']
+                    if discount:
+                        self.assertIn('Coupon discount (SAVE10)', html)
+                        self.assertIn('-$34.50', html)
+                        self.assertLess(html.index('Subtotal'), html.index('Coupon discount'))
+                        self.assertLess(html.index('Coupon discount'), html.index('Shipping'))
+                    else:
+                        self.assertNotIn('Coupon discount', html)
+
+    @override_settings(GRAPH_ENABLED=True, ORDER_EMAIL_LOGO_URL='https://api.example.com/static/images/email-logo.png')
+    def test_transaction_emails_render_amount_dates_and_color_logo(self):
+        order = sample_order()
+        order.fullName = 'Jennifer Wilkerson'
+        order.refunded_at = 1790337600
+        with patch.object(email_service, 'send_graph_email') as send:
+            self.assertTrue(email_service.send_cancellation_email(order, {
+                'cancelled_at': '2026-09-25T12:00:00Z',
+                'cancel_reason': '<script>unsafe</script>',
+            }))
+            html = send.call_args.kwargs['html_body']
+            self.assertIn('$84.80', html)
+            self.assertIn('September 25, 2026', html)
+            self.assertIn('ORD-009033', html)
+            self.assertIn('email-logo-color.png', html)
+            self.assertNotIn('<script>', html)
+            for amount, heading in [('20.00', 'Partial refund confirmed'), ('84.80', 'Refund confirmed')]:
+                self.assertTrue(email_service.send_refund_email(order, {'refund_amount': amount}))
+                html = send.call_args.kwargs['html_body']
+                self.assertIn(heading, html)
+                self.assertIn('September 25, 2026', html)
+                self.assertIn(f'${amount}', html)
+                self.assertIn('email-logo-color.png', html)
+
+    @override_settings(GRAPH_ENABLED=True, ORDER_EMAIL_LOGO_URL='https://api.example.com/static/images/email-logo.png')
+    def test_both_confirmations_upgrade_legacy_logo(self):
+        with patch.object(email_service, 'send_graph_email') as send, \
+                patch.object(email_service, '_get_related_products', return_value=[]):
+            email_service.send_order_confirmation_emails(sample_order())
+        self.assertEqual(send.call_count, 2)
+        for call in send.call_args_list:
+            self.assertIn('https://api.example.com/static/images/email-logo-color.png', call.kwargs['html_body'])
+
+    @override_settings(GRAPH_ENABLED=True)
     def test_graph_sends_distinct_customer_and_bcc_only_internal_bodies(self):
         with patch.object(email_service, 'send_graph_email') as send, \
                 patch.object(email_service, '_get_related_products', return_value=[]):

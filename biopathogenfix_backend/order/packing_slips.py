@@ -34,6 +34,8 @@ def address_lines(order, kind='shipping'):
 def packing_items(order):
     rows = []
     for item in order.items.prefetch_related('orderItems_variants__variant_option__variant').all():
+        if getattr(item, 'is_cancelled', False) or getattr(item, 'is_returned', False):
+            continue
         options = []
         for variant in item.orderItems_variants.all():
             name = variant.variant_option.variant.name
@@ -61,7 +63,7 @@ def render_packing_slip(order):
     def paragraph(text, style=normal):
         return Paragraph(escape(str(text)).replace('\n', '<br/>'), style)
 
-    logo_file = Path(settings.BASE_DIR) / 'static/images/email-logo.png'
+    logo_file = Path(settings.BASE_DIR) / 'static/images/email-logo-color.png'
     if logo_file.exists():
         logo = Image(str(logo_file), width=175, height=40, kind='proportional', hAlign='LEFT')
     else:

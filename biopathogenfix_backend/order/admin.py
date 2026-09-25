@@ -72,3 +72,17 @@ class OrderItemAdmin(admin.ModelAdmin):
     list_display = ['id','order','product_name','sku_code','quantity','unit_price','total']
     search_fields = ['order__id', 'sku_code', 'product_name']
     list_filter = ['product_name', 'sku_code']
+
+from .models import ItemCancellation
+
+@admin.register(ItemCancellation)
+class ItemCancellationAdmin(admin.ModelAdmin):
+    list_display = ('id', 'order_id', 'item_id', 'amount', 'state', 'refund_status', 'accounting_id')
+    list_filter = ('state', 'paid', 'refund_status')
+    readonly_fields = tuple(field.name for field in ItemCancellation._meta.fields)
+
+    def has_add_permission(self, request):
+        return False
+
+    def has_delete_permission(self, request, obj=None):
+        return False

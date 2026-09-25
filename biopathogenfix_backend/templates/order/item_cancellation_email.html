@@ -1,0 +1,21 @@
+{% extends "order/transaction_email_base.html" %}
+{% block title %}Item cancellation{% endblock %}
+{% block preview %}{{ item.product_name }} has been cancelled from {{ order_number }}.{% endblock %}
+{% block eyebrow %}Item update{% endblock %}
+{% block heading %}Item cancelled{% endblock %}
+{% block event_date %}{{ cancelled_at|date:"F j, Y" }}{% endblock %}
+{% block message %}<strong>{{ item.product_name }}</strong> (SKU: {{ item.sku_code }}), quantity {{ item.quantity }}, has been cancelled from your order. {% if remaining_items %}Only this item has been cancelled. Your remaining items are still active.{% else %}No items remain to be shipped.{% endif %}{% endblock %}
+{% block details_title %}{% if paid %}Item refund breakdown{% else %}Invoice adjustment{% endif %}{% endblock %}
+{% block details %}
+<tr><th scope="row" align="left">Item subtotal</th><td align="right">${{ breakdown.subtotal }}</td></tr>
+<tr><th scope="row" align="left">Allocated coupon discount</th><td align="right">-${{ breakdown.discount }}</td></tr>
+<tr><th scope="row" align="left">Shipping share</th><td align="right">${{ breakdown.shipping }}</td></tr>
+<tr><th scope="row" align="left">Tax share</th><td align="right">${{ breakdown.tax }}</td></tr>
+<tr style="background-color:#eef7fc;"><th scope="row" align="left">{% if refund_confirmed %}Refund processed{% elif paid %}Refund awaiting confirmation{% else %}Invoice reduction{% endif %}</th><td align="right"><strong>${{ breakdown.amount }}</strong></td></tr>
+<tr><th scope="row" align="left">Remaining order value</th><td align="right"><strong>${{ remaining_total }}</strong></td></tr>
+{% endblock %}
+{% block note %}
+{% if cancel_notes %}<p style="font-size:14px;line-height:1.7;"><strong>Reason:</strong> {{ cancel_notes }}</p>{% endif %}
+{% if remaining_items %}<h2 style="font-size:16px;margin-top:24px;">Remaining items</h2><ul style="font-size:14px;line-height:1.8;">{% for remaining in remaining_items %}<li>{{ remaining.product_name }} &times; {{ remaining.quantity }}</li>{% endfor %}</ul>{% endif %}
+<p style="font-size:13px;line-height:1.7;color:#516777;">{% if refund_confirmed %}The refund has been submitted to your original payment method. Please allow 3&ndash;7 business days for it to appear, depending on your payment provider.{% elif paid %}Your item is cancelled. We are awaiting confirmation of the refund and will update you when it is confirmed.{% else %}No card refund is required. The invoice adjustment is tracked with your order.{% endif %}</p>
+{% endblock %}

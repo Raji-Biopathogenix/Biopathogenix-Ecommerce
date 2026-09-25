@@ -765,7 +765,7 @@ export default function PrintLabelPage() {
                   <div>
                     <img
                       className="slip-co-logo"
-                      src="/images/logo/BioPathogenix-Horizontal-1.svg"
+                      src="/images/logo/biopathogenix-color.png"
                       alt="BioPathogenix"
                       onLoad={() => setLogoLoaded(true)}
                       onError={() => setLogoLoaded(true)}

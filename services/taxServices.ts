@@ -16,9 +16,9 @@ interface TaxShippingApiResponse {
   result?: {
       amount_to_collect : Number
       rate : Number
-      has_nexus : boolean
+      has_nexus? : boolean
       taxable_amount : Number
-      freight_taxable : boolean
+      freight_taxable? : boolean
     ;
   };
 }
@@ -26,9 +26,9 @@ interface TaxShippingApiResponse {
 export interface TaxShippingQuote {
   amount_to_collect : Number
   rate : Number
-  has_nexus : boolean
+  has_nexus? : boolean
   taxable_amount : Number
-  freight_taxable : boolean
+  freight_taxable? : boolean
 }
 
 const toNumber = (value: number | string | undefined): number => {

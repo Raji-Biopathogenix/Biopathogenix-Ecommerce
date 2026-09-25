@@ -34,6 +34,7 @@
             </tbody>
         </table>
         <p><strong>Subtotal:</strong> ${{ subtotal }}<br>
+           {% if coupon_amt %}<strong>Coupon discount{% if coupon_code %} ({{ coupon_code }}){% endif %}:</strong> -${{ coupon_amt|floatformat:2 }}<br>{% endif %}
            <strong>Shipping:</strong> ${{ shipping_cost }}<br>
            <strong>Tax:</strong> ${{ tax_amount }}<br>
            <strong>Total:</strong> ${{ total }}<br>

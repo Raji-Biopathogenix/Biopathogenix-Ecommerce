@@ -229,7 +229,7 @@ CAREERS_RECIPIENT_EMAIL = os.environ.get("CAREERS_RECIPIENT_EMAIL", "careers@bio
 EMAIL_TIMEOUT = int(os.environ.get("EMAIL_TIMEOUT", 20))
 WELCOME_LOGO_URL = os.environ.get("WELCOME_LOGO_URL") or (
     (os.getenv('BACKEND_URL') or 'https://api.biopathogenix.com').rstrip('/')
-    + '/static/images/email-logo.png'
+    + '/static/images/email-logo-color.png'
 )
 # Internal new-order notifications are sent separately from customer emails.
 ORDER_NOTIFICATION_BCC = [email.strip() for email in os.getenv(
@@ -330,7 +330,7 @@ STATICFILES_DIRS = [
 MEDIA_URL = '/media/'
 # Email clients need a public absolute URL for uploaded product images.
 BACKEND_URL = (os.getenv('BACKEND_URL') or 'https://api.biopathogenix.com').rstrip('/')
-ORDER_EMAIL_LOGO_URL = os.getenv('ORDER_EMAIL_LOGO_URL') or f'{BACKEND_URL}/static/images/email-logo.png'
+ORDER_EMAIL_LOGO_URL = os.getenv('ORDER_EMAIL_LOGO_URL') or f'{BACKEND_URL}/static/images/email-logo-color.png'
 # Uploaded files must live on a persistent volume in production. Keep the
 # existing location by default so attaching /app/media preserves stored paths.
 # MEDIA_ROOT allows deployments with a different volume mount to opt in.

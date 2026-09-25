@@ -7,11 +7,26 @@ from django.template.loader  import render_to_string
 from django.conf  import settings
 from django.utils import timezone
 from config.settings import configSettings
-from datetime import datetime
+from datetime import datetime, timezone as datetime_timezone
+from django.utils.dateparse import parse_datetime, parse_date
 from users.models import CustomUser
 from services.emailService import send_graph_email
 
 logger = logging.getLogger(__name__)
+
+
+def _email_date(value):
+    """Accept provider timestamps and serialized dates for email date filters."""
+    if isinstance(value, (int, float)):
+        return datetime.fromtimestamp(value, tz=datetime_timezone.utc)
+    if isinstance(value, str):
+        value = parse_datetime(value) or parse_date(value)
+    return value or timezone.now()
+
+
+def _order_logo_url():
+    # Keep custom branding URLs, but upgrade the legacy monochrome asset.
+    return settings.ORDER_EMAIL_LOGO_URL.replace('/images/email-logo.png', '/images/email-logo-color.png')
 
 
 def _send_confirmation_message(*, to, bcc, subject, html, text):
@@ -34,13 +49,14 @@ def send_order_confirmation_emails(order):
         frontend = (configSettings.FRONTEND_URL or 'https://biopathogenix.com').rstrip('/')
         items = list(order.items.select_related('product').prefetch_related('product__images'))
         context = {
-            'logo_url': settings.ORDER_EMAIL_LOGO_URL,
+            'logo_url': _order_logo_url(),
             'user_name': f'{order.user.first_name or ""} {order.user.last_name or ""}'.strip(),
             'order_number': number,
             'order_date': order.created_at.strftime('%B %d, %Y'),
             'order_items': items, 'subtotal': order.subtotal,
             'shipping_cost': order.shipping_cost, 'tax_amount': order.tax_amount,
             'coupon_amt': order.coupon_amt, 'total': order.amount,
+            'coupon_code': getattr(order, 'coupon_code', ''),
             'payment_method': _format_payment_method(order.payment_method),
             'billing_address': ', '.join(address_lines(order, 'billing')),
             'shipping_address': ', '.join(address_lines(order)),
@@ -170,7 +186,7 @@ def send_order_status_email(order, previous_status: str | None = None, notes: st
             'shop_url': f"{configSettings.FRONTEND_URL}/shop",
             'support_email': support_email,
             'company_name': company_name,
-            'logo_url': settings.ORDER_EMAIL_LOGO_URL,
+            'logo_url': _order_logo_url(),
             'order_items': order.items.all(),
             'subtotal': order.subtotal,
             'shipping_cost': order.shipping_cost,
@@ -231,6 +247,8 @@ def send_refund_email(order, refund_data: dict) -> bool:
         context = {
             # Order
             'order':             order,
+            'order_number':      f'ORD-{order.id:06d}',
+            'logo_url':          _order_logo_url(),
             'order_url':         f"{configSettings.FRONTEND_URL}/orders/{order.id}",
 
             # Customer
@@ -240,7 +258,7 @@ def send_refund_email(order, refund_data: dict) -> bool:
             'refund_amount':     f"{refund_amount:.2f}",
             'is_partial':        is_partial,
             'remaining_amount':  f"{remaining:.2f}",
-            'refunded_at':       order.refunded_at or timezone.now(),
+            'refunded_at':       _email_date(order.refunded_at),
             'refund_reference':  refund_data.get('refund_reference', ''),
             'payment_method':    _format_payment_method(order.payment_method),
 
@@ -314,14 +332,12 @@ def _format_payment_method(method: str) -> str:
 def send_cancellation_email(order, cancel_data: dict) -> bool:
     try:
 
-        cancelled_at = cancel_data.get('cancelled_at','')
-        # if isinstance(cancelled_at, str):
-        #     cancelled_at = datetime.fromisoformat(cancelled_at.replace('Z', '+00:00'))
-        # if not cancelled_at:
-        #     cancelled_at = timezone.now()
+        cancelled_at = _email_date(cancel_data.get('cancelled_at'))
 
         context = {
             'order':         order,
+            'order_number':  f'ORD-{order.id:06d}',
+            'logo_url':      _order_logo_url(),
             'order_url':     f"{configSettings.FRONTEND_URL}/my-account/",
             'shop_url':      configSettings.FRONTEND_URL,
 

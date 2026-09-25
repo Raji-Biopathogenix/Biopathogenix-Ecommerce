@@ -44,6 +44,12 @@ class UserShipmentSerializer(serializers.ModelSerializer):
 
 
 class OrderDetailSerializer(serializers.ModelSerializer):
+    cancellation_financials = serializers.SerializerMethodField()
+
+    def get_cancellation_financials(self, obj):
+        from .item_cancellations import financial_summary
+        return financial_summary(obj)
+
     items = OrderItemSerializer(many=True, read_only=True)
     status_updates = OrderStatusUpdateSerializer(many=True, read_only=True)
     shipments = serializers.SerializerMethodField()
@@ -67,6 +73,7 @@ class OrderDetailSerializer(serializers.ModelSerializer):
             "shipping_cost",
             "tax_amount",
             "coupon_amt",
+            "cancellation_financials",
             "paymet_status",
             "transaction_id",
             "amount",
@@ -202,6 +209,11 @@ class AllOrderSerializer(serializers.ModelSerializer):
 
 
 class ShipmentItemSerializer(serializers.ModelSerializer):
+    cancellation_state = serializers.SerializerMethodField()
+
+    def get_cancellation_state(self, obj):
+        return obj.cancellation.state if hasattr(obj, 'cancellation') else ''
+
 
     class Meta:
         model = OrderItem
@@ -216,6 +228,7 @@ class ShipmentItemSerializer(serializers.ModelSerializer):
             "status",
             "is_cancelled",
             "cancel_notes",
+            "cancellation_state",
             "cancel_by_whom",   
         ]
 

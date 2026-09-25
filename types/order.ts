@@ -1,3 +1,11 @@
+export interface CancellationFinancials {
+  cancelled_amount: string;
+  refunded_amount: string;
+  remaining_total: string;
+  refund_pending: boolean;
+  accounting_pending: boolean;
+}
+
 export interface OrderItem {
   product_name: string;
   quantity: number;
@@ -24,6 +32,7 @@ export interface OrderStatusUpdate {
 }
 
 export interface OrderSummary {
+  cancellation_financials?: CancellationFinancials;
   subtotal?: string | number;
   shipping_cost?: string | number;
   tax_amount?: string | number;
@@ -55,6 +64,7 @@ export interface OrderSummary {
 }
 
 export interface QuickBooksInvoice {
+  cancellation_financials?: CancellationFinancials;
   available: boolean;
   message?: string;
   number?: string;

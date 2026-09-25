@@ -40,7 +40,10 @@ def invoice_summary(invoice, order):
         host = (url.hostname or "").lower()
         if url.scheme != "https" or not (host == "intuit.com" or host.endswith(".intuit.com")):
             link = None
+    from .item_cancellations import financial_summary
+    adjustments = financial_summary(order) if hasattr(order, 'item_cancellations') else None
     return {
+        "cancellation_financials": adjustments,
         "available": True,
         "number": invoice.get("DocNumber") or invoice["Id"],
         "status": payment_status,
@@ -50,7 +53,7 @@ def invoice_summary(invoice, order):
         "currency": invoice.get("CurrencyRef", {}).get("value", "USD"),
         "due_date": due_date,
         "payment_sync_pending": payment_sync_pending,
-        "payment_url": link if balance > 0 and not payment_sync_pending and order.status not in (
+        "payment_url": link if balance > 0 and not payment_sync_pending and not (adjustments and adjustments["accounting_pending"]) and order.status not in (
             "cancelled", "refunded", "partially_refunded"
         ) else None,
     }

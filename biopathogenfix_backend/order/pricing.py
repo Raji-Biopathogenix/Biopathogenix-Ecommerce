@@ -136,10 +136,9 @@ def checkout_quote(items, user, address):
     subtotal = price_items(items, user)
     coupon, discount = coupon_discount(items, user, subtotal)
     shipping = shipping_quote(items, address)
-    # Preserve the existing tax preview policy: tax is quoted on the product
-    # subtotal; coupon discounts are deducted separately from the final total.
+    # Coupon reduces the product tax base; shipping remains undiscounted.
     tax = calculate_tax_and_shipping(
-        subtotal=subtotal, shipping_cost=shipping,
+        subtotal=money(subtotal - discount), shipping_cost=shipping,
         shipping_state=address.get('state_code') or address.get('state'),
         shipping_country=address.get('country_code') or address.get('country'),
         shipping_postal_code=address.get('postal_code'),
