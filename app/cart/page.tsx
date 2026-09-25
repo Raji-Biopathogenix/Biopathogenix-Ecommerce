@@ -15,7 +15,7 @@ import QtyStepper from "@/components/common/QtyStepper/qtyStepper";
 import './cart.css';
 import { CART_REMOVE_ITEM, CART_LOW_QUANTITY } from '@/components/utils/AppConstancts';
 
-import { CouponCalulations } from '@/utils/helperFunction';
+import { CouponCalulations, roundMoney } from '@/utils/helperFunction';
 import ConfirmModal from '@/components/Modal/ConfirmModal';
 
 const FALLBACK_IMAGE = "/images/shop/96-Well-PCR-Plate-1-scaled.jpg";
@@ -87,10 +87,10 @@ export default function CartPage() {
 
     const selectedCartItems = cart.filter((item) => item?.selected)
     const selectedItemsCount = selectedCartItems.length
-    const selectedSubtotal = selectedCartItems.reduce(
+    const selectedSubtotal = roundMoney(selectedCartItems.reduce(
       (sum, item) => sum + Number(item.total_price),
       0
-    )
+    ))
     const hasInvalidSelectedItems = selectedCartItems.some(
       (item) => item?.low_stock === true || item?.removeitem === true
     )
@@ -402,7 +402,7 @@ export default function CartPage() {
                   <span>CoponCode {cart[0]?.coupon_val}{cart[0]?.coupon_type != 'fixed' ? '%' : ''}</span>
                 </span>
 
-                <span className="font-semibold">${couponAmount}</span>
+                <span className="font-semibold">${couponAmount.toFixed(2)}</span>
               </div>}
 
               <p className="text-xs text-[#5b6b7b] italic">

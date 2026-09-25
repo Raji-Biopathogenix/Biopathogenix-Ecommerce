@@ -111,29 +111,29 @@ export default function OrderSummary({
 
             <div className="flex items-center justify-between">
               <span className="text-gray-500">Subtotal</span>
-              <span className="font-semibold">${(subtotal)}</span>
+              <span className="font-semibold">${formatCurrency(subtotal)}</span>
             </div>
             
             {couponAmount > 0 && <div className="flex items-center justify-between">
               <span className="flex flex-col">
                   <span>CoponCode {cart[0]?.coupon_val}{cart[0]?.coupon_type != 'fixed' ? '%' : ''}</span>
                 </span>
-              <span className="font-semibold">${(couponAmount)}</span>
+              <span className="font-semibold">${formatCurrency(couponAmount)}</span>
             </div>}
 
             <div className="flex items-center justify-between">
               <span className="text-gray-500">Shipping {freeShipping?<span className="text-xs text-green-600 font-medium">(Free Shipping)</span>:""}</span>
-              <span className="font-semibold">${(shippingCost)}</span>
+              <span className="font-semibold">${formatCurrency(shippingCost)}</span>
             </div>
             <div className="flex items-center justify-between">
               <span className="text-gray-500">Tax {taxRate ? `(${(taxRate * 100).toFixed(2)}%)` : ""}</span>
-              <span className="font-semibold">${(taxAmount)}</span>
+              <span className="font-semibold">${formatCurrency(taxAmount)}</span>
             </div>
           </div>
 
           <div className="border-t pt-4 flex items-center justify-between">
             <span className="text-sm font-semibold">Total</span>
-            <span className="text-lg font-bold text-[#0b2e59]">${(total)}</span>
+            <span className="text-lg font-bold text-[#0b2e59]">${formatCurrency(total)}</span>
           </div>
         </div>
       </div>

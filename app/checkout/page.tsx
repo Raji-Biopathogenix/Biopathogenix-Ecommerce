@@ -36,7 +36,7 @@ import {
   mapSavedAddressToAddressFields,
 } from "@/utils/addressHelpers";
 import { validateAddress, validateCheckout } from "@/utils/validateCheckout";
-import {CouponCalulations} from '@/utils/helperFunction';
+import {CouponCalulations, roundMoney} from '@/utils/helperFunction';
 
 const generateIdempotencyKey = () =>
   typeof crypto !== "undefined" && crypto.randomUUID
@@ -272,19 +272,19 @@ export default function CheckoutPage() {
 
   useEffect(() => {
     if(cart?.length > 0){
-      const productsFinalPrice = cart.reduce((sum, item) => sum + Number(item.total_price), 0);
+      const productsFinalPrice = roundMoney(cart.reduce((sum, item) => sum + Number(item.total_price), 0));
       setSubtotal(productsFinalPrice);
       if(cart?.[0]?.coupon_code){
         const couponRes = CouponCalulations(productsFinalPrice,cart?.[0]?.coupon_val, cart?.[0]?.coupon_type)
         if(couponRes){
-          setTotal(Number(couponRes?.totalAmt) + Number(taxAmount) + Number(shippingCost))
-          setCouponAmount(couponRes?.couponAmt)
+          setTotal(roundMoney(Number(couponRes?.totalAmt) + Number(taxAmount) + Number(shippingCost)))
+          setCouponAmount(roundMoney(couponRes?.couponAmt))
         }else{
-          setTotal(productsFinalPrice + Number(taxAmount) + Number(shippingCost))
+          setTotal(roundMoney(productsFinalPrice + Number(taxAmount) + Number(shippingCost)))
         }
         setCouponcode(cart?.[0]?.coupon_code)
       }else{
-        setTotal(Number(productsFinalPrice) + Number(taxAmount) + Number(shippingCost))
+        setTotal(roundMoney(Number(productsFinalPrice) + Number(taxAmount) + Number(shippingCost)))
       }
     }
   }, [cart,shippingCost,taxAmount]);
