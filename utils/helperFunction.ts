@@ -15,4 +15,6 @@ const CouponCalulations =(total: number,couponVal: number | undefined,coponType:
     }
 }
 
-export {CouponCalulations}
+const roundMoney = (value: number) => Math.round((Number(value) || 0) * 100) / 100
+
+export {CouponCalulations, roundMoney}
