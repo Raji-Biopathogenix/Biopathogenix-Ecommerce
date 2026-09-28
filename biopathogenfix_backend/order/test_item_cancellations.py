@@ -178,6 +178,67 @@ class ItemCancellationTests(TestCase):
         with self.assertRaisesMessage(ValueError, 'pending cancellation'):
             self.prepare(self.items[1])
 
+    def test_confirmed_refunds_can_continue_while_receipts_need_review(self):
+        with patch.object(service, 'Books', return_value=self.books), \
+                patch.object(service, 'refund_stripe_payment') as refund:
+            for index, item in enumerate(self.items):
+                op = self.prepare(item)
+                refund.return_value = {'id': f're_{index}', 'status': 'succeeded'}
+                self.books.post.side_effect = TimeoutError
+                with self.assertLogs(service.logger, level='ERROR'):
+                    service.process(op)
+                self.assertEqual(op.state, 'accounting_submitting')
+                service.process(self.prepare(item))
+            self.assertEqual(refund.call_count, 3)
+        self.order.refresh_from_db()
+        self.assertEqual(self.order.refund_amount, self.order.amount)
+        self.assertEqual(service.financial_summary(self.order)['remaining_total'], '0.00')
+        self.assertTrue(service.financial_summary(self.order)['accounting_pending'])
+        self.assertFalse(service.financial_summary(self.order)['refund_pending'])
+
+    def test_issued_quickbooks_refund_does_not_block_next_item(self):
+        op = self.prepare(self.items[2])
+        service.record_refund(op, {'id': 'qb-refund', 'status': 'ISSUED'})
+        op.state = 'accounting_submitting'
+        op.save()
+        next_op = self.prepare(self.items[0])
+        self.assertEqual(next_op.amount, Decimal('63.79'))
+        op.refresh_from_db()
+        self.assertEqual(op.state, 'accounting_submitting')
+
+    def test_uncertain_and_failed_refunds_still_block_next_item(self):
+        op = self.prepare()
+        for refund_status in ('pending', 'failed'):
+            with self.subTest(refund_status=refund_status):
+                service.record_refund(op, {'id': 're_1', 'status': refund_status})
+                with self.assertRaisesMessage(ValueError, 'pending cancellation'):
+                    self.prepare(self.items[1])
+
+    def test_unpaid_accounting_adjustment_still_blocks_next_item(self):
+        self.order.payment_method = 'invoice'
+        self.order.paymet_status = 'pending'
+        self.order.save()
+        self.invoice['Balance'] = 366.79
+        op = self.prepare()
+        op.state = 'accounting_submitting'
+        op.refund_status = 'not_required'
+        op.save()
+        with self.assertRaisesMessage(ValueError, 'pending cancellation'):
+            self.prepare(self.items[1])
+
+    def test_receipt_total_mismatch_reports_both_amounts(self):
+        op = self.prepare(self.items[2])
+        service.record_refund(op, {'id': 'qb-refund', 'status': 'ISSUED'})
+        op.state = 'accounting_submitting'
+        op.save()
+        self.books.get.return_value = {'Id': '36786', 'TotalAmt': 31.50,
+            'CustomerRef': {'value': 'customer'}, 'PrivateNote': f'[Item cancellation {op.key}]'}
+        with patch.object(service, 'Books', return_value=self.books), \
+                self.assertRaisesMessage(ValueError, 'QuickBooks receipt total is $31.50; the recorded item refund is $37.21'):
+            service.reconcile_existing(op, receipt_id='36786')
+        op.refresh_from_db()
+        self.assertEqual(op.state, 'accounting_submitting')
+
     def test_customer_cannot_cancel_or_preview(self):
         factory = APIRequestFactory()
         for method in ('get', 'post'):

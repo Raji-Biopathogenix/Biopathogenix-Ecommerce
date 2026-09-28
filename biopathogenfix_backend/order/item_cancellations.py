@@ -210,7 +210,12 @@ def prepare(order_id, item_id, user, notes, expected_amount):
             return existing
         if item.status or item.is_returned or item.return_status != 'none':
             raise ValueError('Only unshipped items without an active return can be cancelled.')
-        if order.item_cancellations.exclude(state='complete').exists():
+        # Paid invoices retain their original total. Once money movement is confirmed,
+        # a pending receipt/memo does not affect the frozen allocation for the next item.
+        # Unpaid invoice adjustments and uncertain refunds must still finish first.
+        if any(not (op.paid and op.refund_id and op.refund_status in ('issued', 'succeeded')
+                    and op.state in ('accounting_pending', 'accounting_submitting'))
+               for op in order.item_cancellations.exclude(state='complete')):
             raise ValueError('Resolve the pending cancellation on this order before cancelling another item.')
         tracked_refunds = sum((op.amount for op in order.item_cancellations.all()
                                if op.refund_status in ('succeeded', 'issued')), Decimal('0'))
@@ -304,11 +309,17 @@ def reconcile_existing(op, refund_id='', receipt_id=''):
             receipt = books.get('refundreceipt', identifier)
             marker = f'[Item cancellation {op.key}]'
             if (str(receipt.get('Id')) != str(identifier) or
-                    (op.accounting_id and op.accounting_id != str(identifier)) or
-                    money(receipt.get('TotalAmt')) != op.amount or
-                    str(receipt.get('CustomerRef', {}).get('value')) != op.order.qb_customer_id or
-                    marker not in receipt.get('PrivateNote', '')):
-                raise ValueError('Receipt amount, customer, or cancellation reference does not match.')
+                    (op.accounting_id and op.accounting_id != str(identifier))):
+                raise ValueError('The receipt ID does not match the saved cancellation receipt.')
+            if str(receipt.get('CustomerRef', {}).get('value')) != op.order.qb_customer_id:
+                raise ValueError('The QuickBooks receipt belongs to a different customer.')
+            if money(receipt.get('TotalAmt')) != op.amount:
+                raise ValueError(f'QuickBooks receipt total is ${money(receipt.get("TotalAmt"))}; '
+                    f'the recorded item refund is ${op.amount}. Review the receipt discount, shipping, '
+                    'and tax allocation. Do not issue another payment refund.')
+            if marker not in receipt.get('PrivateNote', ''):
+                raise ValueError('The receipt is missing this cancellation reference. '
+                    'The technical team must verify its link to this cancellation; do not issue another refund.')
             if op.refund_status not in ('issued', 'succeeded', 'not_required'):
                 raise ValueError('Confirm the actual card refund before completing accounting reconciliation.')
             op.accounting_id = str(receipt['Id'])

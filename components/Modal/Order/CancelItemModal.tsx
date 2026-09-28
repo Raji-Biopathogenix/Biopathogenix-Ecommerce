@@ -27,6 +27,9 @@ export default function CancelItemModal({ item, orderId, onClose, onSuccess }: P
   const [receiptId, setReceiptId] = useState('');
   const cancellation = preview?.cancellation;
   const reviewing = !!cancellation && cancellation.state !== 'ready';
+  const accountingOnly = !!preview?.paid && !!cancellation?.refund_id &&
+    ['issued', 'succeeded'].includes(cancellation.refund_status) &&
+    ['accounting_pending', 'accounting_submitting'].includes(cancellation.state);
 
   useEffect(() => {
     let active = true;
@@ -102,11 +105,13 @@ export default function CancelItemModal({ item, orderId, onClose, onSuccess }: P
         <p className="text-xs leading-relaxed text-gray-500">The coupon, shipping, and tax are allocated using this item&apos;s share of the original product subtotal. The remaining items stay active.</p>
       </>}
       {reviewing && <div className="mt-4 space-y-3 text-sm">
-        <p>Cancellation status: <strong>{cancellation.state.replaceAll('_', ' ')}</strong></p>
+        <p>Cancellation status: <strong>{accountingOnly ? 'Item cancelled; accounting review pending' : cancellation.state.replaceAll('_', ' ')}</strong></p>
         <p>Refund status: <strong>{cancellation.refund_status || 'Awaiting confirmation'}</strong></p>
         {cancellation.state !== 'complete' && <>
-          <p>Verify the existing refund and QuickBooks receipt to finish this cancellation and unlock the remaining items.</p>
-          {cancellation.error && <p className="text-amber-800">{cancellation.error}</p>}
+          <p>{accountingOnly
+            ? 'The payment provider confirmed this refund. You can close this dialog and cancel another item. The QuickBooks accounting record still needs verification; do not refund this item again.'
+            : 'Verify the existing refund and QuickBooks record to finish this cancellation.'}</p>
+          {cancellation.error && !accountingOnly && <p className="text-amber-800">{cancellation.error}</p>}
           {preview.paid && <>
             <label className="block" htmlFor="existing-refund-id">Existing payment refund ID</label>
             <input id="existing-refund-id" className="w-full rounded-lg border p-2" value={refundId} onChange={event => setRefundId(event.target.value)} disabled={submitting} maxLength={100} />
