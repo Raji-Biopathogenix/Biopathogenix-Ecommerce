@@ -274,7 +274,7 @@ class ItemCancellationTests(TestCase):
                 self.assertEqual(op.state, 'complete')
             self.assertEqual(refund.call_count, 3)
         self.order.refresh_from_db()
-        self.assertEqual(self.order.status, 'cancelled')
+        self.assertEqual(self.order.status, 'refunded')
         self.assertEqual(self.order.refund_amount, self.order.amount)
         self.assertEqual(service.financial_summary(self.order)['remaining_total'], '0.00')
         self.assertEqual(packing_items(self.order), [])
@@ -452,3 +452,27 @@ class ItemCancellationTests(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.data['data']['state'], 'complete')
         refund.assert_not_called()
+
+    def test_token_refresh_failure_names_the_cause_without_raw_response(self):
+        def failing_token():
+            try:
+                raise Exception('QB token refresh HTTP 400: {"error":"invalid_grant","secret":"x"}')
+            except Exception:
+                raise Exception('Payment service temporarily unavailable. Please try again shortly.')
+        config = Mock(realm_id='realm')
+        with patch.object(service.QBConfig, 'get', return_value=config), \
+                patch.object(service, 'get_valid_qb_token', side_effect=failing_token), \
+                self.assertRaisesMessage(service.QuickBooksError, 'rejected the saved refresh token') as raised:
+            service.Books(self.order)
+        self.assertNotIn('secret', str(raised.exception))
+
+    def test_cancelling_every_item_with_confirmed_refunds_marks_order_refunded(self):
+        for index, item in enumerate(self.items):
+            op = self.prepare(item)
+            self.order.refresh_from_db()
+            self.assertEqual(self.order.status, 'cancelled' if index == 2 else 'confirmed')
+            service.record_refund(op, {'id': f're_{index}', 'status': 'succeeded'})
+        self.order.refresh_from_db()
+        self.assertEqual(self.order.status, 'refunded')
+        self.assertEqual(self.order.refund_amount, self.order.amount)
+        self.assertFalse(self.order.is_refundable)

@@ -96,6 +96,26 @@ def qb_request(method, url, **kwargs):
     return response
 
 
+def token_failure_reason(exc):
+    """Classify a token refresh failure without exposing the raw provider response.
+
+    get_valid_qb_token re-raises a customer-safe message; the original error is its context.
+    """
+    cause = exc.__cause__ or exc.__context__ or exc
+    text = f'{exc} {cause}'
+    if 'QB_REFRESH_EXPIRED' in text:
+        return 'the saved QuickBooks authorization has expired.'
+    if 'invalid_grant' in text:
+        return 'QuickBooks rejected the saved refresh token (expired, revoked, or replaced by a newer token).'
+    if 'invalid_client' in text:
+        return 'QuickBooks rejected the app client ID or secret.'
+    if 'not configured' in text:
+        return 'QuickBooks is not configured.'
+    if isinstance(cause, requests.RequestException):
+        return 'the QuickBooks token service could not be reached.'
+    return 'the token refresh failed (see the server log entry "QB token refresh error").'
+
+
 class Books:
     def __init__(self, order):
         config = QBConfig.get()
@@ -105,8 +125,9 @@ class Books:
         try:
             self.token = get_valid_qb_token()
         except Exception as exc:
-            raise QuickBooksError('Unable to authorize the QuickBooks connection. An administrator '
-                                  'must check or reconnect QuickBooks before retrying.') from exc
+            raise QuickBooksError('Unable to authorize the QuickBooks connection: '
+                                  f'{token_failure_reason(exc)} Update it in Django Admin '
+                                  '(Payments > QuickBooks Config), then retry.') from exc
         self.base = f'{get_qb_accounting_base_url(config)}/v3/company/{order.qb_realm_id}'
         self.headers = {'Authorization': f'Bearer {self.token}', 'Accept': 'application/json'}
 
@@ -303,6 +324,10 @@ def record_refund(op, refund):
         Order.objects.filter(pk=op.order_id).update(refund_amount=confirmed,
             refund_status=status, refunded_at=timezone.now(), refunded_by=op.created_by,
             refund_reference=op.refund_id, is_partially_refunded=confirmed < op.order.amount)
+        # Every item cancelled and every cent returned: the order is refunded, not merely cancelled.
+        if money(confirmed) == money(op.order.amount):
+            Order.objects.filter(pk=op.order_id, status='cancelled').exclude(
+                items__is_cancelled=False).update(status='refunded')
 
 
 def retrieve_refund(op, books, refund_id):

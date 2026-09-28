@@ -1,3 +1,5 @@
+from decimal import Decimal
+
 from rest_framework import serializers
 
 from .models import Order, OrderItem, OrderStatusUpdate,Shipment
@@ -341,7 +343,7 @@ class CancelOrderSerializer(serializers.Serializer):
 
 
 class RefundOrderSerializer(serializers.Serializer):
-    refund_amount = serializers.DecimalField(max_digits=10,decimal_places=2,min_value=0.01)
+    refund_amount = serializers.DecimalField(max_digits=10,decimal_places=2,min_value=Decimal('0.01'))
     refund_notes     = serializers.CharField(required=False,allow_blank=True,max_length=500)
     refund_reference = serializers.CharField(required=False,allow_blank=True,max_length=100,help_text="Payment gateway reference / transaction ID"
     )
