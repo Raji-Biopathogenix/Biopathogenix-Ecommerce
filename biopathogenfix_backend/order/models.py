@@ -162,9 +162,10 @@ class Order(models.Model):
 
     @property
     def is_refundable(self):
-        print("Checking refund eligibility for order", self.id, "with status", self.status, "and refund amount", self.refund_amount,"===>",self.status in ('returned', 'partially_returned','cancelled') and self.refund_amount == 0.00," and returning ", self.status in ('returned', 'partially_returned','cancelled'))
-        
-        return self.status in ('returned', 'partially_returned','cancelled') 
+        # Item cancellations refund their own share; a whole-order refund would pay it twice.
+        if self.pk and self.item_cancellations.exists():
+            return False
+        return self.status in ('returned', 'partially_returned','cancelled')
     # and self.refund_amount == 0.00
 
 
