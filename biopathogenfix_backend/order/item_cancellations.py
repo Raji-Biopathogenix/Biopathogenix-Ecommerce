@@ -68,20 +68,59 @@ def financial_summary(order):
     }
 
 
+class QuickBooksError(ValueError):
+    """A QuickBooks call failed; the message is shown to order admins instead of a generic error."""
+
+
+def qb_request(method, url, **kwargs):
+    try:
+        response = requests.request(method, url, **kwargs)
+    except requests.RequestException as exc:
+        raise QuickBooksError(f'QuickBooks did not respond ({exc.__class__.__name__}). '
+                              'Check QuickBooks before retrying; do not issue another refund.') from exc
+    if not response.ok:
+        if response.status_code in (401, 403):
+            raise QuickBooksError('QuickBooks denied access. An administrator must check the '
+                                  'QuickBooks connection and accounting permissions before retrying. '
+                                  'Do not issue another refund for an already refunded item.')
+        if response.status_code == 404:
+            raise QuickBooksError('QuickBooks could not find the requested record. Check its ID, '
+                                  'the connected company, and the sandbox/production environment.')
+        try:
+            errors = response.json().get('Fault', {}).get('Error', [])
+            detail = '; '.join(filter(None, (f"{e.get('Message', '')} {e.get('Detail', '')}".strip() for e in errors)))
+        except (ValueError, AttributeError, TypeError):
+            detail = ''
+        raise QuickBooksError(f'QuickBooks returned HTTP {response.status_code}: '
+                              f'{detail[:500] or "The accounting request failed. Check the QuickBooks connection."}')
+    return response
+
+
 class Books:
     def __init__(self, order):
         config = QBConfig.get()
         if not order.qb_invoice_id or not order.qb_customer_id or str(config.realm_id) != order.qb_realm_id:
             raise ValueError('A matching linked QuickBooks invoice is required before cancelling an item.')
         self.order = order
-        self.token = get_valid_qb_token()
+        try:
+            self.token = get_valid_qb_token()
+        except Exception as exc:
+            raise QuickBooksError('Unable to authorize the QuickBooks connection. An administrator '
+                                  'must check or reconnect QuickBooks before retrying.') from exc
         self.base = f'{get_qb_accounting_base_url(config)}/v3/company/{order.qb_realm_id}'
         self.headers = {'Authorization': f'Bearer {self.token}', 'Accept': 'application/json'}
 
     def get(self, entity, identifier):
-        response = requests.get(f'{self.base}/{entity}/{identifier}', headers=self.headers, timeout=20)
-        response.raise_for_status()
-        return response.json()[entity.capitalize() if entity != 'refundreceipt' else 'RefundReceipt']
+        response = qb_request('GET', f'{self.base}/{entity}/{identifier}', headers=self.headers, timeout=20)
+        name = entity.capitalize() if entity != 'refundreceipt' else 'RefundReceipt'
+        try:
+            record = response.json().get(name)
+            if not isinstance(record, dict) or not record.get('Id'):
+                raise ValueError('Missing record')
+        except (ValueError, AttributeError) as exc:
+            raise QuickBooksError(f'QuickBooks did not return a valid {name} record. '
+                                  'Check the record ID and connected company.') from exc
+        return record
 
     def invoice(self):
         invoice = self.get('invoice', self.order.qb_invoice_id)
@@ -91,9 +130,8 @@ class Books:
         return invoice
 
     def post(self, entity, payload, key):
-        response = requests.post(f'{self.base}/{entity}', headers=self.headers,
-                                 params={'requestid': str(key)}, json=payload, timeout=30)
-        response.raise_for_status()
+        response = qb_request('POST', f'{self.base}/{entity}', headers=self.headers,
+                              params={'requestid': str(key)}, json=payload, timeout=30)
         data = response.json()
         name = 'RefundReceipt' if entity == 'refundreceipt' else 'Invoice'
         if not data.get(name, {}).get('Id'):
@@ -275,10 +313,9 @@ def retrieve_refund(op, books, refund_id):
         return {'id': refund.id, 'status': refund.status}
     from payments.utils import get_qb_base_url
     config = QBConfig.get()
-    response = requests.get(
+    response = qb_request('GET',
         f'{get_qb_base_url(config)}/quickbooks/v4/payments/charges/{op.order.transaction_id}/refunds/{refund_id}',
         headers={**books.headers, 'Company-Id': op.order.qb_realm_id}, timeout=20)
-    response.raise_for_status()
     refund = response.json()
     if str(refund.get('id')) != refund_id or money(refund.get('amount')) != op.amount:
         raise ValueError('Refund does not match this original payment and item amount.')
@@ -387,10 +424,12 @@ def process(op):
             op.state = 'complete'
             op.error = ''
             op.save(update_fields=['state', 'error', 'updated_at'])
-    except Exception:
+    except Exception as exc:
         logger.exception('Item cancellation %s requires reconciliation', op.pk)
         # Provider timeouts may occur after a refund succeeds. Never retry money movement blindly.
-        op.error = 'The cancellation is recorded. Refund or accounting confirmation requires review; do not issue another refund.'
+        detail = str(exc)[:500] if isinstance(exc, ValueError) else 'Check the backend cancellation log for the failed step.'
+        op.error = ('The cancellation is recorded. Refund or accounting confirmation requires review; '
+                    f'do not issue another refund. {detail}')
         op.save(update_fields=['error', 'updated_at'])
     return op
 

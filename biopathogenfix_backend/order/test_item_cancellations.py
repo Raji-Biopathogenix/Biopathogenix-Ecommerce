@@ -398,3 +398,57 @@ class ItemCancellationTests(TestCase):
         op.refresh_from_db()
         self.assertEqual(op.state, 'accounting_submitting')
         self.assertEqual(op.refund_id, '')
+
+    def test_quickbooks_http_error_reports_fault_to_admin(self):
+        response = Mock(ok=False, status_code=400, reason='Bad Request', text='')
+        response.json.return_value = {'Fault': {'Error': [{'Message': 'Object Not Found',
+            'Detail': 'Object Not Found : Something you are trying to use has been made inactive'}]}}
+        with patch.object(service.requests, 'request', return_value=response), \
+                self.assertRaisesMessage(service.QuickBooksError, 'HTTP 400') as raised:
+            service.qb_request('GET', 'https://qb/v3/company/realm/refundreceipt/36786')
+        self.assertIn('Object Not Found', str(raised.exception))
+        self.assertIsInstance(raised.exception, ValueError)
+
+    def test_quickbooks_access_error_does_not_expose_raw_response(self):
+        response = Mock(ok=False, status_code=401, text='private response content')
+        with patch.object(service.requests, 'request', return_value=response), \
+                self.assertRaisesMessage(service.QuickBooksError, 'QuickBooks denied access') as raised:
+            service.qb_request('GET', 'https://qb/v3/company/realm/invoice/1')
+        self.assertNotIn('private response content', str(raised.exception))
+
+    def test_missing_quickbooks_invoice_has_actionable_error(self):
+        books = service.Books.__new__(service.Books)
+        books.base = 'https://qb/v3/company/realm'
+        books.headers = {}
+        response = Mock()
+        response.json.return_value = {'Fault': {}}
+        with patch.object(service, 'qb_request', return_value=response), \
+                self.assertRaisesMessage(service.QuickBooksError, 'valid Invoice record'):
+            books.get('invoice', '1')
+
+    def test_unknown_server_error_returns_log_reference_not_exception_details(self):
+        request = APIRequestFactory().post('/cancel/', {'cancel_notes': 'Requested', 'expected_amount': '63.79'}, format='json')
+        force_authenticate(request, user=self.admin)
+        with patch.object(service, 'prepare', side_effect=RuntimeError('private database details')), \
+                self.assertLogs('order.views', level='ERROR') as logs:
+            response = CancelOrderItemView.as_view()(request, order_id=self.order.id, item_id=self.items[0].id)
+        self.assertEqual(response.status_code, 503)
+        reference = response.data['error_reference']
+        self.assertIn(reference, response.data['error'])
+        self.assertIn(reference, '\n'.join(logs.output))
+        self.assertNotIn('private database details', response.data['error'])
+
+    def test_notification_setup_failure_does_not_report_refund_as_failed(self):
+        op = self.prepare()
+        op.state = 'complete'
+        op.refund_status = 'succeeded'
+        op.save()
+        request = APIRequestFactory().post('/cancel/', {'cancel_notes': 'Requested', 'expected_amount': '63.79'}, format='json')
+        force_authenticate(request, user=self.admin)
+        with patch.object(service, 'notify_customer', side_effect=RuntimeError('Email configuration')), \
+                patch.object(service, 'refund_stripe_payment') as refund, \
+                self.assertLogs('order.views', level='ERROR'):
+            response = CancelOrderItemView.as_view()(request, order_id=self.order.id, item_id=op.item_id)
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.data['data']['state'], 'complete')
+        refund.assert_not_called()
