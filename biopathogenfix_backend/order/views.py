@@ -1174,12 +1174,20 @@ class CancelOrderItemView(APIView):
             else:
                 op = prepare(order_id, item_id, request.user, notes, request.data.get('expected_amount'))
             op = process(op)
-            notify_customer(op)
         except ValueError as exc:
             return Response({'error': str(exc)}, status=400)
         except Exception:
-            logger.exception('Unable to prepare item cancellation for order %s', order_id)
-            return Response({'error': 'Unable to verify this cancellation. Check the order and payment status before retrying.'}, status=503)
+            reference = uuid.uuid4().hex[:12]
+            logger.exception('Item cancellation error %s for order %s item %s action %s',
+                             reference, order_id, item_id, action)
+            return Response({'error': 'The server could not verify this cancellation. '
+                                      f'Ask the technical team to check backend log reference {reference}. '
+                                      'Check the existing refund status before retrying.',
+                             'error_reference': reference}, status=503)
+        try:
+            notify_customer(op)
+        except Exception:
+            logger.exception('Notification failed after recording item cancellation %s', op.pk)
         return Response({'status': 'success', 'data': {
             'item_id': item_id, 'product_name': op.item.product_name,
             'cancel_notes': op.notes, 'cancelled_at': op.item.cancelled_at,
