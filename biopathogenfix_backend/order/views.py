@@ -1141,9 +1141,13 @@ class CancelOrderItemView(APIView):
         order = get_object_or_404(Order, pk=order_id)
         item = get_object_or_404(OrderItem, pk=item_id, order=order)
         try:
-            quote = cancellation_quote(order, item)
+            op = getattr(item, 'cancellation', None)
+            quote = op.breakdown if op else cancellation_quote(order, item)
             return Response({'status': 'success', 'data': {
-                **quote, 'paid': order.paymet_status == 'success',
+                **quote, 'paid': op.paid if op else order.paymet_status == 'success',
+                'cancellation': ({'state': op.state, 'refund_status': op.refund_status,
+                    'refund_id': op.refund_id, 'receipt_id': op.accounting_id if op.paid else '',
+                    'error': op.error} if op else None),
                 'remaining_total': str(Decimal(financial_summary(order)['remaining_total']) - Decimal(quote['amount']))
                     if not hasattr(item, 'cancellation') else financial_summary(order)['remaining_total'],
             }})
@@ -1151,13 +1155,24 @@ class CancelOrderItemView(APIView):
             return Response({'error': str(exc)}, status=400)
 
     def post(self, request, order_id, item_id):
-        from .item_cancellations import prepare, process, notify_customer, financial_summary
-        get_object_or_404(OrderItem, pk=item_id, order_id=order_id)
+        from .item_cancellations import prepare, process, notify_customer, financial_summary, reconcile_existing
+        item = get_object_or_404(OrderItem, pk=item_id, order_id=order_id)
+        action = request.data.get('action', 'cancel')
+        if action not in ('cancel', 'reconcile'):
+            return Response({'error': 'Unknown cancellation action.'}, status=400)
         notes = str(request.data.get('cancel_notes', '')).strip()
-        if not notes or len(notes) > 500:
+        if action == 'cancel' and (not notes or len(notes) > 500):
             return Response({'error': 'Enter a cancellation reason of up to 500 characters.'}, status=400)
         try:
-            op = prepare(order_id, item_id, request.user, notes, request.data.get('expected_amount'))
+            if action == 'reconcile':
+                op = getattr(item, 'cancellation', None)
+                if not op:
+                    raise ValueError('No recorded cancellation exists for this item.')
+                op = reconcile_existing(op,
+                    str(request.data.get('refund_id', '')).strip(),
+                    str(request.data.get('receipt_id', '')).strip())
+            else:
+                op = prepare(order_id, item_id, request.user, notes, request.data.get('expected_amount'))
             op = process(op)
             notify_customer(op)
         except ValueError as exc:
