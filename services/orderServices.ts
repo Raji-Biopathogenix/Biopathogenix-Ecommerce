@@ -95,13 +95,18 @@ export const OrderServices = {
   },
 
   
-  async previewItemCancellation(orderId: number, itemId: number): Promise<{data: {subtotal: string; discount: string; shipping: string; tax: string; amount: string; paid: boolean; remaining_total: string}}> {
+  async previewItemCancellation(orderId: number, itemId: number): Promise<{data: {subtotal: string; discount: string; shipping: string; tax: string; amount: string; paid: boolean; remaining_total: string; cancellation: {state: string; refund_status: string; refund_id: string; receipt_id: string; error: string} | null}}> {
     const response = await AxiosInstance.get(`/${orderId}/items/${itemId}/cancel/`);
     return response.data;
   },
 
   async CancelOrderItem(orderId:number,orderItem:number,payload:{"cancel_notes":string; expected_amount: string}): Promise<CancelOrderItemResponse>{
     const response = await AxiosInstance.post(`/${orderId}/items/${orderItem}/cancel/`,payload);
+    return response.data;
+  },
+
+  async reconcileItemCancellation(orderId: number, itemId: number, payload: {refund_id: string; receipt_id: string}): Promise<CancelOrderItemResponse> {
+    const response = await AxiosInstance.post(`/${orderId}/items/${itemId}/cancel/`, { ...payload, action: 'reconcile' });
     return response.data;
   },
 

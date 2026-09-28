@@ -275,3 +275,65 @@ class ItemCancellationTests(TestCase):
             result = CancelOrderItemView.as_view()(request, order_id=self.order.id, item_id=self.items[0].id)
         self.assertEqual(result.status_code, 400)
         refund.assert_not_called()
+
+    def test_admin_can_reconcile_receipt_then_cancel_next_item(self):
+        op = self.prepare()
+        service.record_refund(op, {'id': 're_1', 'status': 'succeeded'})
+        op.state = 'accounting_submitting'
+        op.save()
+        self.books.get.return_value = {'Id': '36786', 'TotalAmt': 63.79,
+            'CustomerRef': {'value': 'customer'}, 'PrivateNote': f'[Item cancellation {op.key}]'}
+        self.books.post.return_value = self.invoice
+        request = APIRequestFactory().post('/cancel/', {'action': 'reconcile', 'receipt_id': '36786'}, format='json')
+        force_authenticate(request, user=self.admin)
+        with patch.object(service, 'Books', return_value=self.books), patch.object(service, 'refund_stripe_payment') as refund:
+            response = CancelOrderItemView.as_view()(request, order_id=self.order.id, item_id=op.item_id)
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.data['data']['state'], 'complete')
+        refund.assert_not_called()
+        self.assertEqual([call.args[0] for call in self.books.post.call_args_list], ['invoice'])
+        self.books.get.return_value = {'DepositToAccountRef': {'value': 'bank'}}
+        self.assertEqual(self.prepare(self.items[1]).state, 'ready')
+
+    def test_reconciliation_cannot_start_a_new_refund(self):
+        op = self.prepare()
+        request = APIRequestFactory().post('/cancel/', {'action': 'reconcile'}, format='json')
+        force_authenticate(request, user=self.admin)
+        with patch.object(service, 'refund_stripe_payment') as refund:
+            response = CancelOrderItemView.as_view()(request, order_id=self.order.id, item_id=op.item_id)
+        self.assertEqual(response.status_code, 400)
+        refund.assert_not_called()
+
+    def test_customer_cannot_reconcile(self):
+        request = APIRequestFactory().post('/cancel/', {'action': 'reconcile', 'receipt_id': '36786'}, format='json')
+        force_authenticate(request, user=self.user)
+        response = CancelOrderItemView.as_view()(request, order_id=self.order.id, item_id=self.items[0].id)
+        self.assertEqual(response.status_code, 403)
+
+    def test_preview_includes_saved_recovery_references(self):
+        op = self.prepare()
+        op.state = 'accounting_submitting'
+        op.refund_id = 're_1'
+        op.refund_status = 'succeeded'
+        op.accounting_id = '36786'
+        op.save()
+        request = APIRequestFactory().get('/cancel/')
+        force_authenticate(request, user=self.admin)
+        response = CancelOrderItemView.as_view()(request, order_id=self.order.id, item_id=op.item_id)
+        self.assertEqual(response.data['data']['cancellation']['receipt_id'], '36786')
+        self.assertEqual(response.data['data']['cancellation']['refund_id'], 're_1')
+        self.assertEqual(response.data['data']['remaining_total'], '303.00')
+
+    def test_wrong_receipt_does_not_advance_uncertain_accounting(self):
+        op = self.prepare()
+        op.state = 'accounting_submitting'
+        op.save()
+        self.books.get.return_value = {'Id': 'wrong', 'TotalAmt': 63.79,
+            'CustomerRef': {'value': 'customer'}, 'PrivateNote': f'[Item cancellation {op.key}]'}
+        with patch.object(service, 'Books', return_value=self.books), \
+                patch.object(service, 'retrieve_refund', return_value={'id': 're_1', 'status': 'succeeded'}), \
+                self.assertRaises(ValueError):
+            service.reconcile_existing(op, refund_id='re_1', receipt_id='36786')
+        op.refresh_from_db()
+        self.assertEqual(op.state, 'accounting_submitting')
+        self.assertEqual(op.refund_id, '')

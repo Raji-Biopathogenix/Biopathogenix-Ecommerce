@@ -280,23 +280,32 @@ def retrieve_refund(op, books, refund_id):
     return refund
 
 
+@transaction.atomic
 def reconcile_existing(op, refund_id='', receipt_id=''):
     """Verify externally completed steps; never create another refund on reconciliation."""
+    if op.state == 'complete':
+        return op
+    if op.state == 'ready':
+        raise ValueError('Confirm this cancellation before reconciling provider records.')
+    accounting_uncertain = op.state == 'accounting_submitting'
+    if accounting_uncertain and op.paid and not (receipt_id or op.accounting_id):
+        raise ValueError('Supply the existing QuickBooks refund receipt ID after reviewing the accounting record.')
     books = Books(op.order)
     if refund_id:
         if not op.paid or (op.refund_id and op.refund_id != refund_id):
             raise ValueError('Refund reference conflicts with the saved cancellation.')
-        refund = retrieve_refund(op, books, refund_id)
         if op.refund_status not in ('issued', 'succeeded'):
-            record_refund(op, refund)
-    if op.state == 'accounting_submitting' or receipt_id:
+            record_refund(op, retrieve_refund(op, books, refund_id))
+    if accounting_uncertain or receipt_id:
         if op.paid:
             identifier = receipt_id or op.accounting_id
             if not identifier:
                 raise ValueError('Supply the existing QuickBooks refund receipt ID after reviewing the accounting record.')
             receipt = books.get('refundreceipt', identifier)
             marker = f'[Item cancellation {op.key}]'
-            if (money(receipt.get('TotalAmt')) != op.amount or
+            if (str(receipt.get('Id')) != str(identifier) or
+                    (op.accounting_id and op.accounting_id != str(identifier)) or
+                    money(receipt.get('TotalAmt')) != op.amount or
                     str(receipt.get('CustomerRef', {}).get('value')) != op.order.qb_customer_id or
                     marker not in receipt.get('PrivateNote', '')):
                 raise ValueError('Receipt amount, customer, or cancellation reference does not match.')
