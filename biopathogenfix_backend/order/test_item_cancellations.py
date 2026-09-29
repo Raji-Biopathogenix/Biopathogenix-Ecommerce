@@ -66,6 +66,83 @@ class ItemCancellationTests(TestCase):
         self.assertEqual(receipt['TxnTaxDetail']['TotalTax'], 3.61)
         self.assertEqual(receipt['DepositToAccountRef'], {'value': 'bank'})
 
+    def test_shipping_tax_is_included_in_all_three_refund_totals(self):
+        for item, expected in zip(self.items, ('63.79', '265.79', '37.21')):
+            with self.subTest(item=item.sku_code):
+                quote = service.cancellation_quote(self.order, item)
+                _, payload = service.preflight(self.order, item, quote, self.books)
+                self.assertTrue(payload['ShippingTaxIncludedInTotalTax'])
+                total = sum((service.money(line['Amount']) for line in payload['Line']),
+                            service.money(payload['TxnTaxDetail']['TotalTax']))
+                self.assertEqual(total, Decimal(expected))
+
+    def test_repair_existing_shipping_tax_never_issues_another_refund(self):
+        op = self.prepare()
+        service.record_refund(op, {'id': 're_1', 'status': 'succeeded'})
+        op.state = 'accounting_submitting'
+        op.accounting_id = 'receipt'
+        op.save()
+        receipt = dict(deepcopy(op.accounting_payload), Id='receipt', SyncToken='2', TotalAmt=64.16)
+        receipt.pop('ShippingTaxIncludedInTotalTax')
+        corrected = dict(receipt, TotalAmt=63.79, ShippingTaxIncludedInTotalTax=True)
+        self.books.get.side_effect = [receipt, corrected]
+        self.books.post.side_effect = [corrected, self.invoice]
+        with patch.object(service, 'Books', return_value=self.books), \
+                patch.object(service, 'retrieve_refund', return_value={'status': 'succeeded'}), \
+                patch.object(service, 'refund_stripe_payment') as stripe, \
+                patch.object(service, 'refund_qb_charge') as qb:
+            service.reconcile_existing(op, repair_shipping_tax=True)
+            service.process(op)
+            stripe.assert_not_called()
+            qb.assert_not_called()
+        self.assertEqual(op.state, 'complete')
+        payload = self.books.post.call_args_list[0].args[1]
+        self.assertEqual(payload['Id'], 'receipt')
+        self.assertTrue(payload['sparse'])
+        self.assertTrue(payload['ShippingTaxIncludedInTotalTax'])
+        self.assertEqual(payload['TxnTaxDetail']['TotalTax'], 3.61)
+        self.assertNotIn('Line', payload)
+
+    def test_shipping_tax_repair_rejects_changed_receipt_lines(self):
+        op = self.prepare()
+        service.record_refund(op, {'id': 're_1', 'status': 'succeeded'})
+        op.state = 'accounting_submitting'
+        op.accounting_id = 'receipt'
+        op.save()
+        receipt = dict(deepcopy(op.accounting_payload), Id='receipt', SyncToken='2', TotalAmt=64.16)
+        receipt['Line'][0]['Amount'] = 55
+        self.books.get.return_value = receipt
+        with patch.object(service, 'Books', return_value=self.books), \
+                patch.object(service, 'retrieve_refund', return_value={'status': 'succeeded'}), \
+                self.assertRaisesMessage(ValueError, 'Receipt lines differ'):
+            service.reconcile_existing(op, repair_shipping_tax=True)
+        self.books.post.assert_not_called()
+
+    def test_shipping_tax_repair_requires_provider_confirmation_and_readback(self):
+        op = self.prepare()
+        service.record_refund(op, {'id': 're_1', 'status': 'succeeded'})
+        receipt = dict(deepcopy(op.accounting_payload), Id='receipt', SyncToken='2', TotalAmt=64.16)
+        with patch.object(service, 'retrieve_refund', return_value={'status': 'pending'}), \
+                self.assertRaisesMessage(ValueError, 'provider has not confirmed'):
+            service.repair_receipt_shipping_tax(op, self.books, receipt)
+        self.books.post.assert_not_called()
+        self.books.get.return_value = receipt
+        with patch.object(service, 'retrieve_refund', return_value={'status': 'succeeded'}), \
+                self.assertRaisesMessage(ValueError, 'tax repair is not confirmed'):
+            service.repair_receipt_shipping_tax(op, self.books, receipt)
+        self.assertNotEqual(op.state, 'complete')
+
+    def test_saved_payload_before_fix_gets_shipping_tax_flag_on_first_submission(self):
+        op = self.prepare()
+        op.accounting_payload.pop('ShippingTaxIncludedInTotalTax')
+        op.save()
+        self.books.post.side_effect = [{'Id': 'receipt', 'TotalAmt': 63.79}, self.invoice]
+        with patch.object(service, 'Books', return_value=self.books), \
+                patch.object(service, 'refund_stripe_payment', return_value={'id': 're_1', 'status': 'succeeded'}):
+            service.process(op)
+        self.assertTrue(self.books.post.call_args_list[0].args[1]['ShippingTaxIncludedInTotalTax'])
+        self.assertEqual(op.state, 'complete')
+
     def test_unpaid_invoice_reduction_does_not_refund_card(self):
         self.order.payment_method = 'invoice'
         self.order.paymet_status = 'pending'
@@ -78,6 +155,7 @@ class ItemCancellationTests(TestCase):
         self.assertEqual(payload['Line'][-1]['Amount'], 29.35)
         self.assertEqual(payload['Line'][-2]['Amount'], 28.5)
         self.assertEqual(payload['TxnTaxDetail']['TotalTax'], 17.15)
+        self.assertTrue(payload['ShippingTaxIncludedInTotalTax'])
         self.books.post.return_value = {'Id': 'invoice', 'TotalAmt': 303.00}
         with patch.object(service, 'Books', return_value=self.books), patch.object(service, 'refund_stripe_payment') as refund:
             service.process(op)
