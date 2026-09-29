@@ -11,14 +11,19 @@ class Command(BaseCommand):
         parser.add_argument('--refund-id', default='')
         parser.add_argument('--receipt-id', default='')
         parser.add_argument('--resume', action='store_true')
+        parser.add_argument('--repair-shipping-tax', action='store_true',
+                            help='With --resume, correct tax on an existing verified refund receipt.')
 
     def handle(self, *args, **options):
         try:
+            if options['repair_shipping_tax'] and not options['resume']:
+                raise CommandError('--repair-shipping-tax requires --resume.')
             op = ItemCancellation.objects.select_related('order', 'item').get(pk=options['operation_id'])
             if options['resume']:
                 if op.state == 'ready':
                     raise CommandError('Confirm this cancellation through the admin item dialog first.')
-                op = reconcile_existing(op, options['refund_id'], options['receipt_id'])
+                op = reconcile_existing(op, options['refund_id'], options['receipt_id'],
+                                        repair_shipping_tax=options['repair_shipping_tax'])
                 op = process(op)
                 notify_customer(op)
             self.stdout.write(f'Cancellation {op.pk}: state={op.state}, amount=${op.amount}, '

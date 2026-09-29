@@ -223,7 +223,9 @@ def preflight(order, item, breakdown, books):
                    'PrivateNote': note, 'CustomerMemo': {'value': note},
                    'Line': [{'Amount': float(product_net), 'Description': note + '; after allocated coupon',
                              'DetailType': 'SalesItemLineDetail', 'SalesItemLineDetail': detail}],
-                   'TxnTaxDetail': tax_detail}
+                   'TxnTaxDetail': tax_detail,
+                   # TotalTax is the entire allocated tax, including shipping.
+                   'ShippingTaxIncludedInTotalTax': True}
         if money(breakdown['shipping']):
             shipping_lines = [row for row in lines if row.get('SalesItemLineDetail', {}).get('ItemRef', {}).get('value') == 'SHIPPING_ITEM_ID']
             if len(shipping_lines) != 1:
@@ -257,6 +259,7 @@ def preflight(order, item, breakdown, books):
         revised.append(line)
     return paid, {'Id': invoice['Id'], 'SyncToken': invoice['SyncToken'], 'sparse': True,
                   'Line': revised, 'TxnTaxDetail': tax_detail,
+                  'ShippingTaxIncludedInTotalTax': True,
                   'CustomerMemo': {'value': invoice.get('CustomerMemo', {}).get('value', '') + '\n' + note}}
 
 
@@ -348,7 +351,7 @@ def retrieve_refund(op, books, refund_id):
 
 
 @transaction.atomic
-def reconcile_existing(op, refund_id='', receipt_id=''):
+def reconcile_existing(op, refund_id='', receipt_id='', repair_shipping_tax=False):
     """Verify externally completed steps; never create another refund on reconciliation."""
     if op.state == 'complete':
         return op
@@ -375,6 +378,11 @@ def reconcile_existing(op, refund_id='', receipt_id=''):
                 raise ValueError('The receipt ID does not match the saved cancellation receipt.')
             if str(receipt.get('CustomerRef', {}).get('value')) != op.order.qb_customer_id:
                 raise ValueError('The QuickBooks receipt belongs to a different customer.')
+            if marker not in receipt.get('PrivateNote', ''):
+                raise ValueError('The receipt is missing this cancellation reference. '
+                    'The technical team must verify its link to this cancellation; do not issue another refund.')
+            if repair_shipping_tax and money(receipt.get('TotalAmt')) != op.amount:
+                receipt = repair_receipt_shipping_tax(op, books, receipt)
             if money(receipt.get('TotalAmt')) != op.amount:
                 raise ValueError(f'QuickBooks receipt total is ${money(receipt.get("TotalAmt"))}; '
                     f'the recorded item refund is ${op.amount}. Review the receipt discount, shipping, '
@@ -396,6 +404,42 @@ def reconcile_existing(op, refund_id='', receipt_id=''):
         op.error = ''
         op.save(update_fields=['accounting_id', 'state', 'error', 'updated_at'])
     return op
+
+
+def repair_receipt_shipping_tax(op, books, receipt):
+    """Update only tax on a verified existing receipt; never call a payment refund API."""
+    if not op.refund_id or op.refund_status not in ('issued', 'succeeded'):
+        raise ValueError('Confirm the original payment refund before repairing accounting.')
+    refund = retrieve_refund(op, books, op.refund_id)
+    if str(refund.get('status', '')).lower() not in ('issued', 'succeeded'):
+        raise ValueError('The payment provider has not confirmed this refund.')
+    expected_lines = op.accounting_payload.get('Line', [])
+    actual_lines = [line for line in receipt.get('Line', [])
+                    if line.get('DetailType') != 'SubTotalLineDetail']
+    def signature(line):
+        detail = line.get('SalesItemLineDetail', {})
+        return (line.get('DetailType'), str(detail.get('ItemRef', {}).get('value')),
+                money(line.get('Amount')), Decimal(str(detail.get('Qty', 0))))
+    if sorted(map(signature, actual_lines)) != sorted(map(signature, expected_lines)):
+        raise ValueError('Receipt lines differ from the saved cancellation; review them before tax repair.')
+    tax = money(op.breakdown['tax'])
+    if sum((money(line['Amount']) for line in expected_lines), tax) != op.amount:
+        raise ValueError('Saved cancellation lines and tax do not match the refund amount.')
+    if receipt.get('SyncToken') is None:
+        raise ValueError('QuickBooks receipt is missing its version token.')
+    payload = {'Id': receipt['Id'], 'SyncToken': receipt['SyncToken'], 'sparse': True,
+               'ShippingTaxIncludedInTotalTax': True,
+               'TxnTaxDetail': deepcopy(op.accounting_payload['TxnTaxDetail'])}
+    payload['TxnTaxDetail']['TotalTax'] = float(tax)
+    books.post('refundreceipt', payload, f'{op.key}-shipping-tax-{receipt["SyncToken"]}')
+    # Read back the stored receipt before allowing reconciliation to finish.
+    updated = books.get('refundreceipt', receipt['Id'])
+    if (str(updated.get('Id')) != str(receipt['Id']) or
+            updated.get('CustomerRef') != receipt.get('CustomerRef') or
+            f'[Item cancellation {op.key}]' not in updated.get('PrivateNote', '') or
+            money(updated.get('TotalAmt')) != op.amount):
+        raise ValueError('QuickBooks tax repair is not confirmed. Inspect the existing receipt before retrying.')
+    return updated
 
 
 def process(op):
@@ -429,6 +473,10 @@ def process(op):
                 return op
             op.state = 'accounting_submitting'
             if not op.accounting_id:
+                # Also correct payloads saved before the shipping tax fix, but only
+                # before their first accounting submission (uncertain requests stop above).
+                op.accounting_payload['ShippingTaxIncludedInTotalTax'] = True
+                op.save(update_fields=['accounting_payload'])
                 result = books.post('refundreceipt' if op.paid else 'invoice', op.accounting_payload, op.key)
                 op.accounting_id = str(result['Id'])
                 op.save(update_fields=['accounting_id', 'updated_at'])
