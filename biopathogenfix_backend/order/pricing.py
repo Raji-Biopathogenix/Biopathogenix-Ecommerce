@@ -6,6 +6,7 @@ from django.utils import timezone
 from cart.services import UPSService
 from coupon.models import Coupon
 from prd_variant.models import ProductSKU
+from prd_variant.resolution import sku_for_item
 from settings.models import Settings
 from users.models import CustomizableProductprices
 from .models import Order
@@ -42,10 +43,8 @@ def price_items(items, user):
     if not items:
         raise ValueError('Your cart is empty.')
     for item in items:
-        sku = ProductSKU.objects.filter(
-            product=item.product, sku_code=item.sku_code, is_active=True,
-        ).first()
-        if not item.product.is_active or not sku:
+        sku = sku_for_item(item)
+        if not item.product.is_active or not sku or not sku.is_active:
             raise ValueError('One of the selected products is no longer available.')
         if item.quantity < 1 or sku.stock < item.quantity:
             raise ValueError('A selected product has insufficient stock.')

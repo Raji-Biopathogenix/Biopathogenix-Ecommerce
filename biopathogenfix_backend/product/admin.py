@@ -141,6 +141,42 @@ class ProductAdminForm(forms.ModelForm):
         }
         return super().save(commit=commit)
 
+    def clean(self):
+        cleaned = super().clean()
+        raw = self.data.get('sku_combinations')
+        if not raw or not cleaned.get('has_variants'):
+            return cleaned
+        try:
+            combinations = json.loads(raw)
+            if not isinstance(combinations, list):
+                raise ValueError
+            seen = set()
+            from decimal import Decimal
+            for combo in combinations:
+                options = [int(value) for value in combo['option_ids']]
+                key = frozenset(options)
+                if not key or len(key) != len(options) or key in seen:
+                    raise forms.ValidationError('Each size/package combination must appear exactly once.')
+                seen.add(key)
+                variant_ids = list(VariantOption.objects.filter(pk__in=options).values_list('variant_id', flat=True))
+                if len(variant_ids) != len(options) or len(set(variant_ids)) != len(options):
+                    raise forms.ValidationError('Choose one valid option per variant for each combination.')
+                if not isinstance(combo.get('sku_code'), str) or not combo['sku_code'].strip() or len(combo['sku_code']) > 500:
+                    raise forms.ValidationError('Enter a SKU of at most 500 characters for every combination.')
+                for field in ('price', 'weight', 'length', 'width', 'height'):
+                    value = Decimal(str(combo.get(field, 0)))
+                    if not value.is_finite() or value < 0 or value >= Decimal('100000000') or value != value.quantize(Decimal('.01')):
+                        raise forms.ValidationError('Variant prices and dimensions must be nonnegative numbers with at most two decimals.')
+                for field in ('stock', 'low_stock'):
+                    value = Decimal(str(combo.get(field, 0)))
+                    if not value.is_finite() or value < 0 or value != int(value) or value > 2147483647:
+                        raise forms.ValidationError('Variant stock values must be nonnegative whole numbers.')
+        except forms.ValidationError:
+            raise
+        except (ValueError, TypeError, KeyError, AttributeError, ArithmeticError):
+            raise forms.ValidationError('Invalid variant data. Review the size/package combinations and try again.')
+        return cleaned
+
 
 @admin.register(Product)
 class ProductAdmin(CommentMixin,admin.ModelAdmin):
@@ -715,7 +751,7 @@ class ProductAdmin(CommentMixin,admin.ModelAdmin):
 
         for combo in combinations:
             sku_code   = combo.get('sku_code', '').strip()
-            option_ids = combo.get('option_ids', [])
+            option_ids = [int(value) for value in combo.get('option_ids', [])]
             if not sku_code or not option_ids:
                 continue
             key = frozenset(option_ids)
@@ -769,6 +805,7 @@ class ProductAdmin(CommentMixin,admin.ModelAdmin):
                 )
                 for opt_id in option_ids:
                     ProductSKUOption.objects.create(sku=sku, variant_option_id=opt_id)
+                existing_sku_by_options[key] = sku
 
    
 

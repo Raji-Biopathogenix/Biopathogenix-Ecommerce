@@ -72,6 +72,8 @@ def UpdateItemToCart(request,cartData,existed_cart_item):
     else:
         final_quantity = qty
 
+    existed_cart_item.sku_id = skuObj.get("id")
+    existed_cart_item.sku_code = skuObj["sku_code"]
     existed_cart_item.quantity = final_quantity
     existed_cart_item.price = price
     existed_cart_item.total_price = final_quantity * price
@@ -137,6 +139,7 @@ def AddItemToCart(request,cartData):
         "discount_value": discount_value,
         "discount_amt": discount_amt,
         "sku_code": sku_code,
+        "sku": sku_payload.get("id"),
         "has_variants": has_variants,
     }
     if request.user.id:

@@ -66,6 +66,26 @@ class ItemCancellationTests(TestCase):
         self.assertEqual(receipt['TxnTaxDetail']['TotalTax'], 3.61)
         self.assertEqual(receipt['DepositToAccountRef'], {'value': 'bank'})
 
+    def test_shared_sku_refund_matches_order_item_not_first_invoice_line(self):
+        item = self.items[0]
+        original = self.invoice['Line'][0]
+        original['Description'] += f'\nOrder item: {item.pk}\nOptions: S'
+        duplicate = deepcopy(original)
+        duplicate['Id'] = 'other-size'
+        duplicate['Description'] = f'SKU: {item.sku_code}\nOrder item: 99999\nOptions: M'
+        duplicate['SalesItemLineDetail']['ItemRef']['value'] = 'medium-item'
+        self.invoice['Line'].insert(0, duplicate)
+        quote = service.cancellation_quote(self.order, item)
+        _, payload = service.preflight(self.order, item, quote, self.books)
+        self.assertEqual(payload['Line'][0]['SalesItemLineDetail']['ItemRef'],
+                         original['SalesItemLineDetail']['ItemRef'])
+
+    def test_legacy_ambiguous_sku_invoice_blocks_refund(self):
+        self.invoice['Line'].insert(0, deepcopy(self.invoice['Line'][0]))
+        with self.assertRaisesMessage(ValueError, 'uniquely match'):
+            self.prepare()
+        self.assertFalse(ItemCancellation.objects.exists())
+
     def test_shipping_tax_is_included_in_all_three_refund_totals(self):
         for item, expected in zip(self.items, ('63.79', '265.79', '37.21')):
             with self.subTest(item=item.sku_code):

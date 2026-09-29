@@ -86,11 +86,10 @@ class CheckoutSecurityTests(TestCase):
 
     def test_catalog_replaces_tampered_cart_and_checks_stock(self):
         product = SimpleNamespace(is_active=True, is_customizable=False, discount_value=10)
-        sku = SimpleNamespace(price=Decimal('100'), stock=5)
+        sku = SimpleNamespace(price=Decimal('100'), stock=5, is_active=True)
         item = MagicMock(product=product, sku_code='REAL', quantity=2, price=Decimal('.01'),
                          total_price=Decimal('.02'))
-        with patch.object(pricing.ProductSKU.objects, 'filter') as skus:
-            skus.return_value.first.return_value = sku
+        with patch.object(pricing, 'sku_for_item', return_value=sku):
             self.assertEqual(pricing.price_items([item], self.user), Decimal('180'))
             self.assertEqual(item.price, Decimal('90'))
             item.quantity = 6

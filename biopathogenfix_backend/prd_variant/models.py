@@ -31,9 +31,6 @@ class ProductSKU(models.Model):
     width = models.DecimalField(max_digits=10, decimal_places=2,default=0.00,help_text="Width in IN")
     height = models.DecimalField(max_digits=10, decimal_places=2,default=0.00,help_text="Height in IN")
 
-    class Meta:
-        unique_together = ('product', 'sku_code')
-
     def __str__(self):
         return f"{self.product.name} | {self.sku_code}"
 

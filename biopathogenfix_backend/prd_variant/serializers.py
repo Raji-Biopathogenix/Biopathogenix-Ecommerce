@@ -35,7 +35,6 @@ class ProductVariantOptionSerializer(serializers.ModelSerializer):
 class CartItemSKUSerializer(serializers.ModelSerializer):
     class Meta:
         model = ProductSKU
-        fields = ['price', 'stock']
-
+        fields = ['id', 'sku_code', 'price', 'stock']
 
 

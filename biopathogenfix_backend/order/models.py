@@ -277,6 +277,7 @@ class OrderItem(models.Model):
     quantity     = models.PositiveIntegerField(default=1)
     product_name = models.CharField(max_length=255)
     sku_code = models.CharField(max_length=500) 
+    sku = models.ForeignKey('prd_variant.ProductSKU', on_delete=models.SET_NULL, null=True, blank=True)
     unit_price     = models.DecimalField(max_digits=10, decimal_places=2)
     total          = models.DecimalField(max_digits=10, decimal_places=2)
     discount_amt   = models.DecimalField(max_digits=10, decimal_places=2, default=0.00)

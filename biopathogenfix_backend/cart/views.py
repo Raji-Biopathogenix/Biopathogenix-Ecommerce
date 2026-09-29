@@ -107,34 +107,43 @@ class CartViewset(viewsets.ModelViewSet):
     
 
     def create(self, request, *args, **kwargs):
-        cartData = request.data
-        is_item_exist_flag = False
-        if cartData.get("has_variants"):
-            sku_options = cartData.get("skuObj", {}).get("sku_options")
-            if not sku_options:
-                return Response({
-                    "status": "error",
-                    "message": "Variant selections are required."
-                }, status=status.HTTP_400_BAD_REQUEST)
-            if request.user and request.user.id:
-                cartItems = Cart.objects.filter(product_id=cartData["product_id"],user_id=request.user.id)
-            else:
-                cartItems = Cart.objects.filter(tmp_id=cartData["tmp_id"],product_id=cartData["product_id"])
-
-            existed_cart_item = None
-            selected_option_ids = [eachOPt['variant_option_id'] for eachOPt in sku_options]
-            for eachObj in cartItems:
-                matched_count = cart_has_sku(eachObj.id,selected_option_ids)
-                if matched_count == len(selected_option_ids):
-                    existed_cart_item = eachObj
-                    is_item_exist_flag = True
-                    break
+        from prd_variant.resolution import resolve_sku, sku_for_item
+        from order.pricing import catalog_price
+        cartData = request.data.copy()
+        sku_payload = cartData.get('skuObj') or {}
+        try:
+            options = sku_payload.get('sku_options')
+            option_ids = [row['variant_option_id'] for row in options] if options is not None else None
+            sku = resolve_sku(cartData.get('product_id'), sku_payload.get('sku_code'),
+                              option_ids, sku_payload.get('id') or None)
+            quantity = int(cartData.get('quantity', 1))
+        except (ValueError, TypeError, KeyError, AttributeError):
+            sku, quantity = None, 0
+        if not sku or not sku.is_active or not sku.product.is_active or quantity < 1:
+            return Response({"status": "error", "message": "Select an available product variant and quantity."}, status=400)
+        options = list(sku.sku_options.values('variant_option_id'))
+        base_price, _ = catalog_price(sku.product, sku, request.user)
+        cartData['quantity'] = quantity
+        cartData['has_variants'] = bool(options)
+        cartData['is_customizable'] = sku.product.is_customizable
+        cartData['prd_customization_prices'] = {'price': str(base_price)}
+        cartData['skuObj'] = {'id': sku.id, 'sku_code': sku.sku_code, 'price': str(base_price),
+                              'stock': sku.stock, 'sku_options': options}
+        cartItems = Cart.objects.filter(product_id=sku.product_id)
+        if request.user and request.user.id:
+            cartItems = cartItems.filter(user_id=request.user.id)
         else:
-            if request.user and request.user.id:
-                existed_cart_item = get_or_none(Cart,product_id=cartData["product_id"],user_id=request.user.id)
-            else:
-                existed_cart_item = get_or_none(Cart,tmp_id=cartData["tmp_id"],product_id=cartData["product_id"])
-            is_item_exist_flag = bool(existed_cart_item)
+            cartItems = cartItems.filter(tmp_id=cartData.get('tmp_id'), user__isnull=True)
+        existed_cart_item = None
+        for row in cartItems:
+            selected_sku = sku_for_item(row)
+            if selected_sku and selected_sku.pk == sku.pk:
+                existed_cart_item = row
+                break
+        total_quantity = quantity + (existed_cart_item.quantity if existed_cart_item else 0)
+        if total_quantity > sku.stock:
+            return Response({"status": "error", "message": "Insufficient stock for this variant."}, status=400)
+        is_item_exist_flag = existed_cart_item is not None
         print("existed_cart_item",existed_cart_item,"is_item_exist_flag",is_item_exist_flag)
         if is_item_exist_flag:
             return UpdateItemToCart(request,cartData,existed_cart_item)
@@ -152,7 +161,12 @@ class CartViewset(viewsets.ModelViewSet):
         if quantity < 1:
             return Response({"status": "error", "message": "Quantity must be at least 1"}, status=status.HTTP_400_BAD_REQUEST)
 
-        sku = get_or_none(ProductSKU,product= cart_item.product, sku_code=cart_item.sku_code)
+        from prd_variant.resolution import sku_for_item
+        sku = sku_for_item(cart_item)
+        if not sku or not sku.is_active:
+            return Response({"status": "error", "message": "Please reselect this product variant."}, status=400)
+        if quantity > sku.stock:
+            return Response({"status": "error", "message": "Insufficient stock for this variant."}, status=400)
         base_price = sku.price if sku else cart_item.price
         if cart_item.product.is_customizable and request.user.id:
             user= get_or_none(CustomUser, id=request.user.id)
