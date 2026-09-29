@@ -617,7 +617,7 @@ def get_qb_item_by_sku(access_token: str, realm_id: str, base_url: str, sku: str
         )
         items = response.json().get("QueryResponse", {}).get("Item", [])
         matches = [i for i in items if i.get("Active", True) and i.get("Type") not in ("Category", "Group")]
-        if matches:
+        if len(matches) == 1:
             print(f"QB Item matched by SKU '{sku}': {matches[0].get('Id')} ({matches[0].get('Name')})")
             return matches[0]["Id"]
     except Exception as e:
@@ -712,6 +712,14 @@ def _build_invoice_line_items(
         sku = (item.sku_code or "").strip()
         if sku:
             description = f"{description}\nSKU: {sku}"
+        # SKU codes can be shared by sizes. Persist an order-line identity so
+        # cancellation cannot refund a different size with the same price/SKU.
+        if isinstance(getattr(item, 'pk', None), int):
+            description += f"\nOrder item: {item.pk}"
+            variants = item.orderItems_variants.all()
+            labels = [row.variant_option_name for row in variants]
+            if labels:
+                description += '\nOptions: ' + ', '.join(labels)
 
         line_items.append({
             "Id":          str(i),

@@ -70,7 +70,8 @@ def _build_package_from_order_items(item_ids):
         if not order_item:
             continue
 
-        sku = get_or_none(ProductSKU, product=order_item.product, sku_code=order_item.sku_code)
+        from prd_variant.resolution import sku_for_item
+        sku = sku_for_item(order_item)
 
         item_length = _decimal_or_zero(getattr(order_item, "length", None))
         item_width = _decimal_or_zero(getattr(order_item, "width", None))
@@ -355,7 +356,8 @@ def _create_order(
             if not product:
                 raise ValueError("One of the cart products is no longer available.")
 
-            sku = ProductSKU.objects.filter(product=product, sku_code=item.sku_code).first()
+            from prd_variant.resolution import sku_for_item
+            sku = sku_for_item(item)
             if not sku:
                 raise ValueError(f"SKU {item.sku_code} is no longer available for {product.name}.")
 
@@ -445,7 +447,8 @@ def _create_order(
                     product =  product,
                     quantity = item.quantity,
                     product_name = product.name,
-                    sku_code = item.sku_code,
+                    sku_code = sku.sku_code,
+                    sku = sku,
                     unit_price = item.price,
                     total =  item.quantity * item.price,
                     weight = sku_weight if sku_weight is not None else (product_weight if product_weight is not None else Decimal("0.00")),

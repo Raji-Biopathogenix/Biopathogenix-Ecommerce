@@ -19,6 +19,7 @@ class Cart(models.Model):
     tax_value =models.DecimalField(max_digits=10, decimal_places=2, default=0.00)
     tmp_id =models.CharField(max_length=500, db_index=True)
     sku_code = models.CharField(max_length=500) 
+    sku = models.ForeignKey('prd_variant.ProductSKU', on_delete=models.SET_NULL, null=True, blank=True)
     has_variants   = models.BooleanField(default=False)
     selected  = models.BooleanField(default=True)
     coupon_code = models.CharField(max_length=20, null=True,blank=True)
@@ -41,4 +42,3 @@ class CartVariants(models.Model):
 
     def __str__(self):
         return f"Cart - {self.cart.id} - Variant Option - {self.variant_option_id}"
-

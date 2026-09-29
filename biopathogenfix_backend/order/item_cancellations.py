@@ -184,6 +184,12 @@ def preflight(order, item, breakdown, books):
         raise ValueError('Invoice items have mixed tax treatment. Review item tax allocation before refunding.')
     matches = [line for line in lines if line.get('DetailType') == 'SalesItemLineDetail'
                and f'SKU: {item.sku_code}' in line.get('Description', '').splitlines()]
+    identified = [line for line in matches
+                  if f'Order item: {item.pk}' in line.get('Description', '').splitlines()]
+    # Legacy invoices have no order-item marker. Only use their SKU fallback
+    # when it matches exactly one unmarked line.
+    matches = identified or [line for line in matches if not any(
+        text.startswith('Order item: ') for text in line.get('Description', '').splitlines())]
     if len(matches) != 1 or money(matches[0]['Amount']) != money(item.total):
         raise ValueError('Cannot uniquely match this item to its QuickBooks invoice line.')
     original = matches[0]

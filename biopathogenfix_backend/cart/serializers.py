@@ -4,6 +4,7 @@ from product.serializers import CartProductItemSerializer
 #ProductListSerializer
 from product.models import Product
 from prd_variant.models import ProductSKU
+from prd_variant.resolution import sku_for_item
 from prd_variant.serializers import CartItemSKUSerializer
 from api.views import get_or_none
 
@@ -12,6 +13,7 @@ class CartSerializer(serializers.ModelSerializer):
     class Meta:
         model = Cart
         fields = ('__all__')
+        read_only_fields = ('sku',)
 
 class CartCreateSerializer(serializers.ModelSerializer):
     class Meta:
@@ -23,6 +25,7 @@ class CartUpdateSerializer(serializers.ModelSerializer):
     class Meta:
         model = Cart
         fields = ('__all__')
+        read_only_fields = ('sku',)
 
 
 
@@ -65,7 +68,7 @@ class CartResponseSerializer(serializers.ModelSerializer):
 
     def get_product_sku(self,obj):
         if obj.product != "" and obj.product is not None:
-            sku=get_or_none(ProductSKU,product= obj.product, sku_code=obj.sku_code)
+            sku=sku_for_item(obj)
             return CartItemSKUSerializer(sku).data
     
 
