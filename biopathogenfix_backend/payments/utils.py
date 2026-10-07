@@ -407,6 +407,15 @@ def is_qb_customer_active(access_token: str, realm_id: str, base_url: str, custo
         return False
 
 
+def get_qb_company_name(user) -> str:
+    laboratory = getattr(user, "laboratory", None)
+    lab_name = getattr(laboratory, "name", None)
+    if isinstance(lab_name, str) and lab_name.strip():
+        return lab_name.strip()
+    company_name = getattr(user, "Company_name", None)
+    return company_name.strip() if isinstance(company_name, str) else ""
+
+
 def get_or_create_qb_customer(access_token: str, realm_id: str, base_url: str, order) -> str:
     """
     Finds an existing QB customer or creates a new one.
@@ -418,7 +427,7 @@ def get_or_create_qb_customer(access_token: str, realm_id: str, base_url: str, o
     no company on file fall back to matching by email, one customer
     per person, same as before.
     """
-    company_name = (getattr(order.user, "Company_name", "") or "").strip()
+    company_name = get_qb_company_name(order.user)
     email        = order.shipping_email
 
     if company_name:
@@ -433,6 +442,7 @@ def get_or_create_qb_customer(access_token: str, realm_id: str, base_url: str, o
                 params={"query": f"SELECT * FROM Customer WHERE CompanyName = '{escaped_company}'"},
                 timeout=15,
             )
+            search_response.raise_for_status()
             companies = search_response.json().get("QueryResponse", {}).get("Customer", [])
             active_companies = [c for c in companies if c.get("Active", True)]
             print(
@@ -440,10 +450,34 @@ def get_or_create_qb_customer(access_token: str, realm_id: str, base_url: str, o
                 f"{len(active_companies)} active"
             )
             if active_companies:
-                print(f"QB Customer found: {active_companies[0]['Id']} for company '{company_name}'")
-                return active_companies[0]["Id"]
+                company_customer = active_companies[0]
         except Exception as e:
-            logger.warning(f"QB company customer search failed, will create new: {e}")
+            # A failed lookup must not create a duplicate company customer.
+            logger.warning(f"QB company customer search failed: {e}")
+            raise
+
+        if active_companies:
+            if company_customer.get("DisplayName") != company_name:
+                update_response = requests.post(
+                    f"{base_url}/v3/company/{realm_id}/customer",
+                    headers={
+                        "Authorization": f"Bearer {access_token}",
+                        "Content-Type": "application/json",
+                        "Accept": "application/json",
+                    },
+                    json={
+                        "Id": company_customer["Id"],
+                        "SyncToken": company_customer["SyncToken"],
+                        "sparse": True,
+                        "CompanyName": company_name,
+                        "DisplayName": company_name,
+                    },
+                    timeout=15,
+                )
+                update_response.raise_for_status()
+                if not update_response.json().get("Customer", {}).get("Id"):
+                    raise ValueError("Failed to update QB company customer name.")
+            return company_customer["Id"]
 
         create_response = requests.post(
             f"{base_url}/v3/company/{realm_id}/customer",
@@ -860,7 +894,9 @@ def create_qb_invoice(access_token: str, order, orderItems: list, payment_method
     # rather than trusting it forever (it may belong to a different
     # QB environment/company, or have since been deactivated).
     customer_id = None
-    if user.quickbook_customer_id and is_qb_customer_active(
+    # Company orders must resolve the shared customer even when this user
+    # has a cached personal customer from before they joined the laboratory.
+    if not get_qb_company_name(user) and user.quickbook_customer_id and is_qb_customer_active(
         access_token, realm_id, base_url, user.quickbook_customer_id
     ):
         customer_id = user.quickbook_customer_id

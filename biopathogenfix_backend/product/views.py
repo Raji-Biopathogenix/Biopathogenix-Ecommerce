@@ -580,7 +580,21 @@ class ProductViewset(viewsets.ModelViewSet):
     def ProductSearch(self, request, *args, **kwargs):
         search_text = request.query_params.get('search_text', '').strip()
         category = request.query_params.get('category', '').strip()
-        products = Product.objects.filter(is_active=True)
+        search_products = Product.objects.filter(is_active=True).prefetch_related(
+            Prefetch(
+                'variant_options',
+                queryset=ProductVariantOption.objects.filter(
+                    variant_option__variant__is_active=True,
+                    variant_option__is_active=True,
+                ).select_related('variant_option__variant'),
+            ),
+            Prefetch(
+                'skus',
+                queryset=ProductSKU.objects.filter(is_active=True).prefetch_related('sku_options'),
+                to_attr='active_skus',
+            ),
+        )
+        products = search_products
         if category:
             products = products.filter(Q(categories__name__icontains=category) | Q(categories__slug__icontains=category)).distinct()
 
@@ -610,7 +624,7 @@ class ProductViewset(viewsets.ModelViewSet):
             ).distinct()
 
             if not products.exists():
-                recommended_products = Product.objects.filter(is_active=True).order_by("-views_count")[:10]
+                recommended_products = search_products.order_by("-views_count")[:10]
                 serializer = ProductByCategorySerializer(
                     recommended_products,
                     many=True,
@@ -700,7 +714,6 @@ def GetProductDetialData(request):
     except Product.DoesNotExist as e:
         return Response({"status":"error","message": "Data Not Found"}, status=404)
     
-
 
 
 
