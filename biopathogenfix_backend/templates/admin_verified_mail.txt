@@ -1,0 +1,19 @@
+Admin Action Required — BioPathogenix
+
+A new user has verified their email address and is awaiting review.
+
+Full Name: {{ first_name }} {{ last_name }}
+Email: {{ email }}
+Company: {{ company_name }}
+Verified At: {{ verified_at }}
+
+Review and Activate:
+1. Open the user profile and sign in to the admin portal:
+{{ user_profile_url }}
+2. Review the user's name, email, company, and registration details.
+3. Assign an existing laboratory, or create a new laboratory if needed.
+4. After approval, select Is active and click Save. The user will receive their welcome email and login credentials.
+
+Opening this link does not activate the account. Activation happens only after you approve and save the user profile.
+
+This is an automated notification from BioPathogenix. Please do not reply.

@@ -7,6 +7,16 @@ Dear {{ first_name }} {{ last_name }},
 Your login credentials:
 Email: {{ email }}
 Password: {{ password }}
+{% if password_reset_url %}
+Choose your own password
+
+You can reset the password provided above before logging in:
+1. Open {{ password_reset_url }}
+2. Enter your registered email address ({{ email }}) and click Send OTP.
+3. Check your inbox for the one-time code and enter it on the reset page.
+4. Enter and confirm your new password, then click Reset Password.
+5. Log in using your email address and new password.
+{% endif %}
 
 If you have any questions or need assistance, don't hesitate to contact our support team.
 

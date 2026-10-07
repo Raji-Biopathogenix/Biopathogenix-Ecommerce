@@ -5,6 +5,7 @@ from services.emailService import send_graph_email
 from django.template.loader import render_to_string
 from django.conf import settings
 from django.core.mail import send_mail
+from config.settings import configSettings
 
 logger = logging.getLogger(__name__)
 
@@ -43,7 +44,7 @@ def send_activation_admin_email(self, email, context):
         context.setdefault("logo_url", settings.WELCOME_LOGO_URL)
         subject = context.get("subject", "Verification Email From BioPathogenix")
         html_message = render_to_string("admin_verified_mail.html", context)
-        plain_message = render_to_string("welcome.txt", context)
+        plain_message = render_to_string("admin_verified_mail.txt", context)
         from_email = getattr(settings, "DEFAULT_FROM_EMAIL", "example@example.com")
 
         if getattr(settings, "GRAPH_ENABLED", False):
@@ -95,6 +96,8 @@ def send_welcome_email(self, email, context):
     try:
         context = dict(context or {})
         context.setdefault("logo_url", settings.WELCOME_LOGO_URL)
+        frontend_url = (configSettings.FRONTEND_URL or "https://biopathogenix.com").rstrip("/")
+        context.setdefault("password_reset_url", frontend_url + "/my-account/lost-password")
         subject = context.get("subject", "Welcome to BioPathogenix")
         html_message = render_to_string("welcome_email_template.html", context)
         plain_message = render_to_string("welcome.txt", context)
