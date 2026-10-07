@@ -3,6 +3,7 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.permissions import AllowAny, IsAuthenticated
+from rest_framework.exceptions import APIException
 from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework_simplejwt.authentication import JWTAuthentication
 from django.contrib.auth.hashers import make_password
@@ -98,6 +99,14 @@ def send_password_changed_email_safe(user):
 class CustomerViews(APIView):
     authentication_classes = [JWTAuthentication]
     permission_classes = [AllowAny]
+
+    def handle_exception(self, exc):
+        if not isinstance(exc, APIException):
+            logger.error(
+                "Signup failed: %s", type(exc).__name__,
+                exc_info=(type(exc), exc, exc.__traceback__),
+            )
+        return super().handle_exception(exc)
 
     def post(self, request):
         data = request.data.copy()
