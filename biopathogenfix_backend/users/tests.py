@@ -1,9 +1,53 @@
 from django.test import TestCase
 from django.db import IntegrityError
+from unittest.mock import patch
+from rest_framework.test import APIClient
+from country.models import Country, State
 from .models import CustomUser, Laboratory
 from .serializers import UserSerializer
 
+class SignupErrorReportingTests(TestCase):
+    def test_unexpected_signup_failure_reports_server_exception(self):
+        client = APIClient()
+        client.raise_request_exception = False
+        with patch("users.serializers.UserSerializer.save", side_effect=RuntimeError("test signup failure")):
+            with self.assertLogs("users.views", level="ERROR") as logs:
+                response = client.post("/api/v1/signup/", {"email": "failure@example.com"}, format="json")
+        self.assertEqual(response.status_code, 500)
+        self.assertIn("Signup failed: RuntimeError", logs.output[0])
+        self.assertIn("test signup failure", logs.output[0])
+        self.assertFalse(CustomUser.objects.filter(email="failure@example.com").exists())
+
+    def test_failure_before_signup_handler_also_reports_server_exception(self):
+        client = APIClient()
+        client.raise_request_exception = False
+        with patch("users.views.CustomerViews.initial", side_effect=RuntimeError("test initialization failure")):
+            with self.assertLogs("users.views", level="ERROR") as logs:
+                response = client.post("/api/v1/signup/", {}, format="json")
+        self.assertEqual(response.status_code, 500)
+        self.assertIn("test initialization failure", logs.output[0])
+
 class AutomaticLaboratoryTests(TestCase):
+    def test_full_signup_request_with_company_and_address(self):
+        country = Country.objects.create(name="United States", code="US")
+        state = State.objects.create(name="Kentucky", code="KY", country=country)
+        client = APIClient()
+        for index in range(2):
+            email = f"signup{index}@example.com"
+            with patch("users.views.send_verification_email_safe") as send:
+                response = client.post("/api/v1/signup/", {
+                    "first_name": "Test", "last_name": "User", "email": email,
+                    "Company_name": "Example Lab", "Street_Address": "3004 Park Central Ave",
+                    "Address_Line_2": "", "state": state.pk, "Town_City": "Nicholasville",
+                    "Zip_Code": "40356", "phone_number": "5551234567",
+                }, format="json")
+            self.assertEqual(response.status_code, 201, response.data)
+            user = CustomUser.objects.get(email=email)
+            self.assertEqual(user.laboratory.name, "Example Lab")
+            self.assertFalse(user.is_active)
+            send.assert_called_once()
+        self.assertEqual(Laboratory.objects.count(), 1)
+
     def test_registration_creates_and_assigns_company_lab_without_activating_user(self):
         serializer = UserSerializer(data={
             "email": "new@example.com", "Company_name": " New Laboratory ",
@@ -57,6 +101,4 @@ class AutomaticLaboratoryTests(TestCase):
         with self.assertRaises(IntegrityError):
             CustomUser.objects.create_user(email="duplicate@example.com", Company_name="Unused Laboratory")
         self.assertFalse(Laboratory.objects.filter(name="Unused Laboratory").exists())
-
-
 
