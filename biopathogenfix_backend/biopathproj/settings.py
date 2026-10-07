@@ -14,28 +14,7 @@ from pathlib import Path
 import os
 from datetime import timedelta
 from config.settings import configSettings
-# Send request tracebacks to Railway's captured stderr, including when DEBUG=False.
-LOGGING = {
-    "version": 1,
-    "disable_existing_loggers": False,
-    "formatters": {
-        "request_error": {"format": "{levelname} {name}: {message}", "style": "{"},
-    },
-    "handlers": {
-        "request_console": {
-            "class": "logging.StreamHandler",
-            "formatter": "request_error",
-            "level": "ERROR",
-        },
-    },
-    "loggers": {
-        "django.request": {
-            "handlers": ["request_console"],
-            "level": "ERROR",
-            "propagate": False,
-        },
-    },
-}
+# from config.logging_config import  LOGGING
 
 from dotenv import load_dotenv
 BASE_DIR = Path(__file__).resolve().parent.parent
