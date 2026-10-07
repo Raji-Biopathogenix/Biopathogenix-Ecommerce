@@ -1,4 +1,4 @@
-from django.db import models
+from django.db import models, router, transaction
 
 # Create your models here.
 from django.utils import timezone
@@ -51,7 +51,7 @@ class userTypes(models.Model):
 
 
 class Laboratory(models.Model):
-    name = models.CharField(max_length=100, unique=True)
+    name = models.CharField(max_length=255, unique=True)
     created_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
@@ -125,7 +125,21 @@ class CustomUser(AbstractBaseUser, PermissionsMixin):
     def save(self, *args, **kwargs):
         if self.email:
             self.email = self.email.strip().lower()
-        super().save(*args, **kwargs)
+        update_fields = kwargs.get("update_fields")
+        if update_fields is not None and not update_fields:
+            return
+        database = kwargs.get("using") or router.db_for_write(type(self), instance=self)
+        with transaction.atomic(using=database):
+            company_name = (self.Company_name or "").strip()
+            if not self.laboratory_id and company_name:
+                laboratories = Laboratory.objects.using(database)
+                laboratory = laboratories.filter(name__iexact=company_name).order_by("pk").first()
+                if laboratory is None:
+                    laboratory, _ = laboratories.get_or_create(name=company_name)
+                self.laboratory = laboratory
+                if update_fields is not None:
+                    kwargs["update_fields"] = set(update_fields) | {"laboratory"}
+            super().save(*args, **kwargs)
 
     # def clean(self):
     #     allowed_roles = {r[0] for r in ROLE_CHOICES}
