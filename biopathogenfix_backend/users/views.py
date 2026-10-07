@@ -31,6 +31,8 @@ import os
 
 import time
 from django.core.cache import cache
+from django.urls import reverse
+from django.utils import timezone
 
 logger = logging.getLogger(__name__)
 
@@ -168,7 +170,7 @@ def VerificationEmail(request):
         user_uid = request.query_params.get('uid')
         custom = get_object_or_404(CustomUser,uid= user_uid)
         if custom.is_staff: 
-            return Response({"status":"success","message":"Your email already Verifed!","result":{"verified":custom.is_staff,"first_name":custom.first_name,"last_name":custom.last_name,"status":True}},status=200)
+            return Response({"status":"success","message":"Your email already Verifed!","result":{"verified":custom.is_staff,"is_active":custom.is_active,"first_name":custom.first_name,"last_name":custom.last_name,"status":True}},status=200)
         custom.is_staff = True
         custom.save()
         superadmin_emails = list(
@@ -185,7 +187,11 @@ def VerificationEmail(request):
                     "first_name": custom.first_name,
                     "last_name": custom.last_name,
                     "email": custom.email,
-                    "activation_link": f"{configSettings.FRONTEND_URL}/activate/{custom.active_uuid}",
+                    "user_profile_url": settings.BACKEND_URL + reverse(
+                        "admin:users_customuser_change", args=[custom.pk]
+                    ),
+                    "company_name": custom.Company_name or "Not provided",
+                    "verified_at": timezone.localtime().strftime("%b %d, %Y, %I:%M %p %Z"),
                     "msg": "A new user has verified their email and is awaiting activation."
                 })
         
@@ -198,7 +204,7 @@ def VerificationEmail(request):
                 "email": custom.email,
                 "msg": "Kindly Verify Your Email!"
             })
-        return Response({"status":"success","message":"Your email got verified!","result":{"verified":custom.is_staff,"first_name":custom.first_name,"last_name":custom.last_name,"status":False}},status=200)
+        return Response({"status":"success","message":"Your email got verified!","result":{"verified":custom.is_staff,"is_active":custom.is_active,"first_name":custom.first_name,"last_name":custom.last_name,"status":False}},status=200)
     except Exception as exc:
         return Response({"status":"error", "message": "Data Not Found"}, status=404)
     

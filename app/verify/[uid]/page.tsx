@@ -6,6 +6,8 @@ export interface VerificationStatus {
   message: string
   result: {
     is_verified?: boolean
+    verified?: boolean
+    is_active?: boolean
     first_name?: string
     last_name?: string
     status?: boolean
@@ -17,7 +19,7 @@ export interface VerificationStatus {
 
 async function verifyUser(uid: string): Promise<VerificationStatus | null> {
   const res = await fetch(`${API_BASE_URL}/v1/verify-user/?uid=${uid}`, {
-    // next: { revalidate: 60 },
+    cache: "no-store",
   });
   if (!res.ok) return null;
   const response: VerificationStatus = await res.json();
@@ -34,7 +36,7 @@ export default async function CategoryPage({ params }: { params: Promise<{ uid: 
 
   return (
     <div className="max-w-7xl mx-auto px-4 py-8  min-h-screen">
-      <VerificationMail resMsg={message} resultData={response?.result ?? undefined} />
+      <VerificationMail resMsg={message} verificationSucceeded={response?.status === "success"} resultData={response?.result ?? undefined} />
     </div>
   );
 }
