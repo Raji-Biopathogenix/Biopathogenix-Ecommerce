@@ -62,7 +62,7 @@ class AutomaticLaboratoryTests(TestCase):
 
     def test_users_reuse_existing_lab_ignoring_case_and_surrounding_spaces(self):
         lab = Laboratory.objects.create(name="Example Laboratory")
-        for index, company in enumerate(("Example Laboratory", " example laboratory ")):
+        for index, company in enumerate(("Example Laboratory", " example laboratory ", "EXAMPLELABORATORY", "Example   Laboratory", "Example\tLaboratory")):
             user = CustomUser.objects.create_user(email=f"member{index}@example.com", Company_name=company)
             self.assertEqual(user.laboratory_id, lab.pk)
         self.assertEqual(Laboratory.objects.count(), 1)
@@ -101,4 +101,3 @@ class AutomaticLaboratoryTests(TestCase):
         with self.assertRaises(IntegrityError):
             CustomUser.objects.create_user(email="duplicate@example.com", Company_name="Unused Laboratory")
         self.assertFalse(Laboratory.objects.filter(name="Unused Laboratory").exists())
-

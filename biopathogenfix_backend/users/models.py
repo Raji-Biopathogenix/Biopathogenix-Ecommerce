@@ -8,6 +8,8 @@ from country.models import State
 import uuid
 
 from product.models import Product
+from django.core.exceptions import ValidationError
+from .laboratory_names import laboratory_name_key
 
 
 # Roles
@@ -52,7 +54,22 @@ class userTypes(models.Model):
 
 class Laboratory(models.Model):
     name = models.CharField(max_length=255, unique=True)
+    name_key = models.CharField(max_length=64, unique=True, editable=False)
     created_at = models.DateTimeField(auto_now_add=True)
+
+    def clean(self):
+        super().clean()
+        self.name = " ".join(self.name.split())
+        self.name_key = laboratory_name_key(self.name)
+        if type(self).objects.filter(name_key=self.name_key).exclude(pk=self.pk).exists():
+            raise ValidationError({"name": "This company already has a laboratory. Use the existing entry."})
+
+    def save(self, *args, **kwargs):
+        self.name = " ".join(self.name.split())
+        self.name_key = laboratory_name_key(self.name)
+        if kwargs.get("update_fields") is not None:
+            kwargs["update_fields"] = set(kwargs["update_fields"]) | {"name_key"}
+        super().save(*args, **kwargs)
 
     def __str__(self):
         return self.name
@@ -133,9 +150,10 @@ class CustomUser(AbstractBaseUser, PermissionsMixin):
             company_name = (self.Company_name or "").strip()
             if not self.laboratory_id and company_name:
                 laboratories = Laboratory.objects.using(database)
-                laboratory = laboratories.filter(name__iexact=company_name).order_by("pk").first()
-                if laboratory is None:
-                    laboratory, _ = laboratories.get_or_create(name=company_name)
+                laboratory, _ = laboratories.get_or_create(
+                    name_key=laboratory_name_key(company_name),
+                    defaults={"name": " ".join(company_name.split())},
+                )
                 self.laboratory = laboratory
                 if update_fields is not None:
                     kwargs["update_fields"] = set(update_fields) | {"laboratory"}
