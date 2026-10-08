@@ -7,30 +7,10 @@ from datetime import datetime, timedelta
 from django.conf import settings
 from django.core.mail import send_mail
 from .models import QBConfig
+from .card_verification import CardVerificationRejected, PaymentReviewRequired, verification_error
 from config.settings import configSettings
 
 logger = logging.getLogger(__name__)
-
-#  AVS response codes → action ------------------------
-AVS_ACCEPT_CODES = {
-    "Y",   # Street + ZIP match  best case
-    "Z",   # ZIP matches, street not verified  acceptable
-    "P",   # ZIP matches (international)
-    "D",   # Street + ZIP match (international)
-    "M",   # Street + ZIP match (international)
-}
-
-AVS_REJECT_CODES = {
-    "N",   # Neither street nor ZIP match 
-    "A",   # Street matches but ZIP doesn't risky
-    "C",   # Street + ZIP not verified 
-}
-
-AVS_MESSAGES = {
-    "N": "Billing address does not match. Please check your billing ZIP code and street address.",
-    "A": "Billing ZIP code does not match your card records. Please check and try again.",
-    "C": "We could not verify your billing address. Please check and try again.",
-}
 
 # ------------------------------------------- Payments for QBBooks ------------------------
 
@@ -289,27 +269,18 @@ def charge_card(access_token: str,card_data: dict , amount: float, idempotency_k
             raise ValueError("Payment could not be processed. Please try again.")
 
 
-        # import pdb;pdb.set_trace();
-        # {"id":"MT5284741718","created":"2026-02-23T15:17:13Z","status":"CAPTURED","amount":"80.00","currency":"USD","card":{"number":"xxxxxxxxxxxx1111","expMonth":"04","expYear":"2029","cvc":"xxx","name":"Raji Gopu","address":{"streetAddress":"1130 Kifer Rd","city":"Sunnyvale","region":"CA","country":"US","postalCode":"94086"},"cardType":"Visa"},"context":{"mobile":false,"isEcommerce":true,"recurring":false,"deviceInfo":{},"clientTransID":"a00019xuyrjr"},"authCode":"tst940","appType":"3393479912556605372","avsStreet":"Pass","avsZip":"Pass","cardSecurityCodeMatch":"NotAvailable"}
-
-
-        # AVS Check 
-        avs_code = result.get("card", {}).get("avsStreet") or result.get("avsDetail", {}).get("avsStreet", "")
-
-        logger.info(f"AVS code received: {avs_code}")
-
-        if avs_code in AVS_REJECT_CODES:
-            # Card was charged but AVS failed
-            # Must void the charge immediately
+        if not result.get('id'):
+            raise PaymentReviewRequired(str(uuid.uuid5(uuid.NAMESPACE_URL,
+                f'charge:{config.realm_id}:{idempotency_key}')))
+        message = verification_error(result, saved_card=bool(saved_card_id))
+        if message:
             charge_id = result.get("id")
-            _void_charge(access_token, charge_id)
-            message = AVS_MESSAGES.get(avs_code, "Billing address verification failed.")
-            logger.warning(f"AVS rejected | code={avs_code} | charge {charge_id} voided")
-            raise ValueError(message)
-
-        if avs_code and avs_code not in AVS_ACCEPT_CODES:
-            # Unknown AVS code — log it but accept (don't block payment)
-            logger.warning(f"Unknown AVS code: {avs_code} — accepting payment")
+            charge_request_id = str(uuid.uuid5(uuid.NAMESPACE_URL,
+                f'charge:{config.realm_id}:{idempotency_key}'))
+            if not _void_charge(access_token, charge_id, charge_request_id):
+                raise PaymentReviewRequired(charge_id)
+            logger.warning("Card verification rejected; reversal confirmed for charge %s", charge_id)
+            raise CardVerificationRejected(message)
 
         return result
 
@@ -318,35 +289,34 @@ def charge_card(access_token: str,card_data: dict , amount: float, idempotency_k
 
 
 
-def _void_charge(access_token: str, charge_id: str) -> None:
-    """
-    Voids a captured charge when AVS fails.
-    This returns money to the customer immediately.
+def _void_charge(access_token: str, charge_id: str, charge_request_id: str) -> bool:
+    """Reverse a rejected charge by its original Request-Id, not its Charge Id.
+
+    Return True only when Intuit confirms a VOID. A bank may retain a temporary
+    hold while it processes the reversal. Unconfirmed reversals require review.
     """
     try:
-        config   = QBConfig.get()
-        base_url = get_qb_base_url(config)
+        config = QBConfig.get()
         response = requests.post(
-            f"{base_url}/quickbooks/v4/payments/charges/{charge_id}/void",
+            f"{get_qb_base_url(config)}/quickbooks/v4/payments/txn-requests/{charge_request_id}/void",
             headers={
                 "Authorization": f"Bearer {access_token}",
-                "Content-Type":  "application/json",
-                "Request-Id":    str(uuid.uuid4()),
+                "Content-Type": "application/json",
+                "Accept": "application/json",
+                "Request-Id": str(uuid.uuid5(uuid.NAMESPACE_URL,
+                    f'verification-void:{config.realm_id}:{charge_request_id}')),
             },
             timeout=15,
         )
-        if response.status_code == 200:
-            logger.info(f"Charge {charge_id} voided due to AVS failure")
-        else:
-            # Void failed — critical, charge exists but can't void
-            logger.critical(
-                f"VOID FAILED for charge {charge_id} after AVS rejection | "
-                f"response: {response.text} | "
-                f"ACTION: Manually void/refund this charge in QB immediately"
-            )
-    except Exception as e:
-        logger.critical(f"VOID FAILED for charge {charge_id}: {e} — manual refund required")
-
+        response.raise_for_status()
+        result = response.json()
+        if result.get("id") and result.get("type") == "VOID" and result.get("status") == "ISSUED":
+            logger.info("Verification reversal confirmed for charge %s", charge_id)
+            return True
+    except Exception:
+        pass
+    logger.critical("Verification reversal unconfirmed for charge %s; billing review required", charge_id)
+    return False
 
 
 def notify_admin_critical(transaction_id: str, user_id: int, email: str, amount: float, error: str):

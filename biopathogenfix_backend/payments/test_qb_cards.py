@@ -76,7 +76,8 @@ class SavedCardTests(SimpleTestCase):
         self.assertEqual(response['Cache-Control'], 'private, no-store')
 
     def test_saved_charge_uses_card_reference_not_raw_card(self):
-        captured = {'status': 'CAPTURED', 'id': 'charge-1', 'card': {}}
+        captured = {'status': 'CAPTURED', 'id': 'charge-1', 'card': {},
+                    'avsStreet': 'Pass', 'avsZip': 'Pass', 'cardSecurityCodeMatch': 'NotAvailable'}
         with patch.object(utils.QBConfig, 'get', return_value=self.config), \
              patch.object(utils.requests, 'post', return_value=Mock(status_code=200, json=lambda: captured)) as send:
             utils.charge_card('token', {}, 20, 'retry-key', {}, saved_card_id='card-1')
@@ -89,7 +90,9 @@ class SavedCardTests(SimpleTestCase):
 
     def test_new_card_charge_still_uses_card_details(self):
         with patch.object(utils.QBConfig, 'get', return_value=self.config), \
-             patch.object(utils.requests, 'post', return_value=Mock(status_code=200, json=lambda: {'status': 'CAPTURED'})) as send:
+             patch.object(utils.requests, 'post', return_value=Mock(status_code=200, json=lambda: {
+                 'status': 'CAPTURED', 'id': 'charge-1', 'avsStreet': 'Pass',
+                 'avsZip': 'Pass', 'cardSecurityCodeMatch': 'Pass'})) as send:
             utils.charge_card('token', self.data, 20, 'new-key', {})
             self.assertEqual(send.call_args.kwargs['json']['card']['cvc'], '123')
             self.assertNotIn('cardOnFile', send.call_args.kwargs['json'])

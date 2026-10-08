@@ -790,6 +790,12 @@ export default function CheckoutPage() {
         return;
       }
     } catch (err: unknown) {
+      // A fresh key is safe only after the provider confirmed reversal of
+      // the failed verification attempt. Keep the key on uncertain outcomes.
+      if ((err as { payload?: { reset_payment_attempt?: boolean } })?.payload?.reset_payment_attempt === true) {
+        idempotencyKey.current =
+          typeof crypto !== "undefined" && crypto.randomUUID ? crypto.randomUUID() : generateIdempotencyKey();
+      }
       const quote = (err as { payload?: { quote?: {
         amount: number; shipping_cost: number; tax_amount: number; tax_rate: number;
       } } })?.payload?.quote;
