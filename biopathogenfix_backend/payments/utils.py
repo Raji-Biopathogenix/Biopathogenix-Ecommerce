@@ -811,61 +811,17 @@ def _build_invoice_line_items(
 
 
 def _record_qb_payment(
-    access_token:   str,
-    realm_id:       str,
-    base_url:       str,
-    customer_id:    str,
-    invoice_id:     str,
-    amount:         float,
-    transaction_id: str,
-) -> None:
-    """
-    Records payment against a QB invoice → marks invoice as PAID.
-    Only called for card payments where money is already captured.
-    """
-    payment_response = requests.post(
-        f"{base_url}/v3/company/{realm_id}/payment",
-        headers={
-            "Authorization": f"Bearer {access_token}",
-            "Content-Type":  "application/json",
-            "Accept":        "application/json",
-        },
-        json={
-            "TotalAmt":    amount,
-            "CustomerRef": { "value": customer_id },
-            # 1011 Cash, Checking Acct (4687) South Central.
-            "DepositToAccountRef": { "value": "162" },
-            "PrivateNote": f"QB Payments Transaction ID: {transaction_id}",
-            "Line": [
-                {
-                    "Amount":    amount,
-                    "LinkedTxn": [
-                        {
-                            "TxnId":   invoice_id,
-                            "TxnType": "Invoice",
-                        }
-                    ],
-                }
-            ],
-        },
-        timeout=15,
-    )
+    access_token: str, realm_id: str, base_url: str, customer_id: str,
+    invoice_id: str, amount: float, transaction_id: str,
+) -> dict:
+    """Link an already captured Intuit charge to its invoice and deposit flow."""
+    from .qb_payment_sync import record_captured_payment
 
-    result = payment_response.json()
-    if "Payment" in result:
-        logger.info(
-            f"QB Invoice #{invoice_id} marked PAID | "
-            f"Payment ID: {result['Payment']['Id']} | txn={transaction_id}"
-        )
-    else:
-        # Payment recording failed — invoice exists but shows unpaid
-        # Not critical enough to fail the order, but log it
-        logger.error(
-            f"QB Payment recording failed for invoice #{invoice_id} | "
-            f"response: {result}"
-        )
-
-
+    config = QBConfig.get()
+    if str(config.realm_id) != str(realm_id):
+        raise ValueError("Payment belongs to a different QuickBooks company.")
+    return record_captured_payment(access_token, realm_id, base_url, get_qb_base_url(config),
+                                   customer_id, invoice_id, amount, transaction_id)
 
 
 def create_qb_invoice(access_token: str, order, orderItems: list, payment_method: str,user) -> dict:
@@ -1009,11 +965,12 @@ def create_qb_invoice(access_token: str, order, orderItems: list, payment_method
     order.qb_invoice_id = str(invoice_id)
     order.qb_realm_id = str(realm_id)
     order.qb_customer_id = str(customer_id)
-    order.save(update_fields=["qb_invoice_id", "qb_realm_id", "qb_customer_id"])
+    order.qb_payment_sync_pending = payment_method == "card"
+    order.save(update_fields=["qb_invoice_id", "qb_realm_id", "qb_customer_id", "qb_payment_sync_pending"])
 
     #  Step 5: Mark as PAID for card payments 
     if payment_method == "card":
-        _record_qb_payment(
+        payment = _record_qb_payment(
             access_token   = access_token,
             realm_id       = realm_id,
             base_url       = base_url,
@@ -1022,6 +979,9 @@ def create_qb_invoice(access_token: str, order, orderItems: list, payment_method
             amount         = float(order.amount),
             transaction_id = order.transaction_id,
         )
+        order.qb_payment_id = str(payment["Id"])
+        order.qb_payment_sync_pending = False
+        order.save(update_fields=["qb_payment_id", "qb_payment_sync_pending"])
 
     return invoice
 

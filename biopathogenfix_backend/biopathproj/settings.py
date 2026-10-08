@@ -285,6 +285,10 @@ USE_REDIS_CACHE = os.getenv("USE_REDIS_CACHE", "false").lower() == "true"
 from celery.schedules import crontab
  
 CELERY_BEAT_SCHEDULE = {
+    "qb-payment-sync-every-five-min": {
+        "task": "payments.retry_pending_qb_payments",
+        "schedule": crontab(minute="*/5"),
+    },
     "ups-poll-every-30-min": {
     "task":     "order.poll_all_active_orders",
         "schedule": crontab(minute="*/1"),  # every 30 minutes

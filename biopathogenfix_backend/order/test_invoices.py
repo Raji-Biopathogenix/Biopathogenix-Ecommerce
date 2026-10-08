@@ -148,7 +148,8 @@ class InvoiceTests(SimpleTestCase):
         self.assertEqual(order.qb_invoice_id, "123")
         self.assertIs(post.call_args.kwargs['json']['ApplyTaxAfterDiscount'], True)
         self.assertEqual(order.qb_customer_id, "789")
-        order.save.assert_called_once_with(update_fields=["qb_invoice_id", "qb_realm_id", "qb_customer_id"])
+        order.save.assert_called_once_with(update_fields=["qb_invoice_id", "qb_realm_id", "qb_customer_id", "qb_payment_sync_pending"])
+        self.assertTrue(order.qb_payment_sync_pending)
 
     @patch("payments.utils.requests.get")
     def test_location_matches_shipping_state_name(self, get):

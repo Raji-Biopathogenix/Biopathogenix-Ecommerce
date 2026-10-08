@@ -553,9 +553,11 @@ def _create_order(
         except Exception as e:
             # Order is already saved — just log, don't fail the response
             logger.error(
-                f"QB Invoice creation FAILED for Order #{order.id} | "
+                f"QB invoice/payment synchronization FAILED for Order #{order.id} | "
                 f"txn={transaction_id} | error={e} | "
-                f"ACTION: Manually create invoice in QB admin"
+                f"Invoice ID={order.qb_invoice_id or 'unavailable'}; "
+                f"payment sync pending={order.qb_payment_sync_pending}. "
+                f"Pending linked payments retry automatically; check existing records before creating an invoice."
             )
     else:
         logger.warning(f"QB Invoice skipped for Order #{order.id} — no access token")

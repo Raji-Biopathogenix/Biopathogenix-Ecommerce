@@ -59,6 +59,8 @@ class Order(models.Model):
     qb_invoice_id = models.CharField(max_length=100, blank=True, default="")
     qb_realm_id = models.CharField(max_length=100, blank=True, default="")
     qb_customer_id = models.CharField(max_length=100, blank=True, default="")
+    qb_payment_id = models.CharField(max_length=100, blank=True, default="")
+    qb_payment_sync_pending = models.BooleanField(default=False, db_index=True)
     card_last4        = models.CharField(max_length=4,   blank=True)
     card_brand        = models.CharField(max_length=20,  blank=True)
     card_name         = models.CharField(max_length=100, blank=True)
