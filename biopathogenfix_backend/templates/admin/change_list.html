@@ -1,0 +1,106 @@
+{% extends "admin/change_list.html" %}
+
+{% block extrastyle %}
+  {{ block.super }}
+  <style>
+    /* Shared layout for every admin model, including custom list templates. */
+    body.change-list #changelist {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr);
+      align-items: start;
+      gap: 0 24px;
+      width: 100%;
+      min-width: 0;
+    }
+
+    body.change-list #changelist.filtered {
+      grid-template-columns: minmax(0, 1fr) 240px;
+    }
+
+    body.change-list #changelist > :not(#changelist-filter) {
+      grid-column: 1;
+      min-width: 0;
+    }
+
+    body.change-list #changelist .changelist-form-container,
+    body.change-list #changelist-form {
+      width: 100%;
+      min-width: 0;
+    }
+
+    body.change-list #changelist #changelist-filter {
+      grid-column: 2;
+      grid-row: 1 / span 10;
+      position: static;
+      width: auto;
+      margin: 0;
+    }
+
+    body.change-list #toolbar {
+      box-sizing: border-box;
+      width: 100%;
+      padding: 14px 16px;
+      margin-bottom: 16px;
+    }
+
+    body.change-list #changelist-search > div:first-child {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 8px;
+      max-width: none;
+    }
+
+    body.change-list #toolbar #searchbar {
+      box-sizing: border-box;
+      width: min(420px, 100%);
+      min-width: 0;
+      height: 34px;
+      padding: 6px 10px;
+    }
+
+    body.change-list #toolbar input[type="submit"] {
+      min-height: 34px;
+      padding: 6px 14px;
+    }
+
+    body.change-list #changelist .results {
+      width: 100%;
+      min-width: 0;
+      overflow-x: auto;
+    }
+
+    body.change-list #result_list {
+      width: 100%;
+    }
+
+    body.change-list #result_list tbody td,
+    body.change-list #result_list tbody th {
+      padding: 14px 12px;
+      vertical-align: top;
+      line-height: 1.5;
+    }
+
+    @media (max-width: 767px) {
+      body.change-list #changelist.filtered {
+        grid-template-columns: minmax(0, 1fr);
+      }
+
+      body.change-list #changelist #changelist-filter {
+        grid-column: 1;
+        grid-row: auto;
+        margin-top: 20px;
+      }
+
+      body.change-list #toolbar #searchbar {
+        flex: 1 1 180px;
+      }
+
+      body.change-list #changelist-search .quiet {
+        width: auto;
+        flex: 1 1 100%;
+        margin: 0;
+      }
+    }
+  </style>
+{% endblock %}
