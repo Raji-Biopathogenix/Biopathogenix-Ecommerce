@@ -51,7 +51,7 @@ def card_summary(card):
         'fingerprint': '', 'is_default': False}
 
 
-def get_owned_card(user, card_id, token, *, check_expiry=True):
+def get_owned_card(user, card_id, token, *, check_expiry=True, billing_address=None):
     if not isinstance(card_id, str) or not re.fullmatch(r'[A-Za-z0-9_-]{1,150}', card_id):
         raise ValueError('Please select a valid saved card.')
     card = _request(user, 'GET', token=token, card_id=card_id)
@@ -60,6 +60,20 @@ def get_owned_card(user, card_id, token, *, check_expiry=True):
     summary = card_summary(card)
     if check_expiry and (summary['exp_year'], summary['exp_month']) < (date.today().year, date.today().month):
         raise ValueError('This saved card has expired. Please use another card.')
+    if billing_address is not None:
+        # cardOnFile charges use the vault address, not a new checkout address.
+        # Reject a mismatch before charging rather than displaying an address
+        # that was never submitted to the card issuer.
+        address = card.get('address') or {}
+        normalize = lambda value: re.sub(r'[^a-z0-9]', '', str(value or '').casefold())
+        for stored_key, checkout_key in (('streetAddress', 'line1'), ('postalCode', 'postal_code')):
+            stored = normalize(address.get(stored_key))
+            entered = normalize(billing_address.get(checkout_key))
+            if not stored or not entered or stored != entered:
+                raise ValueError('Use the billing street address and ZIP recorded for this saved card, '
+                                 'or enter the card again with its current billing address.')
+        if address.get('country', 'US').upper() != 'US':
+            raise ValueError('Please use a card with a US billing address.')
     return summary
 
 

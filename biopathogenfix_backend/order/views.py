@@ -33,6 +33,7 @@ from payments.stripe_utils import refund_stripe_payment, verify_checkout_payment
 from prd_variant.models import ProductSKU
 from payments.validators import validate_checkout_payload
 from payments.qb_cards import get_owned_card, save_card
+from payments.card_verification import CardVerificationRejected, PaymentReviewRequired
 from django.utils import timezone
 
 from users.models import UserRole
@@ -246,7 +247,7 @@ def _handle_card_payment(request, data, user, amount, idempotency_key,cartItems)
     try:
         saved_card_id = data.get('saved_payment_method_id')
         if saved_card_id:
-            saved_card = get_owned_card(user, saved_card_id, access_token)
+            saved_card = get_owned_card(user, saved_card_id, access_token, billing_address=billing_address)
             qb_result = charge_card(access_token, data, amount, idempotency_key, billing_address,
                                     saved_card_id=saved_card['id'])
             data['card_name'] = saved_card['name']
@@ -254,6 +255,13 @@ def _handle_card_payment(request, data, user, amount, idempotency_key,cartItems)
             if data.get('save_payment_method') is True:
                 save_card(user, data, billing_address, token=access_token, request_key=idempotency_key)
             qb_result = charge_card(access_token,data, amount, idempotency_key,billing_address)
+    except CardVerificationRejected as e:
+        return Response({'status': 'error', 'message': str(e), 'retry': True,
+                         'reset_payment_attempt': True}, status=402)
+    except PaymentReviewRequired as e:
+        notify_admin_critical(e.transaction_id, user.id, user.email, amount, str(e))
+        return Response({'status': 'error', 'message': str(e), 'retry': False,
+                         'transaction_id': e.transaction_id}, status=503)
     except ValueError as e:
         # Card declined, invalid token etc.
         return Response({  "status":"error", "message":  str(e), "retry": True }, status=402)
