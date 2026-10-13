@@ -38,14 +38,23 @@ body {
   line-height: 1.7;
 }
 
-h1,
-h2,
-h3,
-h4,
-h5,
-h6 {
-  color: var(--navy);
-  letter-spacing: -0.04em;
+/* Page-specific heading colors should override these defaults. */
+@layer base {
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    color: var(--navy);
+    letter-spacing: -0.04em;
+  }
+}
+
+/* Keep assay banner titles readable above the dark image background. */
+.assay-hero-title {
+  color: #ffffff;
+  text-shadow: 0 2px 8px rgba(7, 31, 58, 0.35);
 }
 
 p,

@@ -20,7 +20,7 @@ export default function AssayHero({ config }: Props) {
           <p className="mb-3 text-sm font-semibold uppercase text-[#9bd2eb]">
             {config.eyebrow}
           </p>
-          <h1 className="mb-5 text-4xl font-extrabold leading-tight text-white lg:text-5xl">
+          <h1 className="assay-hero-title mb-5 text-4xl font-extrabold leading-tight text-white lg:text-5xl">
             {config.heroTitle}
           </h1>
           <p className="mb-7 max-w-2xl text-lg leading-relaxed text-[#d9edf7]">
