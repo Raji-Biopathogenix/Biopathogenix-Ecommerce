@@ -1,0 +1,19 @@
+/* Match entered checkout values to the site's navy brand color. */
+.checkout-page :is(
+  input:not([type="checkbox"]):not([type="radio"]):not([type="button"]):not([type="submit"]),
+  select,
+  textarea
+) {
+  color: var(--navy);
+  caret-color: var(--navy);
+}
+
+.checkout-page :is(input, textarea)::placeholder {
+  color: var(--text-soft);
+  opacity: 1;
+}
+
+.checkout-page :is(input, select, textarea):-webkit-autofill {
+  -webkit-text-fill-color: var(--navy);
+  caret-color: var(--navy);
+}

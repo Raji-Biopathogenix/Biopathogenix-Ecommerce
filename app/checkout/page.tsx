@@ -1,5 +1,6 @@
 ﻿"use client";
 
+import "./checkout.css";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -942,7 +943,7 @@ export default function CheckoutPage() {
   // --- Stripe path (commented out in favor of QuickBooks Payments) ---
   // <Elements stripe={stripePromise}> used to wrap the JSX below.
   return (
-    <main className="max-w-6xl mx-auto px-6 py-12">
+    <main className="checkout-page max-w-6xl mx-auto px-6 py-12">
       {loading && (
         <div className="fixed inset-0 z-50 flex items-start justify-center px-4 pt-24">
           <div className="absolute inset-0 bg-[#0b2e59]/10 backdrop-blur-sm" />
