@@ -38,8 +38,6 @@ export default async function Home() {
 
   const hero = findSection(pageContents, ["hero"]);
   const shopByCategory = findSection(pageContents, ["categor"]);
-  const conversionPathways = findSection(pageContents, ["conversion", "pathway"]);
-  const supportingCommunity = findSection(pageContents, ["scientific", "communit"]);
   const productCatalog = findSection(pageContents, ["catalog"]);
 
   return (
@@ -73,9 +71,9 @@ export default async function Home() {
         "
         />
         <HighPerformanceMultiplex />
-        <PrimaryConversionPathways result={conversionPathways} />
+        <PrimaryConversionPathways />
       </div>
-      <SupportingScientificCommunity result={supportingCommunity} />
+      <SupportingScientificCommunity />
       <ProductCatalogBanner result={productCatalog} />
     </main>
   );

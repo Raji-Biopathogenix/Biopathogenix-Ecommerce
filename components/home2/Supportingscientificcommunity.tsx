@@ -1,11 +1,6 @@
 "use client";
 
-import { useRouter } from "next/navigation";
-import { LandingPageType } from "@/types/header";
-
-interface SupportCommunityprops {
-  result?: LandingPageType;
-}
+import Link from "next/link";
 
 const TOPICS = [
   "PCR assay design principles",
@@ -32,13 +27,7 @@ function CheckIcon() {
   );
 }
 
-export default function SupportingScientificCommunity({
-  result,
-}: SupportCommunityprops) {
-  const router = useRouter();
-
-  const btnUrl = result?.contexts?.[0]?.btn_url || "#";
-
+export default function SupportingScientificCommunity() {
   return (
     <section className="bg-white pt-10 md:pt-16 lg:pt-20">
       <div className="mx-auto w-full px-4 sm:px-5 lg:px-0">
@@ -100,16 +89,16 @@ export default function SupportingScientificCommunity({
                   ))}
                 </ul>
 
-                <button
-                  onClick={() => router.push(btnUrl)}
-                  className="mt-7 inline-flex h-[48px] items-center rounded-xl bg-[#0E5C97] px-5 text-[14px] font-semibold text-white transition-all duration-300 hover:bg-[#0B4F82] sm:h-[56px] sm:px-7 sm:text-[16px] md:mt-9 lg:mt-10 lg:h-[62px] lg:px-8 lg:text-[18px]"
+                <Link
+                  href="/resources/blog-learning-center"
+                  className="mt-7 inline-flex h-[48px] items-center rounded-xl bg-[#0E5C97] px-5 text-[14px] font-semibold text-white transition-all duration-300 hover:bg-[#0B4F82] focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#0E5C97] sm:h-[56px] sm:px-7 sm:text-[16px] md:mt-9 lg:mt-10 lg:h-[62px] lg:px-8 lg:text-[18px]"
                 >
-                  <span>Explore QC &amp; Validation Solutions</span>
+                  <span>Learning Center</span>
 
                   <span className="ml-4 border-l border-white/30 pl-4 text-[18px] sm:ml-7 sm:pl-7 md:text-[22px] lg:ml-8 lg:pl-8 lg:text-[24px]">
                     →
                   </span>
-                </button>
+                </Link>
               </div>
             </div>
           </div>

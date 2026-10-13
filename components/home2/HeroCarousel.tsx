@@ -91,18 +91,13 @@ export default function HeroCarousel({ result }: HeroCarouselprops) {
           </p>
 
           {/* Heading */}
-          <h1 className="font-['Quicksand'] text-[clamp(32px,9vw,46px)] font-bold leading-[1.08] tracking-[-0.035em] text-[#0F2D5C] sm:text-[56px] sm:leading-[1.02] sm:tracking-[-0.04em] md:text-[64px] lg:text-[74px]">
-            Precision you
-            <br />
-            can trust.
-            <br />
-            <span className="text-[#4A97D3]">Partners you</span>
-            <br />
-            <span className="text-[#4A97D3]">can count on.</span>
+          <h1 className="text-balance font-['Quicksand'] text-[clamp(32px,8vw,46px)] font-bold leading-[1.1] tracking-[-0.035em] text-[#0F2D5C] sm:text-[56px] sm:tracking-[-0.04em] md:text-[64px] lg:text-[52px] xl:text-[60px]">
+            Complete Workflow Solutions for{" "}
+            <span className="text-[#4A97D3]">Pathogen Detection.</span>
           </h1>
 
           <h2 className="mx-auto mt-4 max-w-[340px] text-[16px] font-semibold leading-[1.4] tracking-normal text-[#173963] sm:mx-0 sm:mt-7 sm:max-w-none sm:text-[20px] sm:leading-[1.35]">
-            Complete Workflow Solutions for Pathogen Detection.
+            Precision you can trust. Partners you can count on.
           </h2>
 
           {/* Description */}
