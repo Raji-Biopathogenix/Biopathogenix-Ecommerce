@@ -23,8 +23,13 @@ def retry_pending_qb_payments():
             with transaction.atomic():
                 order = Order.objects.select_for_update().get(pk=order_id)
                 if order.qb_payment_sync_pending:
-                    sync_order_payment(order, token)
-                    synced += 1
+                    try:
+                        sync_order_payment(order, token)
+                        synced += 1
+                    except Exception:
+                        # Preserve invoice/customer progress even if recording
+                        # the payment fails after a successful invoice request.
+                        logger.warning('QuickBooks payment sync pending for order %s', order_id)
         except Exception:
             # Keep the pending flag for the next scheduled attempt; do not
             # expose provider responses/card details in task logs.

@@ -814,15 +814,19 @@ def create_qb_invoice(access_token: str, order, orderItems: list, payment_method
     base_url = get_qb_accounting_base_url(config)
     realm_id = config.realm_id
 
+    retryable_card = payment_method == "card" and order.qb_payment_sync_pending is True
+    if retryable_card and str(order.qb_realm_id) != str(realm_id):
+        raise ValueError("Order belongs to a different QuickBooks company.")
+
 
 
     # Step 1: Get or create QB customer — re-validate a cached Id
     # rather than trusting it forever (it may belong to a different
     # QB environment/company, or have since been deactivated).
-    customer_id = None
+    customer_id = order.qb_customer_id if retryable_card and order.qb_customer_id else None
     # Company orders must resolve the shared customer even when this user
     # has a cached personal customer from before they joined the laboratory.
-    if not get_qb_company_name(user) and user.quickbook_customer_id and is_qb_customer_active(
+    if not customer_id and not get_qb_company_name(user) and user.quickbook_customer_id and is_qb_customer_active(
         access_token, realm_id, base_url, user.quickbook_customer_id
     ):
         customer_id = user.quickbook_customer_id
@@ -832,7 +836,16 @@ def create_qb_invoice(access_token: str, order, orderItems: list, payment_method
         user.quickbook_customer_id = customer_id
         user.save(update_fields=["quickbook_customer_id"])
 
-    print(f"QB invoice for Order #{order.id} using customer_id={customer_id} realm_id={realm_id}")
+    from .qb_payment_sync import find_order_invoice, invoice_marker
+    if retryable_card:
+        # Pin the customer before contacting the invoice endpoint so recovery
+        # does not move this payment to a different customer on a later retry.
+        order.qb_customer_id = str(customer_id)
+        order.save(update_fields=["qb_customer_id"])
+        invoice = find_order_invoice(access_token, realm_id, base_url, customer_id, order)
+        if invoice:
+            return _finish_qb_invoice(access_token, order, payment_method, customer_id,
+                                      realm_id, base_url, invoice)
 
     # Step 2: Build line items
     default_item_id = get_or_create_qb_item(access_token, realm_id, base_url)
@@ -846,6 +859,7 @@ def create_qb_invoice(access_token: str, order, orderItems: list, payment_method
         # Match checkout_quote: subtract the coupon before calculating tax.
         "ApplyTaxAfterDiscount": True,
         "CustomerRef": { "value": customer_id },
+        "PrivateNote": invoice_marker(order, realm_id),
         # No DocNumber override — QuickBooks assigns its own next
         # sequential invoice number, same as it always has. The order
         # number is still traceable via each line's Description.
@@ -883,7 +897,6 @@ def create_qb_invoice(access_token: str, order, orderItems: list, payment_method
         invoice_payload["DepartmentRef"] = {"value": location_id}
 
     #  Step 4: Create invoice in QB
-    print(f"QB invoice payload for Order #{order.id}: {invoice_payload}")
     invoice_response = requests.post(
         f"{base_url}/v3/company/{realm_id}/invoice",
         headers={
@@ -892,6 +905,8 @@ def create_qb_invoice(access_token: str, order, orderItems: list, payment_method
             "Accept":        "application/json",
         },
         json=invoice_payload,
+        params={"requestid": str(uuid.uuid5(uuid.NAMESPACE_URL,
+            f'qb-invoice:{realm_id}:{order.id}:{order.transaction_id}'))},
         timeout=15,
     )
 
@@ -918,12 +933,16 @@ def create_qb_invoice(access_token: str, order, orderItems: list, payment_method
         )
         raise Exception(f"QB Invoice API error (status {invoice_response.status_code}): {invoice_data}")
 
-    invoice      = invoice_data.get("Invoice", {})
+    return _finish_qb_invoice(access_token, order, payment_method, customer_id,
+                              realm_id, base_url, invoice_data.get("Invoice", {}))
+
+
+def _finish_qb_invoice(access_token, order, payment_method, customer_id, realm_id, base_url, invoice):
+    """Save remote progress before the separately retryable payment operation."""
     invoice_id   = invoice.get("Id")
 
     if not invoice_id:
-        logger.error(f"QB Invoice creation failed for Order #{order.id}: {invoice_data}")
-        raise Exception(f"QB Invoice creation failed: {invoice_data}")
+        raise ValueError("QuickBooks did not return an invoice ID; synchronization remains pending.")
 
     logger.info(
         f"QB Invoice #{invoice_id} created | "

@@ -13,7 +13,9 @@ class CapturedPaymentTests(SimpleTestCase):
     def setUp(self):
         self.charge = {'id': 'charge-1', 'status': 'CAPTURED', 'amount': '58.30',
             'currency': 'USD', 'created': '2026-10-08T12:00:00Z', 'authCode': 'auth',
-            'context': {'clientTransID': 'settlement-1', 'reconBatchID': 'batch-1'},
+            'context': {'clientTransID': 'settlement-1', 'reconBatchID': 'batch-1',
+                        'merchantAccountNumber': 'merchant-1', 'paymentGroupingCode': '5',
+                        'txnAuthorizationStamp': '1791460800'},
             'card': {'number': 'private-card-data', 'cvc': 'private-cvc'}}
         self.invoice = {'Id': 'invoice-1', 'CustomerRef': {'value': 'customer-1'},
             'Balance': 58.30, 'TotalAmt': 58.30}
@@ -49,6 +51,9 @@ class CapturedPaymentTests(SimpleTestCase):
         self.assertEqual(metadata['CCTransId'], 'charge-1')
         self.assertEqual(metadata['ClientTransID'], 'settlement-1')
         self.assertEqual(metadata['ReconBatchId'], 'batch-1')
+        self.assertEqual(metadata['MerchantAcctNum'], 'merchant-1')
+        self.assertEqual(metadata['PaymentGroupingCode'], 5)
+        self.assertEqual(metadata['TxnAuthorizationStamp'], 1791460800)
         self.assertEqual(metadata['Status'], 'Completed')
         self.assertNotIn('private-card-data', str(payload))
         self.assertNotIn('private-cvc', str(payload))
