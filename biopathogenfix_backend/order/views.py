@@ -32,6 +32,7 @@ from payments.utils import (
 from payments.stripe_utils import refund_stripe_payment, verify_checkout_payment_intent
 from prd_variant.models import ProductSKU
 from payments.validators import validate_checkout_payload
+from payments.models import QBConfig
 from payments.qb_cards import get_owned_card, save_card
 from payments.card_verification import CardVerificationRejected, PaymentReviewRequired
 from django.utils import timezone
@@ -400,6 +401,8 @@ def _create_order(
                 status             = status,
                 paymet_status      = "success" if payment_method == "card" else "pending",
                 payment_method     = payment_method,
+                qb_payment_sync_pending = payment_method == "card",
+                qb_realm_id = str(QBConfig.get().realm_id) if payment_method == "card" else "",
                 card_last4         = str(card_last4 or "")[-4:],
                 card_brand         = card_brand,
                 card_name          = card_name,
@@ -546,27 +549,23 @@ def _create_order(
     # This is independent of later status updates and accounting synchronization.
     db_transaction.on_commit(lambda: send_order_confirmation_emails(order))
 
-    # STEP 2: Create QB Invoice (outside atomic — never fails the order) 
+    # STEP 2: Synchronize accounting after the order has been committed.
     if access_token:
-        order_items = OrderItem.objects.filter(order= order.id)
-        try:
-            create_qb_invoice(
-                access_token   = access_token,
-                order          = order,
-                orderItems     = order_items,
-                payment_method = payment_method,
-                user = user
-
-            )
-        except Exception as e:
-            # Order is already saved — just log, don't fail the response
-            logger.error(
-                f"QB invoice/payment synchronization FAILED for Order #{order.id} | "
-                f"txn={transaction_id} | error={e} | "
-                f"Invoice ID={order.qb_invoice_id or 'unavailable'}; "
-                f"payment sync pending={order.qb_payment_sync_pending}. "
-                f"Pending linked payments retry automatically; check existing records before creating an invoice."
-            )
+        # Serialize checkout and background retries. Catch provider failures
+        # inside the transaction so a saved invoice link is not rolled back.
+        with db_transaction.atomic():
+            order = Order.objects.select_for_update().get(pk=order.pk)
+            try:
+                if payment_method == "card":
+                    from payments.qb_payment_sync import sync_order_payment
+                    sync_order_payment(order, access_token)
+                else:
+                    create_qb_invoice(access_token, order, order.items.all(), payment_method, user)
+            except Exception:
+                logger.error(
+                    "QB accounting synchronization pending for Order #%s; invoice=%s",
+                    order.pk, order.qb_invoice_id or 'unavailable',
+                )
     else:
         logger.warning(f"QB Invoice skipped for Order #{order.id} — no access token")
     return Response({
