@@ -1,11 +1,7 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { LandingPageType } from "@/types/header";
-
-interface PrimaryConversionPathwaysprops {
-  result?: LandingPageType;
-}
+import Link from "next/link";
 
 const PATHWAY_CARDS = [
   {
@@ -54,9 +50,8 @@ const PATHWAY_CARDS = [
   },
 ];
 
-export default function PrimaryConversionPathways({ result }: PrimaryConversionPathwaysprops) {
+export default function PrimaryConversionPathways() {
   const router = useRouter();
-  const btnUrl = result?.contexts?.[0]?.btn_url || "#";
 
   return (
     <section
@@ -64,14 +59,9 @@ export default function PrimaryConversionPathways({ result }: PrimaryConversionP
     >
       <div className="mx-auto flex max-w-[1500px] flex-col items-center gap-10 md:gap-14 lg:flex-row lg:items-center lg:justify-between lg:gap-20">
         <div className="w-full max-w-[610px]">
-          <h2 className="font-['Quicksand'] text-[34px] font-semibold leading-[0.98] tracking-[-0.03em] text-[#173963] sm:text-[40px] lg:text-[60px]">
-            Primary{" "}
-            <span className="text-[#58A7E8]">
-              Conversion
-            </span>
-            <span className="block text-[#58A7E8]">
-              Pathways
-            </span>
+          <h2 className="text-balance font-['Quicksand'] text-[34px] font-semibold leading-[1.1] tracking-[-0.03em] text-[#173963] sm:text-[40px] lg:text-[52px] xl:text-[60px]">
+            <span className="block">Built for Accuracy.</span>{" "}
+            <span className="block text-[#58A7E8]">Backed by Validation.</span>
           </h2>
 
           <p className="mt-5 max-w-[520px] text-[15px] leading-7 text-[#3a5070] sm:text-[16px] sm:leading-8">
@@ -86,15 +76,15 @@ export default function PrimaryConversionPathways({ result }: PrimaryConversionP
             and maintain confidence in their molecular results.
           </p>
 
-          <button
+          <Link
             className="mt-8 inline-flex h-[50px] w-full items-center justify-center rounded-lg bg-[#174372] px-5 text-[14px] font-semibold text-white transition-all duration-300 hover:bg-[#12345a] sm:mt-10 sm:h-[56px] sm:w-auto sm:px-8 sm:text-[16px]"
-            onClick={() => router.push(btnUrl)}
+            href="/services/validation-services"
           >
             Explore QC &amp; Validation Solutions
             <span className="ml-4 border-l border-white/30 pl-4 text-lg sm:ml-6 sm:pl-6 sm:text-xl">
               →
             </span>
-          </button>
+          </Link>
         </div>
 
         <div className="grid w-full max-w-[720px] grid-cols-1 gap-4 sm:gap-6 sm:grid-cols-2">
