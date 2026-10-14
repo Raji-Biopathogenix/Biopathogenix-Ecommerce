@@ -28,7 +28,7 @@ export default function ValidationDifferenceSection() {
         <div className="mt-8 grid gap-6 lg:grid-cols-[1.18fr_0.82fr]">
           <div className="rounded-[28px] bg-[#092354] px-6 py-7 text-white shadow-[0_22px_42px_rgba(9,35,84,0.18)] md:px-8 md:py-8">
             <span className="text-[0.72rem] font-bold tracking-[0.32em] text-[#77c6ec]">01.</span>
-            <h3 className="mt-3 max-w-[340px] font-['Quicksand'] text-[1.55rem] font-bold leading-[1.02] md:text-[2.1rem]">
+            <h3 className="mt-3 max-w-[340px] font-['Quicksand'] text-[1.55rem] font-bold leading-[1.02] text-white md:text-[2.1rem]">
               Built Around Regulatory Expectations
             </h3>
             <p className="mt-4 max-w-[420px] text-[0.82rem] leading-6 text-white/80 md:text-[0.98rem]">

@@ -37,7 +37,7 @@ export default function ValidationBottomCta({ onOpenForm }: ValidationBottomCtaP
             <button
               type="button"
               onClick={onOpenForm}
-              className="mt-6 inline-flex items-center gap-3 rounded-[4px] bg-white px-6 py-3 text-[0.82rem] font-semibold text-[#0a1d3d] transition hover:bg-[#eef6fc] md:mt-8 md:px-7 md:text-[0.94rem]"
+              className="mt-6 inline-flex w-full max-w-[300px] items-center justify-between gap-6 self-start rounded-[4px] bg-white px-6 py-3 text-[0.82rem] font-semibold text-[#0a1d3d] transition hover:bg-[#eef6fc] md:mt-8 md:px-7 md:text-[0.94rem]"
             >
               Schedule a Consultation
               <span className="border-l border-[#0a1d3d]/20 pl-3">

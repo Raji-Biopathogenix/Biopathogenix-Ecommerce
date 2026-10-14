@@ -3,6 +3,7 @@ import { createContext, useContext, useState,useEffect,useReducer } from 'react'
 import { jwtDecode } from 'jwt-decode'
 import {MainPageLoader} from "../components/loader/MainPageLoader";
 import {CartServices} from "@/services/cartServices";
+import { createRandomId } from "@/lib/randomId";
 
 interface DecodedToken {
     user_id: string
@@ -121,7 +122,10 @@ function getCookie(name: string): string | null {
 function setTmpIdCookie(): string {
   let tmpId = getCookie("tmp_id");
   if (!tmpId) {
-    tmpId = crypto.randomUUID();
+    tmpId =
+      typeof crypto.randomUUID === "function"
+        ? crypto.randomUUID()
+        : createRandomId();
     const expires = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toUTCString();
     document.cookie = `tmp_id=${tmpId}; expires=${expires}; path=/; SameSite=Lax`;
   }
