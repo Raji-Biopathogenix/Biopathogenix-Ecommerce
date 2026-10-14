@@ -1,0 +1,8 @@
+A new Free Panel Assessment request has been submitted from the {{ source_label }}.
+
+Name: {{ name }}
+Work Email: {{ email }}
+Organization: {{ org }}
+Phone: {{ phone }}
+Application Area: {{ interest }}
+Targets & Multiplex Format: {{ message }}

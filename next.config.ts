@@ -7,6 +7,15 @@ const nextConfig: NextConfig = {
       { source: "/admin/:path*", destination: "https://api.biopathogenix.com/admin/:path*", permanent: false },
     ];
   },
+  async rewrites() {
+    // Serve the standalone Traceable Pathogen panel pages without the .html extension.
+    return [
+      {
+        source: "/traceable-asset-panel/:page(general-value-prop|custom-assay-landing-page|bpx-thank-you|bpx-thank-you-custom-assay)",
+        destination: "/traceable-asset-panel/:page.html",
+      },
+    ];
+  },
   images: {
     formats: ['image/avif', 'image/webp'],
     remotePatterns: [

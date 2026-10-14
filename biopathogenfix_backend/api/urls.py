@@ -17,7 +17,7 @@ from order.packing_slips import PackingSlipView
 
 from home.views import HeaderMenuViewset, CareerOpenRoleViewset, CareerApplicationCreateView,LandingPageView,BlogPostViewset
 
-from api.views import AssayInquiryView, ContactValidationView, CustomTargetRequestView, QualityControlAvailabilityView
+from api.views import AssayInquiryView, ContactValidationView, CustomTargetRequestView, PanelAssessmentView, QualityControlAvailabilityView
 from payments.views import create_payment_intent, create_setup_intent, list_payment_methods, save_payment_method, stripe_config
 from payments.qb_cards import payment_methods as qb_payment_methods
 
@@ -100,6 +100,7 @@ urlpatterns += [
     path("contact-validation/", ContactValidationView.as_view(), name="contact_validation"),
     path("quality-control-availability/", QualityControlAvailabilityView.as_view(), name="quality_control_availability"),
     path("assay-inquiry/", AssayInquiryView.as_view(), name="assay_inquiry"),
+    path("panel-assessment/", PanelAssessmentView.as_view(), name="panel_assessment"),
     path("custom-target-request/", CustomTargetRequestView.as_view(), name="custom_target_request"),
     path("career-applications/", CareerApplicationCreateView.as_view(), name="career_applications"),
     path('<int:order_id>/create_order_shipments/',CreateOutboundShipmentView.as_view(),name='create-shipment'),
