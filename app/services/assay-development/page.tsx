@@ -3,18 +3,19 @@ import Link from "next/link";
 import {
   ArrowRight,
   CheckCircle2,
-  ClipboardCheck,
+  Factory,
   Download,
   FlaskConical,
-  Headset,
+  UsersRound,
   Mail,
-  ShieldCheck,
+  FileText,
   Truck,
 } from "lucide-react";
 import AssayInquiryForm from "@/components/assay-services/AssayInquiryForm";
+import styles from "./assay-development.module.css";
 
-const HEX_CLIP = "polygon(25% 0%, 75% 0%, 100% 50%, 75% 100%, 25% 100%, 0% 50%)";
-const HEX_RATIO = 1.1547;
+const HEX_CLIP = "url(#assay-hero-hex)";
+const HEX_RATIO = 0.866;
 
 const assayImages = {
   heroBg: "/images/assay%20landing%20page/bg1.jpeg",
@@ -31,11 +32,11 @@ const assayImages = {
 };
 
 const reassuranceItems = [
-  { icon: ClipboardCheck, label: "Domestic manufacturing and shipping" },
+  { icon: Factory, label: "Domestic manufacturing and shipping" },
   { icon: Truck, label: "72-hour time shipping (where applicable)" },
   { icon: FlaskConical, label: "RUO-only molecular assays" },
-  { icon: Headset, label: "Direct access to assay specialists" },
-  { icon: ShieldCheck, label: "Industry-standard documentation & QA process" },
+  { icon: UsersRound, label: "Direct access to assay specialists" },
+  { icon: FileText, label: "Industry-standard documentation & QA process" },
 ];
 
 const customBullets = [
@@ -51,14 +52,31 @@ const supportBullets = [
   "Clear guidance on feasibility, timelines, and documentation",
 ];
 
-function HeroHex({ src, alt, className }: { src: string; alt: string; className: string }) {
+function HeroHex({
+  src,
+  alt,
+  className = "",
+  position = "center",
+}: {
+  src: string;
+  alt: string;
+  className?: string;
+  position?: string;
+}) {
   return (
     <div
-      className={`relative overflow-hidden bg-white p-1.5 shadow-[0_16px_34px_rgba(14,33,61,0.16)] sm:p-2 ${className}`}
+      className={`${styles.hex} ${className}`}
       style={{ clipPath: HEX_CLIP, aspectRatio: HEX_RATIO }}
     >
       <div className="relative h-full w-full overflow-hidden" style={{ clipPath: HEX_CLIP }}>
-        <Image src={src} alt={alt} fill className="object-cover" />
+        <Image
+          src={src}
+          alt={alt}
+          fill
+          sizes="(min-width: 1024px) 290px, 170px"
+          className="object-cover"
+          style={{ objectPosition: position }}
+        />
       </div>
     </div>
   );
@@ -66,106 +84,68 @@ function HeroHex({ src, alt, className }: { src: string; alt: string; className:
 
 export default function AssayDevelopmentPage() {
   return (
-    <main
-      className="overflow-hidden bg-[#f2f7fd] text-[#18355d]"
-      style={{
-        backgroundImage: `url("${assayImages.dnaBg}")`,
-        backgroundSize: "cover",
-        backgroundPosition: "center top",
-      }}
+    <main className={`${styles.page} overflow-hidden bg-white text-[#18355d]`}
     >
-      <section
-        className="relative overflow-hidden px-4 pb-8 pt-4 sm:px-6 md:px-10 md:pb-10 md:pt-6 lg:px-0"
-        style={{
-          backgroundImage: `url("${assayImages.heroBg}")`,
-          backgroundSize: "cover",
-          backgroundPosition: "center",
-        }}
-      >
-        <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_50%_28%,rgba(255,255,255,0.94)_0,rgba(255,255,255,0.86)_24%,rgba(241,246,252,0.58)_54%,rgba(235,242,250,0.3)_78%,rgba(235,242,250,0.08)_100%)]" />
-        <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(90deg,rgba(255,255,255,0.12)_0%,rgba(255,255,255,0)_20%,rgba(255,255,255,0)_80%,rgba(255,255,255,0.12)_100%)]" />
-
-        <div className="relative mx-auto h-[460px] w-full max-w-none sm:h-[540px] lg:h-[650px] xl:h-[700px]">
-          <div className="pointer-events-none absolute left-[4.5%] top-[9%] hidden lg:flex lg:w-[17%] lg:flex-col lg:items-start lg:gap-4 xl:left-[6%] xl:w-[15%] xl:gap-5">
-            <HeroHex src={assayImages.heroLeftTop} alt="Assay development lab" className="h-[132px] xl:h-[150px]" />
-            <HeroHex src={assayImages.heroLeftMid} alt="Scientist running samples" className="ml-4 h-[198px] xl:h-[224px]" />
-            <HeroHex src={assayImages.heroLeftBottom} alt="Assay specialist" className="ml-8 h-[132px] xl:h-[150px]" />
+      <svg width="0" height="0" aria-hidden="true" className="absolute">
+        <defs>
+          <clipPath id="assay-hero-hex" clipPathUnits="objectBoundingBox">
+            <path d="M .47 .015 Q .5 0 .53 .015 L .97 .235 Q 1 .25 1 .28 L 1 .72 Q 1 .75 .97 .765 L .53 .985 Q .5 1 .47 .985 L .03 .765 Q 0 .75 0 .72 L 0 .28 Q 0 .25 .03 .235 Z" />
+          </clipPath>
+        </defs>
+      </svg>
+      <section className={styles.hero}>
+        <div className={styles.heroStage}>
+          <div className={styles.heroLeft} aria-hidden="true">
+            <HeroHex src={assayImages.heroLeftTop} alt="" className={styles.hexLeftMain} position="32% 50%" />
+            <HeroHex src={assayImages.heroLeftMid} alt="" className={styles.hexLeftOuter} position="50% 35%" />
+            <HeroHex src={assayImages.heroLeftBottom} alt="" className={styles.hexLeftInner} position="42% 50%" />
           </div>
-
-          <div className="pointer-events-none absolute right-[4.5%] top-[9%] hidden lg:flex lg:w-[17%] lg:flex-col lg:items-end lg:gap-4 xl:right-[6%] xl:w-[15%] xl:gap-5">
-            <HeroHex src={assayImages.heroRightTop} alt="qPCR assay scientist" className="h-[132px] xl:h-[150px]" />
-            <HeroHex src={assayImages.heroRightMid} alt="Molecular assay review" className="mr-4 h-[198px] xl:h-[224px]" />
-            <HeroHex src={assayImages.heroRightBottom} alt="Quality assay process" className="mr-8 h-[132px] xl:h-[150px]" />
+          <div className={styles.heroRight} aria-hidden="true">
+            <HeroHex src={assayImages.heroRightTop} alt="" className={styles.hexRightInner} position="50% 22%" />
+            <HeroHex src={assayImages.heroRightMid} alt="" className={styles.hexRightOuter} position="72% 50%" />
+            <HeroHex src={assayImages.heroRightBottom} alt="" className={styles.hexRightMain} position="55% 28%" />
           </div>
-
-          <div className="relative mx-auto flex h-full w-full max-w-[980px] flex-col items-center justify-center text-center lg:max-w-[66%] xl:max-w-[1040px]">
-            <p className="mb-2 text-[0.7rem] font-bold tracking-[0.34em] text-[#5a7ca1] md:mb-3 md:text-[0.8rem]">
-              ASSAY DEVELOPMENT
+          <div className={styles.heroCopy}>
+            <p className={styles.heroEyebrow}>ASSAY DEVELOPMENT</p>
+            <h1>Custom <span>qPCR &amp;<br />Molecular Assays</span></h1>
+            <p className={styles.heroTagline}>Built, Validated, and Shipped Fast</p>
+            <p className={styles.heroDescription}>
+              Domestic manufacturing. Direct access to assay specialists.<br />
+              Human response within 24 hours or less.
             </p>
-            <h1 className="max-w-[1000px] font-['Quicksand'] text-[2.1rem] font-bold leading-[0.93] tracking-[-0.04em] text-[#1a3160] sm:text-[3rem] md:text-[3.6rem] lg:text-[4.1rem] xl:text-[4.4rem]">
-              Custom qPCR &amp;
-              <br />
-              <span className="text-[#3f86ca]">Molecular Assays</span>
-            </h1>
-            <p className="mt-4 text-[1.02rem] font-semibold text-[#1d3a65] md:text-[1.26rem]">
-              Built, Validated, and Shipped Fast
-            </p>
-            <p className="mx-auto mt-3 max-w-[700px] text-[0.9rem] leading-[1.55] text-[#415c7c] md:mt-4 md:text-[1rem]">
-              Domestic manufacturing. Direct access to assay specialists. Human response within 24
-              hours or less.
-            </p>
-
-            <div className="mt-6 flex flex-col items-center justify-center gap-2.5 sm:gap-3">
-              <Link
-                href="/files/2025-BioPathogenix-Product-Catalog%201.pdf"
-                download
-                className="inline-flex h-[48px] w-full max-w-[420px] items-center justify-between gap-4 rounded-[4px] border border-[#2d5f95] bg-[#2f5d8f] px-5 text-[0.83rem] font-semibold text-white shadow-[0_10px_24px_rgba(25,62,107,0.22)] transition-transform hover:-translate-y-0.5 hover:bg-[#214b75] md:px-6 md:text-[0.95rem]"
-              >
-                <span className="whitespace-nowrap">Download Assay Guide</span>
-                <span className="border-l border-white/30 pl-3">
-                  <ArrowRight className="h-4 w-4" />
-                </span>
+            <div className={styles.heroActions}>
+              <Link href="/files/2025-BioPathogenix-Product-Catalog%201.pdf" download>
+                Download Assay Guide <ArrowRight aria-hidden="true" />
               </Link>
-              <a
-                href="#assay-inquiry-form"
-                className="inline-flex h-[48px] w-full max-w-[420px] items-center justify-between gap-4 rounded-[4px] border border-[#b3c7dd] bg-white px-5 text-[0.83rem] font-semibold text-[#2b4c73] shadow-[0_10px_24px_rgba(25,62,107,0.08)] transition-transform hover:-translate-y-0.5 hover:bg-[#f5f9fd] md:px-6 md:text-[0.95rem]"
-              >
-                <span className="whitespace-nowrap">Request a Custom Assay</span>
-                <span className="border-l border-[#2b4c73]/20 pl-3">
-                  <ArrowRight className="h-4 w-4" />
-                </span>
-              </a>
+              <a href="#assay-inquiry-form">Request a Custom Assay <ArrowRight aria-hidden="true" /></a>
             </div>
           </div>
         </div>
       </section>
 
-      <section className="mx-auto w-full max-w-[1460px] px-4 pb-3 sm:px-6 lg:px-10">
-        <div className="grid grid-cols-1 gap-2 border-y border-[#dce9f6] bg-white/60 px-3 py-3 sm:grid-cols-2 lg:grid-cols-5 lg:gap-4 lg:bg-transparent">
+      <section className={`${styles.badges} mx-auto w-full max-w-[1460px] px-4 pb-6 sm:px-6 md:pb-0 lg:px-10`}>
+        <div className="grid grid-cols-1 gap-3 bg-white/60 px-3 py-4 sm:grid-cols-2 md:py-3 lg:grid-cols-5 lg:gap-6">
           {reassuranceItems.map((item) => (
-            <div key={item.label} className="flex items-center gap-2.5 text-[#1f4f78]">
-              <item.icon className="h-4 w-4 shrink-0 text-[#3f88c7]" />
-              <p className="text-[12px] font-medium leading-snug">{item.label}</p>
+            <div key={item.label} className="flex min-w-0 items-center gap-3 text-[#173b62]">
+              <span className={styles.badgeIcon}><item.icon aria-hidden="true" /></span>
+              <p className="text-[13px] font-semibold leading-snug md:text-[14px]">{item.label}</p>
             </div>
           ))}
         </div>
       </section>
 
-      <section className="mx-auto mt-4 w-full max-w-[1460px] px-4 sm:px-6 lg:px-10">
-        <div className="grid overflow-hidden rounded-[22px] bg-[#0b234b] md:grid-cols-[1.02fr_0.98fr]">
-          <div className="relative min-h-[300px] md:min-h-[445px]">
-            <Image src={assayImages.customBuilt} alt="Custom assay scientists" fill className="object-cover" />
-            <div className="absolute inset-0 bg-[linear-gradient(90deg,rgba(7,24,52,0.18)_0%,rgba(7,24,52,0)_35%)]" />
+      <section className={`${styles.custom} mx-auto w-full max-w-[1460px] px-4 sm:px-6 lg:px-10`}>
+        <div className="grid overflow-hidden rounded-[22px] bg-[#191e49] md:grid-cols-2">
+          <div className="relative min-h-[300px] min-w-0 md:min-h-[445px]">
+            <Image src={assayImages.customBuilt} alt="Custom assay scientists" fill sizes="(min-width: 1460px) 690px, (min-width: 768px) 50vw, 100vw" className="object-cover" />
           </div>
-          <div className="flex min-h-[300px] items-start px-6 py-7 text-white md:min-h-[445px] md:px-8 md:py-8">
-            <div className="w-full max-w-[470px]">
+          <div className="flex min-h-[300px] min-w-0 items-center px-6 py-8 text-left text-white md:min-h-[445px] md:px-8 md:py-10 lg:px-10">
+            <div className="w-full min-w-0 max-w-[520px]">
               <p className="text-[0.66rem] font-bold tracking-[0.28em] text-white/70">VALIDATION SERVICES</p>
-              <h2 className="mt-2.5 font-['Quicksand'] text-[1.9rem] font-bold leading-[1.02] text-white drop-shadow-[0_2px_8px_rgba(2,10,26,0.45)] md:text-[2.95rem]">
-                <span className="text-white">Custom Assays Built</span>
-                <br />
-                <span className="text-[#4ba8db]">Around Your</span>
-                <br />
-                <span className="text-[#4ba8db]">Research Needs</span>
+              <h2 className="mt-3 break-words font-['Quicksand'] text-[1.9rem] font-bold leading-[1.08] tracking-[-0.04em] text-white md:text-[clamp(1.9rem,3.1vw,2.75rem)]">
+                <span className="block text-white">Custom Assays Built</span>
+                <span className="block text-[#4ba8db]">Around Your</span>
+                <span className="block text-[#4ba8db]">Research Needs</span>
               </h2>
               <p className="mt-3.5 max-w-[460px] text-[0.88rem] leading-[1.55] text-white/86 md:text-[0.9rem]">
                 We work directly with researchers, labs, and clinics to develop custom qPCR and
@@ -184,8 +164,7 @@ export default function AssayDevelopmentPage() {
         </div>
       </section>
 
-      <section
-        className="mx-auto mt-5 w-full max-w-[1460px] px-4 py-8 text-center sm:px-6 lg:px-10"
+      <section className={`${styles.standard} mx-auto w-full max-w-[1460px] px-4 pb-16 pt-12 text-center sm:px-6 md:pb-[168px] md:pt-[120px] lg:px-10`}
         style={{
           backgroundImage: `url("${assayImages.dnaBg}")`,
           backgroundSize: "cover",
@@ -225,7 +204,7 @@ export default function AssayDevelopmentPage() {
         </div>
       </section>
 
-      <section className="mx-auto mt-3 w-full max-w-[1460px] px-4 sm:px-6 lg:px-10">
+      <section className={`${styles.support} mx-auto w-full max-w-[1460px] px-4 sm:px-6 lg:px-10`}>
         <div className="grid overflow-hidden rounded-[22px] bg-[#091f44] md:grid-cols-2">
           <div className="flex flex-col justify-center px-6 py-8 text-white md:px-10 md:py-10">
             <p className="text-[0.66rem] font-bold tracking-[0.28em] text-white/70">HUMAN SUPPORT</p>
@@ -255,8 +234,7 @@ export default function AssayDevelopmentPage() {
         </div>
       </section>
 
-      <section
-        className="mx-auto mt-6 w-full max-w-[1460px] px-4 pb-2 sm:px-6 lg:px-10"
+      <section className={`${styles.documentation} mx-auto mt-12 w-full max-w-[1460px] px-4 sm:px-6 md:mt-36 lg:px-10`}
         style={{
           backgroundImage: `url("${assayImages.dnaBg}")`,
           backgroundSize: "cover",
@@ -280,7 +258,7 @@ export default function AssayDevelopmentPage() {
               <br />
               Standards. Supported
               <br />
-              by <span className="text-[#3f8fce]">Documentation.</span>
+              <span className="text-[#3f8fce]">by Documentation.</span>
             </h2>
             <p className="mt-4 max-w-[550px] text-[0.92rem] leading-[1.6] text-[#36597d] md:text-[1rem]">
               All assays are provided for research use only (RUO) and supported by
@@ -301,7 +279,7 @@ export default function AssayDevelopmentPage() {
         </div>
       </section>
 
-      <section className="mx-auto mt-8 w-full max-w-[1460px] px-4 sm:px-6 lg:px-10">
+      <section className={`${styles.contact} mx-auto mt-16 w-full max-w-[1460px] px-4 sm:px-6 md:mt-[104px] lg:px-10`}>
         <div className="grid gap-6 overflow-hidden rounded-[22px] bg-[#eaf2fb] p-4 md:grid-cols-2 md:p-8">
           <div className="flex flex-col justify-center rounded-[18px] bg-[linear-gradient(135deg,#eaf4ff_0%,#d9ebfb_100%)] px-6 py-8 md:px-8">
             <p className="text-[0.66rem] font-bold tracking-[0.3em] text-[#4f789f]">GET IN TOUCH</p>
@@ -332,7 +310,7 @@ export default function AssayDevelopmentPage() {
         </div>
       </section>
 
-      <section className="mx-auto mt-10 w-full max-w-[1460px] px-4 pb-12 sm:px-6 lg:px-10">
+      <section className={`${styles.cta} mx-auto mt-16 w-full max-w-[1460px] px-4 pb-16 sm:px-6 md:mt-[120px] md:pb-20 lg:px-10`}>
         <div className="overflow-hidden rounded-[22px] bg-[linear-gradient(135deg,#071736_0%,#0a1f45_52%,#0f2a5b_100%)] px-6 py-12 text-center text-white md:px-12 md:py-16">
           <h2 className="font-['Quicksand'] text-[2.1rem] font-bold leading-[1.05] text-white drop-shadow-[0_2px_10px_rgba(4,12,32,0.55)] md:text-[4rem]">
             <span className="text-white">Have a Question or</span>
@@ -345,7 +323,7 @@ export default function AssayDevelopmentPage() {
           </p>
           <Link
             href="mailto:info@biopathogenix.com"
-            className="mt-6 inline-flex h-[46px] w-full max-w-[320px] items-center justify-between gap-3 rounded-[4px] border border-[#2d5f95] bg-[#1f96df] px-5 text-[0.84rem] font-semibold text-white hover:bg-[#1783c2]"
+            className="mt-6 inline-flex h-[46px] w-full max-w-[320px] items-center justify-between gap-3 rounded-[4px] border border-[#2d5f95] bg-[#2f5d8f] px-5 text-[0.84rem] font-semibold text-white hover:bg-[#214b75]"
           >
             <span>Confirm Availability by Email</span>
             <span className="border-l border-white/30 pl-3">

@@ -1,0 +1,127 @@
+.page { --assay-blue: #419ed4; }
+.hero { position: relative; isolation: isolate; overflow: hidden; background: radial-gradient(ellipse at center, #f8f9ff 0%, #edf5ff 100%); }
+.hero::before, .hero::after { content: ""; position: absolute; inset-block: 0; width: 50%; z-index: -1; background: url('/images/assay%20landing%20page/bg1.jpeg') right center / auto 115% no-repeat; }
+.hero::before { left: 0; transform: scaleX(-1); opacity: .7; }
+.hero::after { right: 0; opacity: .7; }
+.heroStage { position: relative; max-width: 1920px; margin: auto; min-height: 620px; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); grid-template-areas: "copy copy" "left right"; align-items: center; justify-items: center; gap: 40px 16px; padding: 52px 20px; }
+.heroCopy { grid-area: copy; position: relative; z-index: 1; width: 100%; max-width: 760px; text-align: center; }
+.heroCopy::before { content: ""; position: absolute; z-index: -1; inset: -80px -60px; pointer-events: none; background: radial-gradient(ellipse, #f6f7ff 40%, #f6f7ff00 73%); }
+.heroEyebrow { margin-bottom: 22px; font-size: 15px; font-weight: 700; letter-spacing: .32em; color: #052658; }
+.heroCopy h1 { margin: 0; color: #042957; font-size: clamp(32px, 3.3vw, 62px); font-weight: 500; line-height: 1.08; letter-spacing: -.055em; }
+.heroCopy h1 span { color: #008dde; font-weight: 700; }
+.heroTagline { margin-top: 16px; font-size: clamp(17px, 1.35vw, 26px); font-weight: 700; color: #062a60; line-height: 1.3; letter-spacing: -.04em; }
+.heroDescription { margin-top: 16px; font-size: clamp(14px, .95vw, 18px); line-height: 1.5; color: #393939; }
+.heroActions { margin-top: 30px; display: flex; flex-wrap: wrap; justify-content: center; gap: 14px; }
+.heroActions a { display: flex; flex: 1 1 0; align-items: center; justify-content: space-between; gap: 16px; min-width: max-content; max-width: 310px; min-height: 56px; padding: 12px 24px; border: 1px solid #052d66; border-radius: 8px; color: #052d66; font-size: clamp(15px, .95vw, 18px); font-weight: 700; line-height: 1.3; transition: background .2s; }
+.page .heroActions a[download] { background: #004d96; border-color: #004d96; color: white; }
+.heroActions a:hover { background: #e4efff; }
+.page .heroActions a[download]:hover { background: #003f7a; }
+.heroActions svg { width: 26px; height: 26px; flex-shrink: 0; }
+/* Hex sizes follow the design mockup. Positions interlock with a uniform gap of .025 x the
+   main hex width: the two smaller hexes sit either side of the main hex's tip, so the
+   vertical gap between them runs straight into it (a honeycomb "Y" junction). Each
+   cluster box is the bounding box of its three hexes. */
+.heroLeft, .heroRight { position: relative; z-index: 2; pointer-events: none; }
+.heroLeft { grid-area: left; width: min(100%, 300px); aspect-ratio: 1.465 / 1.9038; }
+.heroRight { grid-area: right; width: min(96%, 289px); aspect-ratio: 1.365 / 1.8432; }
+/* Vertical padding is 8 / .866 so the white border is an even 8px on the slanted edges too. */
+.hex { position: absolute; overflow: hidden; background: white; padding: 9.24px 8px; }
+.hexLeftMain { left: 24.06%; top: 0; width: 68.26%; }
+.hexLeftOuter { left: 0; top: 49.05%; width: 57.34%; }
+.hexLeftInner { left: 59.04%; top: 52.69%; width: 40.96%; }
+.hexRightInner { left: 0; top: 9.4%; width: 41.76%; }
+.hexRightOuter { left: 43.59%; top: 0; width: 56.41%; }
+.hexRightMain { left: 6.04%; top: 37.35%; width: 73.26%; }
+.hex > div { position: relative; height: 100%; width: 100%; overflow: hidden; }
+.badgeIcon { display: flex; align-items: center; justify-content: center; width: 64px; height: 64px; flex-shrink: 0; border-radius: 50%; background: #e2f1ff; color: #008fe0; }
+.badgeIcon svg { width: 34px; height: 34px; stroke-width: 2.2; }
+.badges > div > div { gap: 22px; }
+.badges > div > div > p { font-weight: 500; font-size: clamp(13px, 1vw, 18px); color: #051c50; }
+
+@media (min-width: 1024px) {
+  .heroStage { max-width: none; min-height: clamp(570px, 33.5vw, 644px); padding: 56px clamp(16px, 2.5vw, 56px); grid-template-columns: minmax(0, 1fr) min(43vw, 820px) minmax(0, 1fr); grid-template-areas: "left copy right"; gap: 0; }
+  .heroCopy { max-width: none; }
+  /* The main hex is ~13% of the viewport width. */
+  .heroLeft { justify-self: start; width: min(calc(100% - 16px), 19vw); }
+  .heroRight { justify-self: end; width: min(calc(100% - 16px), 18.3vw); }
+  .badges { max-width: none; padding: 24px 3.5%; background: white; }
+  .badges > div { gap: 20px; padding: 0; }
+  .badges > div > div { padding-right: 20px; border-right: 1px solid #e1e9f5; }
+  .badges > div > div:last-child { border: 0; padding-right: 0; }
+  :global(body):has(.hero) :global(.navbar_container) { background: #f3f6ff; border-bottom: 0; }
+  :global(body):has(.hero) :global(.navbar_container)::before { display: none; }
+}
+
+@media (max-width: 1023px) {
+  .heroStage { min-height: 560px; }
+  .heroCopy h1 { font-size: clamp(36px, 6.5vw, 64px); }
+  .heroActions a { padding-inline: 24px; }
+  .badgeIcon { width: 44px; height: 44px; }
+  .badgeIcon svg { width: 26px; height: 26px; }
+}
+
+@media (max-width: 560px) {
+  .heroActions a { flex-basis: 100%; min-width: 0; }
+}
+.page a { box-shadow: none; }
+.page a[download], .page a[href^="mailto:"] { background: #0e5c8d; border-color: #0e5c8d; }
+.standard a[download], .contact a[href^="mailto:"] { background: transparent; color: #15345c; border-color: #7892af; }
+.standard, .documentation { background-color: #f1f7fd; }
+.custom > div { background: #073056; }
+.support > div { background: #020d30; }
+.custom h2, .support h2, .documentation h2, .contact h2 { font-weight: 500; }
+.custom h2 span:not(:first-child), .support h2 span:not(:first-child), .documentation h2 span, .contact h2 span { color: var(--assay-blue); font-weight: 700; }
+.contact > div { position: relative; overflow: visible; background: transparent; }
+.contact > div::before { position: absolute; inset: 0; z-index: 0; border-radius: 36px; background: #f0f7fc; content: ""; }
+.contact > div > div { position: relative; background: transparent; }
+.contact > div > div:last-child { background: white; border: 0; border-radius: 36px; }
+.cta > div { background: linear-gradient(110deg, #030a28, #002052); }
+.contact form { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; }
+.contact form > * { margin: 0; grid-column: 1 / -1; }
+.contact form > div:nth-child(1), .contact form > div:nth-child(2) { grid-column: auto; min-width: 0; }
+.contact form button { justify-self: start; background: #0e5c8d; }
+.contact form input, .contact form select { height: 50px; }
+.contact form textarea { min-height: 140px; }
+
+@media (min-width: 768px) {
+  .custom, .support, .documentation, .contact { max-width: 1440px; padding-inline: 0; }
+  .custom > div, .support > div { border-radius: 40px; }
+  .custom > div > div:first-child { overflow: hidden; border-radius: 40px; min-height: clamp(500px, 48vw, 690px); }
+  .custom > div > div:last-child { padding: 64px clamp(40px, 5.55vw, 80px); }
+  .custom h2, .support h2, .documentation h2, .contact h2 { font-size: clamp(32px, 3.9vw, 56px); line-height: 1.08; }
+  .standard { max-width: 1440px; padding-top: 120px; padding-bottom: 168px; }
+  .standard h2 { font-size: clamp(36px, 4.15vw, 60px); }
+  /* Same block size as the Custom Assays section. */
+  .support > div > div:first-child { padding: 64px clamp(40px, 5.55vw, 80px); }
+  .support > div > div:last-child { min-height: clamp(500px, 48vw, 690px); overflow: hidden; border-radius: 40px; }
+  .documentation { margin-top: 0; padding-top: 144px; background-size: 100% auto !important; background-repeat: no-repeat; background-position: center top !important; }
+  .documentation > div { grid-template-columns: 1fr 1fr; gap: 0; }
+  .documentation > div > div:first-child { height: clamp(420px, 42.4vw, 610px); border-radius: 40px; box-shadow: none; }
+  .documentation > div > div:last-child { min-width: 0; padding-inline: clamp(36px, 4.5vw, 64px); }
+  .contact > div { grid-template-columns: 1fr 1fr; gap: 0; padding: 0 150px; }
+  /* The form card overhangs the blue band by the same amount top and bottom. */
+  .contact > div::before { inset-block: 56px; }
+  .contact > div > div:first-child { padding: 72px 48px 72px 8px; }
+  .contact > div > div:last-child { padding: 52px; }
+  .contact h3 { font-size: 32px; }
+  .cta { max-width: 1440px; padding-inline: 100px; }
+  .cta > div { border-radius: 40px; padding-block: 100px; }
+}
+
+@media (min-width: 768px) {
+  .page { display: flex; flex-direction: column; }
+  .page > section.custom, .page > section.standard, .page > section.support,
+  .page > section.documentation, .page > section.contact, .page > section.cta { margin-top: 0; margin-bottom: 0; }
+  .page > section.custom { margin-top: 24px; }
+  .page > section.standard, .page > section.support, .page > section.documentation,
+  .page > section.contact, .page > section.cta { margin-top: 96px; }
+  .page > section.standard { padding-block: 64px; }
+  /* No panel band above or below the documentation image. */
+  .page > section.documentation { padding-block: 0; border-radius: 40px; overflow: hidden; }
+  .page > section.cta { padding-bottom: 96px; }
+}
+
+@media (min-width: 768px) and (max-width: 1100px) {
+  .contact > div { padding-inline: 48px; }
+  .contact > div > div:last-child { padding-inline: 28px; }
+}
