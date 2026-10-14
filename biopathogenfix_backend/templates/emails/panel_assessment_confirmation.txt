@@ -1,0 +1,11 @@
+Hi {{ name }},
+
+Thanks for reaching out to BioPathogenix. We've received your Free Panel Assessment request and a scientist will follow up with the right configuration and pricing, usually within one business day.
+
+In the meantime, if you'd like to add detail or have an urgent question, contact us at order@biopathogenix.com or call (859) 444-5660.
+
+Regards,
+BioPathogenix
+
+3004 Park Central Avenue, Nicholasville, KY 40356 - (859) 444-5660
+For Research Use Only. Not for use in diagnostic procedures.

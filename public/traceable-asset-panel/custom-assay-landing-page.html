@@ -459,27 +459,12 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
   </div>
 </footer>
 
-<script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
 <script>
 (function(){
-  // Fill these in from your EmailJS dashboard (Account > General for the
-  // public key; Email Services / Email Templates for the rest). GitHub
-  // Pages can't run server code, so EmailJS sends directly from the
-  // browser through the Outlook account connected in its dashboard —
-  // no password ever lives in this file or the repo.
-  var EMAILJS_PUBLIC_KEY = 'L_TYTgQHJW3RjaYjX';
-  var EMAILJS_SERVICE_ID = 'panel_assesment';
-  var EMAILJS_TEMPLATE_NOTIFICATION = 'template_e5rb6e3';
-  var EMAILJS_TEMPLATE_CONFIRMATION = 'template_dlza3pt';
-
-  var isConfigured = EMAILJS_PUBLIC_KEY.indexOf('YOUR_') !== 0 &&
-    EMAILJS_SERVICE_ID.indexOf('YOUR_') !== 0 &&
-    EMAILJS_TEMPLATE_NOTIFICATION.indexOf('YOUR_') !== 0 &&
-    EMAILJS_TEMPLATE_CONFIRMATION.indexOf('YOUR_') !== 0;
-
-  if (window.emailjs && isConfigured) {
-    emailjs.init({ publicKey: EMAILJS_PUBLIC_KEY });
-  }
+  // Submissions go to the site's own backend (via /api/panel-assessment), which emails
+  // the team and sends the submitter a confirmation.
+  var SOURCE = 'custom-assay-landing-page';
+  var THANK_YOU = 'bpx-thank-you-custom-assay';
 
   document.querySelectorAll('.js-lead-form').forEach(function(form){
     var status = form.querySelector('.form-status');
@@ -508,12 +493,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 
       // Honeypot: a hidden field real users never fill in. Bots usually do.
       if (form.elements['website'] && form.elements['website'].value){
-        window.location.href = 'bpx-thank-you-custom-assay.html';
-        return;
-      }
-
-      if (!window.emailjs || !isConfigured) {
-        showStatus('error', 'The form is not fully configured yet. Please email Order@BioPathogenix.com directly.');
+        window.location.href = THANK_YOU;
         return;
       }
 
@@ -523,27 +503,25 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
         org: form.elements['org'].value.trim(),
         phone: form.elements['phone'].value.trim(),
         interest: interest,
-        message: message
+        message: message,
+        source: SOURCE
       };
 
       button.disabled = true;
       button.textContent = 'Sending…';
       status.className = 'form-status';
 
-      emailjs.send(EMAILJS_SERVICE_ID, EMAILJS_TEMPLATE_NOTIFICATION, params)
-        .then(function(){
-          // Confirmation email to the submitter is best-effort — it should
-          // never block showing success for the (more important) internal
-          // notification, which already sent.
-          return emailjs.send(EMAILJS_SERVICE_ID, EMAILJS_TEMPLATE_CONFIRMATION, params).catch(function(err){
-            console.error('BioPathogenix: confirmation email failed', err);
-          });
-        })
-        .then(function(){
-          window.location.href = 'bpx-thank-you-custom-assay.html';
+      fetch('/api/panel-assessment', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(params)
+      })
+        .then(function(response){
+          if (!response.ok) throw new Error('Request failed: ' + response.status);
+          window.location.href = THANK_YOU;
         })
         .catch(function(err){
-          console.error('BioPathogenix: notification email failed', err);
+          console.error('BioPathogenix: panel assessment request failed', err);
           showStatus('error', 'Something went wrong sending your request. Please email Order@BioPathogenix.com directly.');
           button.disabled = false;
           button.textContent = originalLabel;

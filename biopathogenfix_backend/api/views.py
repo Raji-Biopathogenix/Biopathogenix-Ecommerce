@@ -15,25 +15,20 @@ from services.emailService import send_graph_email
 
 logger = logging.getLogger(__name__)
 
-CONTACT_RECIPIENTS = [
-    "info@biopathogenix.com",
+# Every website form request goes to the same team inboxes.
+FORM_RECIPIENTS = [
     "rajeswari.gopu@biopathogenix.com",
-    "davron.bowman@biopathogenix.com",
-]
-
-CUSTOM_TARGET_RECIPIENTS = [
-    "info@biopathogenix.com",
-]
-CUSTOM_TARGET_CC_RECIPIENTS = [
-    "rajeswari.gopu@biopathogenix.com",
+    "order@biopathogenix.com",
     "support@biopathogenix.com",
 ]
+
 CUSTOM_TARGET_ALLOWED_FILE_EXTENSIONS = {"xlsx", "xls", "pdf", "doc", "docx", "csv"}
 CUSTOM_TARGET_MAX_FILE_SIZE = 3 * 1024 * 1024
 
-QUALITY_CONTROL_AVAILABILITY_RECIPIENTS = [
-    "support@biopathogenix.com",
-]
+PANEL_ASSESSMENT_SOURCES = {
+    "general-value-prop": "General Value Prop landing page",
+    "custom-assay-landing-page": "Custom Assay landing page",
+}
 
 
 def get_or_none(classmodel, **kwargs):
@@ -80,7 +75,7 @@ class ContactValidationView(APIView):
                 status=status.HTTP_400_BAD_REQUEST,
             )
 
-        recipients = CONTACT_RECIPIENTS
+        recipients = FORM_RECIPIENTS
         subject = f"New Validation Services Contact Request - {name}"
         context = {
             "name": name,
@@ -162,7 +157,7 @@ class QualityControlAvailabilityView(APIView):
         try:
             if getattr(settings, "GRAPH_ENABLED", False):
                 send_graph_email(
-                    QUALITY_CONTROL_AVAILABILITY_RECIPIENTS,
+                    FORM_RECIPIENTS,
                     subject,
                     html_body=html_body,
                     text_body=text_body,
@@ -173,7 +168,7 @@ class QualityControlAvailabilityView(APIView):
                     subject=subject,
                     message=text_body,
                     from_email=getattr(settings, "DEFAULT_FROM_EMAIL", None),
-                    recipient_list=QUALITY_CONTROL_AVAILABILITY_RECIPIENTS,
+                    recipient_list=FORM_RECIPIENTS,
                     html_message=html_body,
                     fail_silently=False,
                 )
@@ -240,7 +235,7 @@ class AssayInquiryView(APIView):
         try:
             if getattr(settings, "GRAPH_ENABLED", False):
                 send_graph_email(
-                    CONTACT_RECIPIENTS,
+                    FORM_RECIPIENTS,
                     subject,
                     html_body=html_body,
                     text_body=text_body,
@@ -251,7 +246,7 @@ class AssayInquiryView(APIView):
                     subject=subject,
                     message=text_body,
                     from_email=getattr(settings, "DEFAULT_FROM_EMAIL", None),
-                    recipient_list=CONTACT_RECIPIENTS,
+                    recipient_list=FORM_RECIPIENTS,
                     html_message=html_body,
                     fail_silently=False,
                 )
@@ -264,6 +259,80 @@ class AssayInquiryView(APIView):
 
         return Response(
             {"message": "Thank you. Your inquiry has been sent to our team."},
+            status=status.HTTP_200_OK,
+        )
+
+
+def _send_html_email(recipients, subject, html_body, text_body):
+    from_email = getattr(settings, "DEFAULT_FROM_EMAIL", None)
+    if getattr(settings, "GRAPH_ENABLED", False):
+        send_graph_email(recipients, subject, html_body=html_body, text_body=text_body, from_email=from_email)
+    else:
+        send_mail(
+            subject=subject,
+            message=text_body,
+            from_email=from_email,
+            recipient_list=recipients,
+            html_message=html_body,
+            fail_silently=False,
+        )
+
+
+class PanelAssessmentView(APIView):
+    """Free Panel Assessment requests from the Traceable Pathogen panel landing pages."""
+
+    permission_classes = [AllowAny]
+
+    def post(self, request):
+        data = request.data
+        fields = {
+            key: (data.get(key) or "").strip()
+            for key in ("name", "email", "org", "phone", "interest", "message", "source")
+        }
+        if not fields["name"] or not fields["email"] or not fields["interest"] or not fields["message"]:
+            return Response(
+                {"message": "Name, work email, application area, and targets are required."},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+        if "@" not in fields["email"] or len(fields["email"]) > 254:
+            return Response({"message": "Enter a valid work email."}, status=status.HTTP_400_BAD_REQUEST)
+        if any(len(fields[key]) > 200 for key in ("name", "org", "phone", "interest")) or len(fields["message"]) > 5000:
+            return Response({"message": "One or more fields are too long."}, status=status.HTTP_400_BAD_REQUEST)
+
+        context = {
+            **fields,
+            "org": fields["org"] or "N/A",
+            "phone": fields["phone"] or "N/A",
+            "source_label": PANEL_ASSESSMENT_SOURCES.get(fields["source"], "Traceable Pathogen panel landing page"),
+        }
+
+        try:
+            _send_html_email(
+                FORM_RECIPIENTS,
+                f"New Free Panel Assessment Request - {fields['name']}",
+                render_to_string("emails/panel_assessment_request.html", context),
+                render_to_string("emails/panel_assessment_request.txt", context),
+            )
+        except Exception:
+            logger.exception("Failed to send panel assessment notification email")
+            return Response(
+                {"message": "Failed to send your request. Please try again shortly."},
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            )
+
+        # The confirmation to the submitter is best-effort: the team already has the request.
+        try:
+            _send_html_email(
+                [fields["email"]],
+                "We've received your BioPathogenix panel assessment request",
+                render_to_string("emails/panel_assessment_confirmation.html", context),
+                render_to_string("emails/panel_assessment_confirmation.txt", context),
+            )
+        except Exception:
+            logger.exception("Failed to send panel assessment confirmation email")
+
+        return Response(
+            {"message": "Thank you. Your request has been sent to our team."},
             status=status.HTTP_200_OK,
         )
 
@@ -333,12 +402,11 @@ class CustomTargetRequestView(APIView):
         try:
             if getattr(settings, "GRAPH_ENABLED", False):
                 send_graph_email(
-                    CUSTOM_TARGET_RECIPIENTS,
+                    FORM_RECIPIENTS,
                     subject,
                     html_body=html_body,
                     text_body=text_body,
                     from_email=getattr(settings, "DEFAULT_FROM_EMAIL", None),
-                    cc_list=CUSTOM_TARGET_CC_RECIPIENTS,
                     attachments=attachments,
                 )
             else:
@@ -346,8 +414,7 @@ class CustomTargetRequestView(APIView):
                     subject=subject,
                     body=text_body,
                     from_email=getattr(settings, "DEFAULT_FROM_EMAIL", None),
-                    to=CUSTOM_TARGET_RECIPIENTS,
-                    cc=CUSTOM_TARGET_CC_RECIPIENTS,
+                    to=FORM_RECIPIENTS,
                 )
                 email_message.attach_alternative(html_body, "text/html")
                 for attachment in attachments:
