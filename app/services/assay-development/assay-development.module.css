@@ -4,23 +4,18 @@
 .hero::before { left: 0; transform: scaleX(-1); opacity: .7; }
 .hero::after { right: 0; opacity: .7; }
 .heroStage { position: relative; max-width: 1920px; margin: auto; min-height: 620px; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); grid-template-areas: "copy copy" "left right"; align-items: center; justify-items: center; gap: 40px 16px; padding: 52px 20px; }
-.heroCopy { grid-area: copy; position: relative; z-index: 1; width: 100%; max-width: 760px; text-align: center; }
+.heroCopy { grid-area: copy; position: relative; z-index: 1; width: 100%; max-width: 740px; text-align: center; --button: #0c558a; --outline: #000c38; }
 .heroCopy::before { content: ""; position: absolute; z-index: -1; inset: -80px -60px; pointer-events: none; background: radial-gradient(ellipse, #f6f7ff 40%, #f6f7ff00 73%); }
-.heroEyebrow { margin-bottom: 22px; font-size: 15px; font-weight: 700; letter-spacing: .32em; color: #052658; }
-.heroCopy h1 { margin: 0; color: #042957; font-size: clamp(32px, 3.3vw, 62px); font-weight: 500; line-height: 1.08; letter-spacing: -.055em; }
-.heroCopy h1 span { color: #008dde; font-weight: 700; }
-.heroTagline { margin-top: 16px; font-size: clamp(17px, 1.35vw, 26px); font-weight: 700; color: #062a60; line-height: 1.3; letter-spacing: -.04em; }
-.heroDescription { margin-top: 16px; font-size: clamp(14px, .95vw, 18px); line-height: 1.5; color: #393939; }
-.heroActions { margin-top: 30px; display: flex; flex-wrap: wrap; justify-content: center; gap: 14px; }
-.heroActions a { display: flex; flex: 1 1 0; align-items: center; justify-content: space-between; gap: 16px; min-width: max-content; max-width: 310px; min-height: 56px; padding: 12px 24px; border: 1px solid #052d66; border-radius: 8px; color: #052d66; font-size: clamp(15px, .95vw, 18px); font-weight: 700; line-height: 1.3; transition: background .2s; }
-.page .heroActions a[download] { background: #004d96; border-color: #004d96; color: white; }
-.heroActions a:hover { background: #e4efff; }
-.page .heroActions a[download]:hover { background: #003f7a; }
-.heroActions svg { width: 26px; height: 26px; flex-shrink: 0; }
-/* Hex sizes follow the design mockup. Positions interlock with a uniform gap of .025 x the
-   main hex width: the two smaller hexes sit either side of the main hex's tip, so the
-   vertical gap between them runs straight into it (a honeycomb "Y" junction). Each
-   cluster box is the bounding box of its three hexes. */
+/* Hero type follows the Figma frame at 1440px. */
+.heroEyebrow { margin: 0; font-size: 16px; font-weight: 600; line-height: 24px; letter-spacing: .12em; color: #012c56; }
+.heroCopy h1 { max-width: 660px; margin: 4px auto 0; color: #012c56; font-size: clamp(36px, 5.14vw, 74px); font-weight: 500; line-height: 1; letter-spacing: -.03em; }
+.heroCopy h1 span { color: #4398cc; font-weight: 600; }
+.heroTagline { margin-top: 22px; font-size: clamp(19px, 1.81vw, 26px); font-weight: 500; line-height: 1.3; color: #012c56; }
+.heroDescription { margin-top: 12px; font-size: 16px; line-height: 26px; color: #070707; }
+.heroActions { margin-top: 30px; display: flex; flex-direction: row; flex-wrap: wrap; justify-content: center; align-items: center; gap: 14px; }
+.heroActions a { flex: 0 1 auto; }
+
+/* Mobile and tablet: the six hexagons sit below the text as two honeycomb groups. */
 .heroLeft, .heroRight { position: relative; z-index: 2; pointer-events: none; }
 .heroLeft { grid-area: left; width: min(100%, 300px); aspect-ratio: 1.465 / 1.9038; }
 .heroRight { grid-area: right; width: min(96%, 289px); aspect-ratio: 1.365 / 1.8432; }
@@ -33,95 +28,156 @@
 .hexRightOuter { left: 43.59%; top: 0; width: 56.41%; }
 .hexRightMain { left: 6.04%; top: 37.35%; width: 73.26%; }
 .hex > div { position: relative; height: 100%; width: 100%; overflow: hidden; }
-.badgeIcon { display: flex; align-items: center; justify-content: center; width: 64px; height: 64px; flex-shrink: 0; border-radius: 50%; background: #e2f1ff; color: #008fe0; }
-.badgeIcon svg { width: 34px; height: 34px; stroke-width: 2.2; }
-.badges > div > div { gap: 22px; }
-.badges > div > div > p { font-weight: 500; font-size: clamp(13px, 1vw, 18px); color: #051c50; }
 
 @media (min-width: 1024px) {
-  .heroStage { max-width: none; min-height: clamp(570px, 33.5vw, 644px); padding: 56px clamp(16px, 2.5vw, 56px); grid-template-columns: minmax(0, 1fr) min(43vw, 820px) minmax(0, 1fr); grid-template-areas: "left copy right"; gap: 0; }
-  .heroCopy { max-width: none; }
-  /* The main hex is ~13% of the viewport width. */
-  .heroLeft { justify-self: start; width: min(calc(100% - 16px), 19vw); }
-  .heroRight { justify-self: end; width: min(calc(100% - 16px), 18.3vw); }
-  .badges { max-width: none; padding: 24px 3.5%; background: white; }
-  .badges > div { gap: 20px; padding: 0; }
-  .badges > div > div { padding-right: 20px; border-right: 1px solid #e1e9f5; }
-  .badges > div > div:last-child { border: 0; padding-right: 0; }
+  /* Figma hero frame is 803px tall at 1440px including the 82px nav bar. */
+  .heroStage { display: block; max-width: none; min-height: clamp(570px, 50.07vw, 721px); padding: min(105px, 7.29vw) 0 40px; }
+  .heroCopy { margin-inline: auto; }
+  /* Hexagons sit at their Figma coordinates (1440px frame, measured from the hero top and the
+     screen edges), scaling down proportionally below 1440px; some run off the edges on purpose. */
+  .heroLeft, .heroRight { position: absolute; inset: 0; width: auto; aspect-ratio: auto; }
+  .hexLeftMain { left: max(-61px, -4.236vw); top: min(43px, 2.986vw); width: min(304px, 21.111vw); }
+  .hexLeftOuter { left: max(-216px, -15vw); top: min(306px, 21.25vw); width: min(314px, 21.806vw); }
+  .hexLeftInner { left: min(97px, 6.736vw); top: min(340px, 23.611vw); width: min(183px, 12.708vw); }
+  .hexRightOuter { left: auto; right: max(-221px, -15.347vw); top: 0; width: min(304px, 21.111vw); }
+  .hexRightInner { left: auto; right: min(82px, 5.694vw); top: min(105px, 7.292vw); width: min(182px, 12.639vw); }
+  .hexRightMain { left: auto; right: max(-76px, -5.278vw); top: min(263px, 18.264vw); width: min(314px, 21.806vw); }
   :global(body):has(.hero) :global(.navbar_container) { background: #f3f6ff; border-bottom: 0; }
   :global(body):has(.hero) :global(.navbar_container)::before { display: none; }
 }
 
 @media (max-width: 1023px) {
   .heroStage { min-height: 560px; }
-  .heroCopy h1 { font-size: clamp(36px, 6.5vw, 64px); }
-  .heroActions a { padding-inline: 24px; }
-  .badgeIcon { width: 44px; height: 44px; }
-  .badgeIcon svg { width: 26px; height: 26px; }
+}
+.page a { box-shadow: none; }
+
+/* ---- Below the hero: sizes and positions follow the Figma design's 1440px frame. ---- */
+.body { --navy: #012c56; --ink: #070707; --blue: #4398cc; --button: #0c558a; --outline: #000c38; color: var(--ink); background: white; }
+.body h2, .body h3 { margin: 0; letter-spacing: -.02em; }
+.body h2 { font-size: clamp(34px, 4.03vw, 58px); font-weight: 400; line-height: 1.05; }
+.body h2 span { color: var(--blue); font-weight: 600; }
+.eyebrow { margin: 0 0 2px; font-size: clamp(13px, 1.11vw, 16px); font-weight: 600; line-height: 1.2; letter-spacing: .1em; color: var(--navy); }
+.lead { margin: 22px 0 0; font-size: 16px; line-height: 26px; }
+
+.button { display: inline-flex; align-items: center; justify-content: space-between; gap: 14px; height: 59px; padding: 0 24px 0 28px; border: 1px solid var(--button); border-radius: 6px; background: var(--button); color: white; font-size: clamp(16px, 1.39vw, 20px); font-weight: 600; white-space: nowrap; transition: background .2s, color .2s; }
+.button:hover { background: #094a72; }
+.buttonOutline { border-color: var(--outline); background: white; color: var(--outline); }
+.buttonOutline:hover { background: #eef4fb; }
+.buttonArrow { display: flex; align-items: center; padding-left: 12px; border-left: 1px solid currentColor; line-height: 1; }
+.buttonArrow svg { width: 20px; height: 20px; }
+.stack { display: inline-grid; gap: 14px; margin-top: 37px; }
+
+.checkList { display: grid; gap: 10px; margin: 26px 0 0; padding: 0; list-style: none; }
+.checkList li { display: flex; align-items: center; gap: 8px; font-size: 16px; line-height: 24px; }
+.checkList li > span { display: flex; flex-shrink: 0; align-items: center; justify-content: center; width: 20px; height: 20px; border-radius: 50%; background: var(--blue); color: white; }
+.checkList li > span svg { width: 12px; height: 12px; }
+
+.badges { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 16px 24px; padding: 39px 5.55vw 56px; background: #f4f6fc; }
+.badge { display: flex; align-items: center; gap: 10px; }
+.badge svg { width: 28px; height: 28px; flex-shrink: 0; color: #1f73c9; stroke-width: 2; }
+.badge p { margin: 0; font-size: 16px; font-weight: 500; line-height: 20px; color: var(--ink); white-space: pre-line; }
+
+.split { display: grid; overflow: hidden; border-radius: 40px; color: white; }
+.split h2 { color: white; }
+.split .eyebrow { color: white; }
+.split .lead { max-width: 440px; }
+.splitImage { position: relative; min-height: 320px; overflow: hidden; border-radius: 40px; }
+.splitCopy { align-self: center; padding: 48px 24px; }
+.custom { background: var(--navy); }
+.support { background: linear-gradient(110deg, #000c38 0%, #01204a 100%); }
+.support .lead { max-width: 505px; }
+
+/* One continuous pale blue band behind Standard Assays, Human Support and Documentation,
+   with the DNA artwork at the top of the two light sections. */
+.dnaBand { background: linear-gradient(180deg, #f9fcfd 0%, #eaf4f9 6%, #eef6fa 50%, #eaf4f9 94%, #fbfdfe 100%); }
+/* Figma places the full-width DNA layer so only the lower half of the helix shows at the top
+   of each section: 452px above Standard Assays and 418px above Documentation at 1440px. */
+.standard, .documentation { background: url('/images/assay%20landing%20page/dna-figma.webp') no-repeat; background-size: 100% auto; }
+.standard { background-position: center calc(-31.39vw); }
+.documentation { background-position: center calc(-29.03vw); }
+.standard { padding: 111px 24px 169px; text-align: center; }
+.standard h2 { color: var(--navy); }
+.standard h2 span { font-weight: 600; }
+.standard .lead { max-width: 740px; margin: 34px auto 0; }
+.documentation { display: grid; align-items: center; padding-top: 145px; }
+.docImage { position: relative; min-height: 320px; overflow: hidden; border-radius: 40px; }
+.docCopy { padding: 40px 24px; }
+.docCopy h2 { color: var(--navy); }
+.docCopy .lead { max-width: 470px; margin-bottom: 37px; }
+
+.contact { position: relative; display: grid; gap: 40px; margin-top: 103px; padding: 48px 16px; }
+.contact::before { content: ""; position: absolute; z-index: 0; inset: 0; border-radius: 40px; background: #f3f8fc; }
+.contact > * { position: relative; }
+.contact h2 { color: var(--navy); }
+.contactCopy { align-self: center; }
+.contactCopy .lead { max-width: 460px; margin-bottom: 36px; }
+.formCard { scroll-margin-top: 112px; padding: 40px 24px; border-radius: 36px; background: white; box-shadow: 0 12px 40px rgb(1 44 86 / .05); }
+.formCard h3 { margin-bottom: 24px; text-align: center; font-size: clamp(26px, 2.22vw, 32px); font-weight: 600; color: var(--navy); }
+.formCard form { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 18px 16px; margin: 0; }
+.formCard form > * { grid-column: 1 / -1; margin: 0; }
+.formCard form > div:nth-child(1), .formCard form > div:nth-child(2) { grid-column: auto; min-width: 0; }
+.formCard label { display: block; margin-bottom: 8px; font-size: 14px; font-weight: 400; color: var(--ink); }
+.formCard input, .formCard select, .formCard textarea { width: 100%; border: 1px solid #dfe5ee; border-radius: 8px; background: white; font-size: 14px; color: var(--ink); }
+.formCard input, .formCard select { height: 50px; padding: 0 14px; }
+.formCard select { appearance: none; padding-right: 46px; background: white url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23070707' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='12' cy='12' r='10'/%3E%3Cpath d='M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3'/%3E%3Cpath d='M12 17h.01'/%3E%3C/svg%3E") right 14px center / 20px no-repeat; }
+.formCard textarea { min-height: 140px; padding: 12px 14px; }
+.formCard form button { justify-self: start; margin-top: 6px; }
+
+.cta { margin: 120px 16px 0; padding: 62px 24px 111px; border-radius: 40px; background: linear-gradient(110deg, #000c38 0%, #002052 100%); text-align: center; color: white; }
+.cta h2 { font-size: clamp(38px, 5.35vw, 77px); line-height: 1.04; color: white; }
+.cta h2 span { font-weight: 700; }
+.cta .lead { max-width: 590px; margin: 34px auto 41px; }
+
+@media (min-width: 1024px) {
+  .split { grid-template-columns: 1fr 1fr; }
+  /* Figma height, kept with the buttons side by side. */
+  .standard { min-height: 679px; }
+  .custom { min-height: 690px; }
+  .custom .splitCopy { padding: 0 2.5vw 0 5.55vw; }
+  .support { min-height: 770px; }
+  .support .splitCopy { padding: 0 6.94vw; }
+  .documentation { grid-template-columns: 1fr 1fr; }
+  .docImage { min-height: 611px; }
+  .docCopy { padding: 0 0 0 4.65vw; }
+  .contact { grid-template-columns: minmax(0, 1fr) min(581px, 44vw); gap: 48px; padding: 0 10.56vw 0 11.04vw; }
+  /* The form card overhangs the pale panel by 76px above and 21px below, as in the design. */
+  .contact::before { inset: 76px 0 21px; }
+  .formCard { padding: 41px 53px 90px; }
+  .cta { margin-inline: 6.94vw; }
+}
+
+@media (max-width: 1023px) {
+  .badges { justify-content: flex-start; padding: 32px 24px; }
+  .badge { width: calc(50% - 12px); }
+  .badge p { white-space: normal; }
+  .standard { padding: 72px 24px 96px; }
+  .documentation { padding: 72px 16px 0; gap: 16px; }
+  .contact { margin-top: 72px; }
+  .cta { margin-top: 72px; }
 }
 
 @media (max-width: 560px) {
-  .heroActions a { flex-basis: 100%; min-width: 0; }
-}
-.page a { box-shadow: none; }
-.page a[download], .page a[href^="mailto:"] { background: #0e5c8d; border-color: #0e5c8d; }
-.standard a[download], .contact a[href^="mailto:"] { background: transparent; color: #15345c; border-color: #7892af; }
-.standard, .documentation { background-color: #f1f7fd; }
-.custom > div { background: #073056; }
-.support > div { background: #020d30; }
-.custom h2, .support h2, .documentation h2, .contact h2 { font-weight: 500; }
-.custom h2 span:not(:first-child), .support h2 span:not(:first-child), .documentation h2 span, .contact h2 span { color: var(--assay-blue); font-weight: 700; }
-.contact > div { position: relative; overflow: visible; background: transparent; }
-.contact > div::before { position: absolute; inset: 0; z-index: 0; border-radius: 36px; background: #f0f7fc; content: ""; }
-.contact > div > div { position: relative; background: transparent; }
-.contact > div > div:last-child { background: white; border: 0; border-radius: 36px; }
-.cta > div { background: linear-gradient(110deg, #030a28, #002052); }
-.contact form { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; }
-.contact form > * { margin: 0; grid-column: 1 / -1; }
-.contact form > div:nth-child(1), .contact form > div:nth-child(2) { grid-column: auto; min-width: 0; }
-.contact form button { justify-self: start; background: #0e5c8d; }
-.contact form input, .contact form select { height: 50px; }
-.contact form textarea { min-height: 140px; }
-
-@media (min-width: 768px) {
-  .custom, .support, .documentation, .contact { max-width: 1440px; padding-inline: 0; }
-  .custom > div, .support > div { border-radius: 40px; }
-  .custom > div > div:first-child { overflow: hidden; border-radius: 40px; min-height: clamp(500px, 48vw, 690px); }
-  .custom > div > div:last-child { padding: 64px clamp(40px, 5.55vw, 80px); }
-  .custom h2, .support h2, .documentation h2, .contact h2 { font-size: clamp(32px, 3.9vw, 56px); line-height: 1.08; }
-  .standard { max-width: 1440px; padding-top: 120px; padding-bottom: 168px; }
-  .standard h2 { font-size: clamp(36px, 4.15vw, 60px); }
-  /* Same block size as the Custom Assays section. */
-  .support > div > div:first-child { padding: 64px clamp(40px, 5.55vw, 80px); }
-  .support > div > div:last-child { min-height: clamp(500px, 48vw, 690px); overflow: hidden; border-radius: 40px; }
-  .documentation { margin-top: 0; padding-top: 144px; background-size: 100% auto !important; background-repeat: no-repeat; background-position: center top !important; }
-  .documentation > div { grid-template-columns: 1fr 1fr; gap: 0; }
-  .documentation > div > div:first-child { height: clamp(420px, 42.4vw, 610px); border-radius: 40px; box-shadow: none; }
-  .documentation > div > div:last-child { min-width: 0; padding-inline: clamp(36px, 4.5vw, 64px); }
-  .contact > div { grid-template-columns: 1fr 1fr; gap: 0; padding: 0 150px; }
-  /* The form card overhangs the blue band by the same amount top and bottom. */
-  .contact > div::before { inset-block: 56px; }
-  .contact > div > div:first-child { padding: 72px 48px 72px 8px; }
-  .contact > div > div:last-child { padding: 52px; }
-  .contact h3 { font-size: 32px; }
-  .cta { max-width: 1440px; padding-inline: 100px; }
-  .cta > div { border-radius: 40px; padding-block: 100px; }
+  .badge { width: 100%; }
+  .button { width: 100%; height: 54px; gap: 16px; padding-inline: 20px; }
+  .stack { display: grid; width: 100%; }
+  .formCard form { grid-template-columns: 1fr; }
+  .formCard form > div:nth-child(1), .formCard form > div:nth-child(2) { grid-column: 1 / -1; }
 }
 
-@media (min-width: 768px) {
-  .page { display: flex; flex-direction: column; }
-  .page > section.custom, .page > section.standard, .page > section.support,
-  .page > section.documentation, .page > section.contact, .page > section.cta { margin-top: 0; margin-bottom: 0; }
-  .page > section.custom { margin-top: 24px; }
-  .page > section.standard, .page > section.support, .page > section.documentation,
-  .page > section.contact, .page > section.cta { margin-top: 96px; }
-  .page > section.standard { padding-block: 64px; }
-  /* No panel band above or below the documentation image. */
-  .page > section.documentation { padding-block: 0; border-radius: 40px; overflow: hidden; }
-  .page > section.cta { padding-bottom: 96px; }
+@media (min-width: 1024px) and (max-width: 1279px) {
+  .contact { grid-template-columns: minmax(0, 1fr) 50vw; gap: 32px; padding-inline: 40px; }
+  .formCard { padding-inline: 32px; }
 }
 
-@media (min-width: 768px) and (max-width: 1100px) {
-  .contact > div { padding-inline: 48px; }
-  .contact > div > div:last-child { padding-inline: 28px; }
+/* The shared site footer, styled to the design on this page only. */
+:global(body):has(.body) footer { padding: 95px 0 32px; border-top: 0; background: white; }
+:global(body):has(.body) footer > div { max-width: 1272px; padding-inline: 16px; }
+:global(body):has(.body) footer h4 { margin-bottom: 24px; font-size: 20px; font-weight: 600; letter-spacing: 0; color: #012c56; }
+:global(body):has(.body) footer p, :global(body):has(.body) footer li a { font-size: 16px; line-height: 24px; color: #070707; }
+:global(body):has(.body) footer ul > * { margin-block: 0; line-height: 24px; }
+:global(body):has(.body) footer ul > * + * { margin-top: 12px; }
+:global(body):has(.body) footer a[href*='linkedin.com/company'] { font-size: 16px; font-weight: 400; letter-spacing: 0; color: #070707; }
+:global(body):has(.body) footer > div > div:last-child { margin-top: 72px; padding-top: 22px; border-color: #e3e7ee; font-size: 16px; color: #070707; }
+@media (min-width: 1024px) {
+  :global(body):has(.body) footer > div > div:first-child { grid-template-columns: 478px 319px 241px 1fr; gap: 0; }
 }

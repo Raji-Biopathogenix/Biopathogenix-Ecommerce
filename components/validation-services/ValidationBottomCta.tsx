@@ -1,4 +1,6 @@
-import { ArrowRight } from "lucide-react";
+import Image from "next/image";
+import styles from "./ValidationPage.module.css";
+import { ButtonArrow } from "./ValidationUi";
 
 type ValidationBottomCtaProps = {
   onOpenForm: () => void;
@@ -6,45 +8,34 @@ type ValidationBottomCtaProps = {
 
 export default function ValidationBottomCta({ onOpenForm }: ValidationBottomCtaProps) {
   return (
-    <section className="bg-[#f4f8fc] px-4 pb-12 pt-4 md:px-6 md:pb-14">
-      <div className="mx-auto max-w-[1440px] overflow-hidden rounded-[28px] bg-[#081534] shadow-[0_24px_60px_rgba(5,12,30,0.24)]">
-        <div
-          className="relative min-h-[320px] px-6 py-8 md:min-h-[360px] md:px-10 md:py-10"
-          style={{
-            backgroundImage: `linear-gradient(90deg, rgba(6,19,46,1) 0%, rgba(6,19,46,1) 48%, rgba(7,24,57,0.96) 60%, rgba(7,24,57,0.74) 74%, rgba(7,24,57,0.2) 89%, rgba(7,24,57,0) 100%), url("/images/validation%20services/confident-validation-dna.png")`,
-            backgroundSize: "cover, cover",
-            backgroundPosition: "left center, right center",
-            backgroundRepeat: "no-repeat, no-repeat",
-          }}
-        >
-          <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_86%_40%,rgba(115,170,255,0.26)_0,rgba(115,170,255,0.12)_12%,rgba(8,21,52,0)_34%),radial-gradient(circle_at_74%_74%,rgba(94,157,255,0.15)_0,rgba(94,157,255,0.06)_14%,rgba(8,21,52,0)_28%)]" />
-
-          <div className="relative z-10 flex h-full max-w-[620px] flex-col justify-center text-white">
-            <span className="text-[0.68rem] font-bold tracking-[0.34em] text-white/62 md:text-[0.78rem]">
-              STANDARD ASSAYS
-            </span>
-            <h2 className="mt-4 max-w-[620px] font-['Quicksand'] text-[2.05rem] font-bold leading-[0.92] tracking-[-0.04em] text-white drop-shadow-[0_2px_10px_rgba(4,12,32,0.55)] md:text-[3.45rem]">
-              <span className="text-[#50a7d7]">Confident Validation</span>
+    <section className={styles.cta}>
+      <div className={styles.ctaCard}>
+        <Image
+          src="/images/validation%20services/cta-dna.webp"
+          alt=""
+          width={1730}
+          height={973}
+          sizes="(min-width: 1440px) 1160px, 80vw"
+          className={styles.ctaDna}
+        />
+        <div className={styles.ctaCopy}>
+          <p className={styles.eyebrow}>Standard Assays</p>
+          <div className={styles.ctaHeading}>
+            <h2>
+              <span>Confident Validation</span>
               <br />
               Starts With Structured
               <br />
               Design
             </h2>
-            <p className="mt-4 max-w-[320px] text-[0.82rem] leading-6 text-white/92 md:mt-5 md:text-[0.96rem]">
-              Schedule a consultation and see how BioPathogenix transforms validation from risk into readiness.
+            <p className={styles.lead}>
+              Schedule a consultation and see how BioPathogenix transforms validation from risk into
+              readiness.
             </p>
-
-            <button
-              type="button"
-              onClick={onOpenForm}
-              className="mt-6 inline-flex w-full max-w-[300px] items-center justify-between gap-6 self-start rounded-[4px] bg-white px-6 py-3 text-[0.82rem] font-semibold text-[#0a1d3d] transition hover:bg-[#eef6fc] md:mt-8 md:px-7 md:text-[0.94rem]"
-            >
-              Schedule a Consultation
-              <span className="border-l border-[#0a1d3d]/20 pl-3">
-                <ArrowRight className="h-4 w-4" />
-              </span>
-            </button>
           </div>
+          <button type="button" onClick={onOpenForm} className={`${styles.button} ${styles.buttonLight}`}>
+            Schedule a Consultation <ButtonArrow />
+          </button>
         </div>
       </div>
     </section>

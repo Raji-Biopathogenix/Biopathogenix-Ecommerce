@@ -1,0 +1,240 @@
+/* Validation Services page. Sizes and positions follow the Figma design's 1440px frame. */
+.page { --navy: #012c56; --ink: #070707; --blue: #4398cc; --button: #0c558a; --outline: #000c38; --soft: #f3f8fc; overflow-x: clip; background: white; color: var(--ink); }
+:where(.page) :where(h1, h2, h3, h4, p) { margin: 0; }
+:where(.page) :where(h1, h2, h3) { letter-spacing: -.02em; }
+.h2 { font-size: clamp(34px, 4.03vw, 58px); font-weight: 400; line-height: 1.05; color: var(--navy); }
+.h2 span { color: var(--blue); font-weight: 600; }
+.lead { font-size: 16px; line-height: 26px; }
+
+.button { display: inline-flex; align-items: center; justify-content: space-between; gap: 14px; height: 59px; padding: 0 24px 0 28px; border: 1px solid var(--button); border-radius: 6px; background: var(--button); color: white; font-size: clamp(16px, 1.39vw, 20px); font-weight: 600; white-space: nowrap; cursor: pointer; transition: background .2s, color .2s; }
+.button:hover { background: #094a72; }
+.buttonOutline { border-color: var(--outline); background: white; color: var(--outline); }
+.buttonOutline:hover { background: #eef4fb; }
+.buttonLight { border-color: white; background: white; color: var(--navy); }
+.buttonLight:hover { background: #eaf3fb; }
+.buttonArrow { display: flex; align-items: center; padding-left: 12px; border-left: 1px solid currentColor; line-height: 1; }
+.buttonArrow svg { width: 20px; height: 20px; }
+
+.checkList { display: grid; gap: 10px; padding: 0; list-style: none; }
+.checkList li { display: flex; align-items: center; gap: 13px; font-size: 16px; line-height: 24px; }
+.checkList li > span { display: flex; flex-shrink: 0; align-items: center; justify-content: center; width: 20px; height: 20px; border-radius: 50%; background: var(--blue); color: white; }
+.checkList li > span svg { width: 12px; height: 12px; }
+
+/* Round previous / next buttons, as in Featured Testimonials. */
+.navButtons { display: flex; gap: 11px; }
+.navButton { display: flex; align-items: center; justify-content: center; width: clamp(52px, 5.28vw, 76px); height: clamp(52px, 5.28vw, 76px); border: 1.5px solid var(--blue); border-radius: 50%; background: white; color: var(--blue); cursor: pointer; transition: background .2s, color .2s; }
+.navButton:hover { background: #eef6fc; }
+.navButton svg { width: 40%; height: 40%; stroke-width: 2.5; }
+.navButton:not(.navNext) { color: var(--navy); }
+.navNext { background: var(--blue); color: white; }
+.navNext:hover { background: #2f80b8; }
+
+/* ---- Hero ---- */
+.hero { position: relative; isolation: isolate; overflow: hidden; background: radial-gradient(ellipse at center, #f8f9ff 0%, #edf5ff 100%); }
+.hero::before, .hero::after { content: ""; position: absolute; inset-block: 0; width: 50%; z-index: -1; background: url('/images/validation%20services/bg1.jpeg') right center / auto 115% no-repeat; opacity: .7; }
+.hero::before { left: 0; transform: scaleX(-1); }
+.hero::after { right: 0; }
+.heroStage { position: relative; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); grid-template-areas: "copy copy" "left right"; align-items: center; justify-items: center; gap: 40px 16px; padding: 52px 20px; }
+.heroCopy { grid-area: copy; position: relative; z-index: 1; width: 100%; max-width: 760px; text-align: center; }
+.heroCopy::before { content: ""; position: absolute; z-index: -1; inset: -80px -60px; pointer-events: none; background: radial-gradient(ellipse, #f6f7ff 40%, #f6f7ff00 73%); }
+.eyebrow { font-size: 16px; font-weight: 600; line-height: 24px; letter-spacing: .12em; color: var(--navy); text-transform: uppercase; }
+.heroCopy h1 { margin: 14px auto 0; font-size: clamp(36px, 5.14vw, 74px); font-weight: 500; line-height: 1; letter-spacing: -.03em; color: var(--navy); }
+.heroCopy h1 span { color: var(--blue); font-weight: 600; }
+.heroCopy .lead { max-width: 540px; margin: 24px auto 0; }
+.heroActions { display: flex; flex-wrap: wrap; justify-content: center; gap: 14px; margin-top: 35px; }
+
+/* Phones and tablets: the six hexagons sit below the text as two honeycomb groups. */
+.heroLeft, .heroRight { position: relative; z-index: 2; pointer-events: none; }
+.heroLeft { grid-area: left; width: min(100%, 300px); aspect-ratio: 1.465 / 1.9038; }
+.heroRight { grid-area: right; width: min(96%, 289px); aspect-ratio: 1.365 / 1.8432; }
+/* Vertical padding is 8 / .866 so the white border is an even 8px on the slanted edges too. */
+.hex { position: absolute; overflow: hidden; background: white; padding: 9.24px 8px; }
+.hex > div { position: relative; width: 100%; height: 100%; overflow: hidden; }
+.hexLeftMain { left: 24.06%; top: 0; width: 68.26%; }
+.hexLeftOuter { left: 0; top: 49.05%; width: 57.34%; }
+.hexLeftInner { left: 59.04%; top: 52.69%; width: 40.96%; }
+.hexRightInner { left: 0; top: 9.4%; width: 41.76%; }
+.hexRightOuter { left: 43.59%; top: 0; width: 56.41%; }
+.hexRightMain { left: 6.04%; top: 37.35%; width: 73.26%; }
+
+/* ---- What a Successful Validation Looks Like ---- */
+.successful { position: relative; z-index: 1; margin-top: -20px; overflow: hidden; border-radius: 40px; background: #0a1d3d; }
+.track { display: flex; }
+.slide { position: relative; flex: 0 0 100%; }
+.slideOverlay { position: absolute; inset: 0; background: linear-gradient(90deg, rgb(2 12 44 / .97) 0%, rgb(2 14 50 / .9) 38%, rgb(4 18 60 / .55) 68%, rgb(4 18 60 / .18) 100%); }
+.slideContent { position: relative; display: flex; flex-direction: column; justify-content: space-between; gap: 40px; min-height: clamp(560px, 57.78vw, 832px); padding: 76px clamp(24px, 6.94vw, 100px) 75px clamp(24px, 7.15vw, 103px); color: white; }
+.slideHead { display: flex; align-items: flex-start; justify-content: space-between; gap: 24px; }
+.slideHead .h2 { color: white; }
+.slideHead .lead { margin-top: 15px; color: white; }
+.counter { flex-shrink: 0; padding-top: 2px; font-size: 18px; letter-spacing: .3em; color: rgb(255 255 255 / .85); }
+.slideFoot { display: flex; align-items: flex-end; justify-content: space-between; gap: 32px; }
+.slideBody { max-width: 640px; }
+.slideBody h3 { font-size: clamp(24px, 2.08vw, 30px); font-weight: 600; line-height: 36px; color: white; }
+.slideBody h3 + .checkList { margin-top: 29px; }
+.slideBody .checkList { gap: 7px; }
+.slideBody .checkList li { line-height: 23px; }
+.slideText { font-size: clamp(16px, 1.39vw, 20px); line-height: 1.55; color: white; }
+.slideText + .checkList { margin-top: 28px; }
+/* Previous / next stay put while slides move; the spacer reserves their room in each slide. */
+.slideNav { position: absolute; right: clamp(24px, 6.94vw, 100px); bottom: clamp(40px, 5.21vw, 75px); z-index: 2; }
+.navSpacer { flex-shrink: 0; width: calc(2 * clamp(52px, 5.28vw, 76px) + 11px); height: clamp(52px, 5.28vw, 76px); }
+.slideCta { display: flex; flex-wrap: wrap; align-items: flex-end; gap: 28px; max-width: none; }
+.slideCta .slideText { max-width: 560px; font-size: clamp(20px, 1.94vw, 28px); font-weight: 600; line-height: 1.3; }
+
+/* ---- Validation isn't a formality ---- */
+/* Background DNA layers sit at their Figma coordinates (1440px frame, converted to vw so
+   they scale with the page): a 3456 x 1344 ball-and-stick image at 25% opacity. */
+.dnaLayer { position: absolute; z-index: -1; width: 240vw; height: 93.34vw; background: url('/images/validation%20services/dna-ball-stick.webp') 0 0 / 100% 100% no-repeat; opacity: .25; pointer-events: none; }
+.dnaMirror { transform: scaleX(-1); }
+.infrastructure { position: relative; isolation: isolate; overflow: hidden; padding: 106px 0 92px; background: #fafcfd; }
+.infrastructure .dnaLayer { top: -51.13vw; left: -77.92vw; }
+.infraGrid { position: relative; display: grid; gap: 40px; }
+.infraPhoto { position: relative; min-height: 360px; overflow: hidden; border-radius: 0 40px 40px 0; }
+.infraPhoto img { position: absolute; top: -51.3%; left: -23.5%; width: 123.5%; height: auto; max-width: none; }
+.infraCopy { padding: 0 24px; }
+.infraCopy .lead { max-width: 400px; margin-top: 15px; }
+.infraCopy h3 { margin-top: 12px; font-size: 20px; font-weight: 600; line-height: 29px; letter-spacing: 0; color: var(--navy); }
+.infraCopy h3 + .checkList { margin-top: 20px; }
+.infraCopy .checkList + h3 { margin-top: 38px; }
+.banner { position: relative; display: flex; align-items: center; justify-content: center; min-height: 90px; max-width: 1248px; margin: 44px auto 0; padding: 12px 16px; border-radius: 6px; background: white; text-align: center; font-size: clamp(14px, 1.81vw, 26px); font-weight: 600; line-height: 1.3; letter-spacing: -.01em; color: var(--navy); text-transform: uppercase; }
+
+/* ---- What Makes BioPathogenix Different ---- */
+/* Not clipped: as in Figma, the DNA strand rises above the section's top edge. */
+.difference { position: relative; z-index: 2; isolation: isolate; margin-bottom: -89px; padding: 75px 0 139px; border-radius: 40px; background: var(--soft); }
+/* Figma: the blurred DNA image, rotated -24.944deg about its top-left corner. */
+.difference::before { content: ""; position: absolute; z-index: -1; top: -11.41vw; left: 20.257vw; width: 91.66vw; height: 81.03vw; background: url('/images/validation%20services/difference-dna.webp') 0 0 / 100% 100% no-repeat; transform: rotate(-24.944deg); transform-origin: 0 0; pointer-events: none; }
+.difference > .h2 { padding: 0 clamp(16px, 6.94vw, 100px); }
+.cardTrack { display: flex; gap: 25px; margin-top: 67px; padding: 0 clamp(16px, 6.94vw, 100px); overflow-x: auto; scroll-snap-type: x mandatory; scroll-padding-inline: clamp(16px, 6.94vw, 100px); scroll-behavior: smooth; scrollbar-width: none; }
+.cardTrack::-webkit-scrollbar { display: none; }
+.card { flex: 0 0 min(911px, 86vw); min-height: 509px; padding: 36px clamp(24px, 3.82vw, 55px) 27px; border-radius: 40px; background: white; scroll-snap-align: start; }
+.cardDark { background: linear-gradient(105deg, #000b2d 0%, #001a4c 100%); color: white; }
+.cardNumber { font-size: 18px; line-height: 27px; color: var(--blue); }
+.card h3 { margin-top: 85px; font-size: clamp(30px, 2.92vw, 42px); font-weight: 400; line-height: 1.05; color: var(--navy); }
+.cardDark h3 { max-width: 490px; margin-top: 90px; color: white; }
+.card h3 + .lead { margin-top: 29px; }
+.cardDark .lead { max-width: 590px; }
+.standards { display: flex; flex-wrap: wrap; align-items: center; gap: 9px; margin-top: 15px; }
+.standards > p { max-width: 300px; margin-right: 26px; font-size: 16px; font-weight: 600; line-height: 26px; }
+.pill { display: inline-flex; align-items: center; gap: 8px; height: 53px; padding: 0 16px 0 14px; border-radius: 10px; background: var(--soft); font-size: 22px; font-weight: 500; color: var(--navy); }
+.pill > span { display: flex; align-items: center; justify-content: center; width: 20px; height: 20px; border-radius: 50%; background: var(--blue); color: white; }
+.pill > span svg { width: 12px; height: 12px; }
+.result { display: inline-block; margin-top: 25px; padding: 10px 14px; border-left: 4px solid var(--blue); border-radius: 4px; background: white; font-size: 16px; line-height: 26px; color: var(--navy); }
+.result strong { font-weight: 600; }
+.cardSub { margin-top: 18px; }
+.card h4 { margin: 14px 0 0; font-size: 20px; font-weight: 600; line-height: 29px; color: var(--navy); }
+.card h4 + .checkList { margin-top: 19px; }
+.card .checkList + .lead { margin-top: 21px; }
+
+/* ---- Validation Services That Deliver Verified Performance ---- */
+.performance { position: relative; display: grid; gap: 40px; align-items: center; padding: 181px 0 92px; border-radius: 0 0 40px 40px; background: linear-gradient(90deg, #000a2b 0%, #001a4a 100%); color: white; }
+.performance .h2 { color: white; }
+.performance .lead { max-width: 505px; margin-top: 14px; }
+.performance .checkList { margin-top: 23px; }
+.perfCopy { padding: 0 24px; }
+.perfPhoto { position: relative; min-height: 360px; overflow: hidden; border-radius: 40px 0 0 40px; }
+.perfPhoto img { position: absolute; top: 0; left: -30.1%; width: 160.4%; height: 100%; max-width: none; object-fit: cover; }
+
+/* ---- Meet Your Validation Partners ---- */
+.partners { position: relative; isolation: isolate; overflow: hidden; padding: 83px 16px 217px; background: white; text-align: center; }
+.partners .dnaLayer:first-child { top: -42.5vw; left: -62.2vw; }
+.partners .dnaLayer:nth-child(2) { top: 12.69vw; left: -112.75vw; }
+.partnerGrid { display: grid; grid-template-columns: repeat(3, minmax(0, 461px)); justify-content: center; margin-top: 37px; }
+.partner { display: flex; flex-direction: column; align-items: center; }
+.partnerHex { position: relative; width: min(322px, 22.36vw); }
+.partnerHex .hex { position: relative; width: 100%; }
+.partner h3 { margin-top: -4px; font-size: clamp(20px, 2.22vw, 32px); font-weight: 600; line-height: 1.5; letter-spacing: 0; color: var(--ink); }
+.partner p { margin-top: 4px; font-size: 16px; line-height: 24px; }
+
+/* ---- Featured Testimonials ---- */
+/* Background: the design's hexagon network and blue glows, exported from the Figma frame. */
+.testimonials { position: relative; isolation: isolate; overflow: hidden; padding: 87px 16px 65px; border-radius: 40px; background: url('/images/validation%20services/testimonials-bg.webp') center top / 100% 100% no-repeat, var(--soft); text-align: center; }
+.quoteStage { position: relative; width: min(984px, 100%); margin: 42px auto 0; }
+.quoteCard { position: relative; z-index: 1; display: flex; flex-direction: column; min-height: 513px; padding: 52px 68px 61px; border-radius: 40px; background: white; text-align: left; }
+.quoteGhost { position: absolute; top: 9.36%; z-index: 0; width: 81.3%; height: 81.3%; border-radius: 40px; background: rgb(255 255 255 / .7); }
+.quoteGhostPrev { left: -6.1%; }
+.quoteGhostNext { right: -6.1%; }
+.quoteHead { display: flex; align-items: center; justify-content: space-between; gap: 16px; }
+.quoteSource { display: flex; align-items: center; gap: 16px; font-size: 18px; color: var(--navy); }
+.quoteSource > span { width: 48px; height: 48px; border-radius: 50%; background: #d9d9d9; }
+.quoteMark { width: 64px; height: auto; color: var(--navy); }
+.quoteCard blockquote { max-width: 700px; margin: auto 0 0; padding-top: 32px; font-size: clamp(24px, 2.92vw, 42px); line-height: 1.31; letter-spacing: -.03em; color: var(--navy); }
+.testimonials .navButtons { justify-content: center; margin-top: 43px; }
+
+/* ---- Confident Validation CTA ---- */
+.cta { padding: 42px 16px 0; }
+.ctaCard { position: relative; max-width: 1240px; margin: 0 auto; overflow: hidden; padding: 68px clamp(24px, 5.35vw, 77px) 69px; border-radius: 40px; background: linear-gradient(90deg, #000a2a 0%, #001c50 100%); color: white; }
+.ctaDna { position: absolute; top: 0; left: 20.3%; width: 92.9%; height: auto; max-width: none; pointer-events: none; }
+.ctaCopy { position: relative; }
+.ctaCopy .eyebrow { color: white; }
+.ctaHeading { position: relative; margin-top: 21px; }
+.ctaHeading h2 { font-size: clamp(38px, 5.35vw, 77px); font-weight: 400; line-height: 1; letter-spacing: -.03em; color: white; }
+.ctaHeading h2 span { color: var(--blue); font-weight: 700; }
+.ctaHeading .lead { max-width: 430px; margin-top: 16px; }
+.ctaCopy .button { margin-top: 40px; }
+
+/* The shared site footer, styled to the design on this page only. */
+:global(body):has(.page) footer { padding: 95px 0 32px; border-top: 0; background: white; }
+:global(body):has(.page) footer > div { max-width: 1272px; padding-inline: 16px; }
+:global(body):has(.page) footer h4 { margin-bottom: 24px; font-size: 20px; font-weight: 600; letter-spacing: 0; color: #012c56; }
+:global(body):has(.page) footer p, :global(body):has(.page) footer li a { font-size: 16px; line-height: 24px; color: #070707; }
+:global(body):has(.page) footer ul > * { margin-block: 0; line-height: 24px; }
+:global(body):has(.page) footer ul > * + * { margin-top: 12px; }
+:global(body):has(.page) footer a[href*='linkedin.com/company'] { font-size: 16px; font-weight: 400; letter-spacing: 0; color: #070707; }
+:global(body):has(.page) footer > div > div:last-child { margin-top: 72px; padding-top: 22px; border-color: #e3e7ee; font-size: 16px; color: #070707; }
+
+@media (min-width: 1024px) {
+  /* Figma hero frame is 803px tall at 1440px including the 82px nav bar. */
+  .heroStage { display: block; min-height: clamp(570px, 50.07vw, 721px); padding: min(80px, 5.56vw) 0 40px; }
+  .heroCopy { margin-inline: auto; max-width: 900px; }
+  /* Hexagons sit at their Figma coordinates (1440px frame, from the hero top and the screen
+     edges), scaling down proportionally below 1440px; some run off the edges on purpose. */
+  .heroLeft, .heroRight { position: absolute; inset: 0; width: auto; aspect-ratio: auto; }
+  .hexLeftMain { left: max(-61px, -4.236vw); top: min(64px, 4.444vw); width: min(304px, 21.111vw); }
+  .hexLeftOuter { left: max(-216px, -15vw); top: min(327px, 22.708vw); width: min(314px, 21.806vw); }
+  .hexLeftInner { left: min(97px, 6.736vw); top: min(361px, 25.069vw); width: min(183px, 12.708vw); }
+  .hexRightOuter { left: auto; right: max(-221px, -15.347vw); top: min(21px, 1.458vw); width: min(304px, 21.111vw); }
+  .hexRightInner { left: auto; right: min(82px, 5.694vw); top: min(126px, 8.75vw); width: min(182px, 12.639vw); }
+  .hexRightMain { left: auto; right: max(-76px, -5.278vw); top: min(284px, 19.722vw); width: min(314px, 21.806vw); }
+  :global(body):has(.hero) :global(.navbar_container) { background: #f3f6ff; border-bottom: 0; }
+  :global(body):has(.hero) :global(.navbar_container)::before { display: none; }
+
+  .infraGrid { grid-template-columns: 1fr 1fr; gap: 0; align-items: start; }
+  .infraPhoto { min-height: min(770px, 53.47vw); }
+  .infraCopy { padding: min(58px, 4.03vw) 24px 0 min(96px, 6.67vw); }
+
+  .performance { grid-template-columns: 1fr 1fr; gap: 0; }
+  .perfCopy { padding: 0 24px 0 min(100px, 6.94vw); }
+  .perfPhoto { min-height: min(770px, 53.47vw); }
+  .banner { padding-inline: 12px; white-space: nowrap; letter-spacing: -.025em; }
+
+  /* The CTA paragraph sits beside the last heading line ("Design"). */
+  .ctaHeading .lead { position: absolute; bottom: 7px; left: min(260px, 18.06vw); margin: 0; }
+  .ctaCopy .button { margin-top: min(117px, 8.13vw); }
+}
+
+@media (max-width: 1023px) {
+  .banner { margin-inline: 16px; }
+  .heroStage { min-height: 560px; }
+  .slideFoot { flex-direction: column; align-items: flex-start; gap: 16px; }
+  .infrastructure { padding: 64px 0; }
+  .infraPhoto { margin-right: 16px; aspect-ratio: 720 / 770; }
+  .difference { margin-bottom: -60px; padding-top: 56px; }
+  .card h3 { margin-top: 40px; }
+  .performance { padding: 120px 0 64px; }
+  .perfPhoto { margin-left: 16px; aspect-ratio: 720 / 770; }
+  .partners { padding-bottom: 72px; }
+  .partnerGrid { grid-template-columns: 1fr; gap: 32px; }
+  .partnerHex { width: min(260px, 70vw); }
+  .quoteGhost { display: none; }
+  .quoteCard { min-height: 0; padding: 32px 24px; }
+  .quoteMark { width: 44px; }
+  .ctaHeading .lead { max-width: 520px; }
+}
+
+@media (max-width: 560px) {
+  .button { width: 100%; height: 54px; gap: 16px; padding-inline: 20px; white-space: normal; }
+  .heroActions { flex-direction: column; }
+  .slideContent { padding-top: 40px; padding-bottom: 40px; }
+  .counter { display: none; }
+  .pill { height: 44px; font-size: 18px; }
+}

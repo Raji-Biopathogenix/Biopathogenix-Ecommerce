@@ -44,7 +44,7 @@ export default function SupportingScientificCommunity() {
           {/* Optional Light Overlay */}
           <div className="absolute inset-0 bg-white/20" />
 
-          <div className="relative grid grid-cols-1 lg:grid-cols-[47%_53%]">
+          <div className="relative grid grid-cols-1 lg:min-h-[760px] lg:grid-cols-[50%_50%]">
             {/* LEFT IMAGE */}
             <div className="p-3 md:p-5 lg:p-0">
               <div className="overflow-hidden rounded-[24px] md:rounded-[30px] lg:rounded-[34px] shadow-[0_25px_60px_rgba(23,57,99,0.12)] h-full">

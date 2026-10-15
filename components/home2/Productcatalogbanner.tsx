@@ -17,8 +17,8 @@ export default function ProductCatalogBanner({
   const isDownload = Boolean(context?.download_file);
 
   return (
-    <section className="overflow-hidden rounded-b-[24px] bg-[#0A2F5A] py-12 sm:py-14 lg:py-20">
-      <div className="mx-auto flex max-w-[1380px] flex-col items-start justify-between gap-8 px-4 sm:px-6 md:px-10 lg:flex-row lg:gap-20 lg:px-16">
+    <section className="overflow-hidden rounded-b-[24px] bg-[#0A2F5A] py-12 sm:py-14 lg:py-[90px]">
+      <div className="mx-auto flex max-w-[1440px] flex-col items-start justify-between gap-8 px-4 sm:px-6 md:px-10 lg:min-h-[720px] lg:flex-row lg:items-center lg:gap-16 lg:px-[100px]">
 
         {/* LEFT CONTENT */}
         <div className="w-full max-w-[500px] pt-2 sm:pt-6 lg:pt-8">
@@ -68,12 +68,12 @@ export default function ProductCatalogBanner({
         </div>
 
         {/* RIGHT IMAGE */}
-        <div className="flex w-full justify-center lg:w-[520px] lg:justify-end">
+        <div className="flex w-full justify-center lg:w-[600px] lg:shrink-0 lg:justify-end">
 
           <img
             src="/fig-preview/images/bdaa2fd7c47ed7d0b8b29785c7e0fc70c1ff420e"
             alt="BioPathogenix Product Catalog"
-            className="block w-full max-w-[320px] drop-shadow-[0_30px_50px_rgba(0,0,0,0.45)] sm:max-w-[400px] lg:max-w-[480px]"
+            className="block w-full max-w-[320px] drop-shadow-[0_30px_50px_rgba(0,0,0,0.45)] sm:max-w-[420px] lg:max-w-[590px]"
           />
         </div>
       </div>

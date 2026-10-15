@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { LandingPageType } from "@/types/header";
 import { ChevronRight } from "lucide-react";
@@ -8,11 +9,12 @@ interface ShopByCategoryprops {
   result?: LandingPageType;
 }
 
+// Ordered as in the Figma frame.
 const CATEGORIES = [
   {
-    title: "DNA/RNA Extraction Kits",
-    image: "/fig-preview/images/060537cbda24b2a5cd4fc145fa7271e599487b7c",
-    link: "https://bio.biopathogenix.com/product/extraction-sample-prep",
+    title: "Specimen Collection Supplies",
+    image: "/fig-preview/images/47de23b4d89bd43c2c82125a838f1ca90b06ab66",
+    link: "https://bio.biopathogenix.com/product/specimen-collection-supplies",
   },
   {
     title: "Custom & Standard qPCR Assays",
@@ -20,13 +22,13 @@ const CATEGORIES = [
     link: "https://bio.biopathogenix.com/product/qplex-pcr-assays",
   },
   {
-    title: "PCR Lab Consumables",
-    image: "/fig-preview/images/341d4c17677780e3ffe716da598d5cd49fe71a93",
-    link: "https://bio.biopathogenix.com/product/specimen-collection-supplies",
+    title: "DNA/RNA Extraction Kits",
+    image: "/fig-preview/images/060537cbda24b2a5cd4fc145fa7271e599487b7c",
+    link: "https://bio.biopathogenix.com/product/extraction-sample-prep",
   },
   {
-    title: "Specimen Collection Supplies",
-    image: "/fig-preview/images/47de23b4d89bd43c2c82125a838f1ca90b06ab66",
+    title: "PCR Lab Consumables",
+    image: "/fig-preview/images/341d4c17677780e3ffe716da598d5cd49fe71a93",
     link: "https://bio.biopathogenix.com/product/specimen-collection-supplies",
   },
   {
@@ -38,7 +40,15 @@ const CATEGORIES = [
 
 export default function ShopByCategory({ result: _result }: ShopByCategoryprops) {
   const router = useRouter();
+  const trackRef = useRef<HTMLDivElement>(null);
   void _result;
+
+  // Start with the row centred so both edge cards are partly visible, as in the Figma frame.
+  useEffect(() => {
+    const track = trackRef.current;
+    if (!track) return;
+    track.scrollLeft = (track.scrollWidth - track.clientWidth) / 2;
+  }, []);
 
   return (
     <section className="relative overflow-hidden bg-white py-14 sm:py-16 lg:py-20">
@@ -78,8 +88,12 @@ export default function ShopByCategory({ result: _result }: ShopByCategoryprops)
           </h2>
         </div>
 
-        <div className="relative top-6 w-full px-3 sm:top-8 sm:px-5 lg:top-10 lg:px-8">
-          <div className="grid w-full grid-cols-1 gap-3 sm:grid-cols-2 sm:gap-4 lg:grid-cols-5">
+        <div className="relative top-6 w-full sm:top-8 lg:top-10">
+          {/* As in the Figma frame: equal cards in one row, centred, with the outer cards cut off by the page edge. */}
+          <div
+            ref={trackRef}
+            className="flex w-full snap-x snap-mandatory gap-3 overflow-x-auto px-3 [scrollbar-width:none] sm:gap-4 [&::-webkit-scrollbar]:hidden"
+          >
             {CATEGORIES.map((category) => {
               const link = category.link;
 
@@ -90,14 +104,17 @@ export default function ShopByCategory({ result: _result }: ShopByCategoryprops)
                   className="
                         group
                         relative
-                        h-[270px]
-                        w-full
+                        aspect-[430/563]
+                        w-[260px]
+                        shrink-0
+                        snap-center
                         cursor-pointer
                         overflow-hidden
                         rounded-[20px]
-                        sm:h-[320px]
+                        sm:w-[320px]
                         sm:rounded-[24px]
-                        lg:h-[420px]
+                        lg:w-[400px]
+                        xl:w-[430px]
                     "
                 >
                   {/* Image */}
@@ -119,7 +136,7 @@ export default function ShopByCategory({ result: _result }: ShopByCategoryprops)
                   <div className="absolute inset-0 bg-gradient-to-t from-[#08284d] via-[#08284d66] to-transparent" />
                   {/* Bottom Content */}
                   <div className="absolute bottom-4 left-4 right-4 z-10 flex items-end justify-between sm:bottom-6 sm:left-5 sm:right-5">
-                    <h3 className="max-w-[210px] text-[14px] font-semibold leading-tight !text-white drop-shadow-[0_1px_2px_rgba(0,0,0,0.45)] sm:max-w-[150px] sm:text-[16px] lg:max-w-[180px] lg:text-[20px]">
+                    <h3 className="max-w-[180px] text-[18px] font-semibold leading-tight !text-white drop-shadow-[0_1px_2px_rgba(0,0,0,0.45)] sm:max-w-[210px] sm:text-[20px] lg:max-w-[260px] lg:text-[26px]">
                       {category.title}
                     </h3>
                     <div

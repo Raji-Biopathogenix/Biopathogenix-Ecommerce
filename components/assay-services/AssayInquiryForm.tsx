@@ -1,6 +1,6 @@
 "use client";
 
-import { FormEvent, useMemo, useState } from "react";
+import { FormEvent, ReactNode, useMemo, useState } from "react";
 import { fetchJson } from "@/lib/api";
 
 const HELP_OPTIONS = [
@@ -24,7 +24,12 @@ type AssayInquiryResponse = {
   message?: string;
 };
 
-export default function AssayInquiryForm() {
+type AssayInquiryFormProps = {
+  submitClassName?: string;
+  submitArrow?: ReactNode;
+};
+
+export default function AssayInquiryForm({ submitClassName, submitArrow }: AssayInquiryFormProps = {}) {
   const [form, setForm] = useState<AssayInquiryRequest>({
     name: "",
     work_email: "",
@@ -82,7 +87,7 @@ export default function AssayInquiryForm() {
     <form className="mt-4 space-y-3" onSubmit={handleSubmit}>
       <div>
         <label className="mb-1 block text-sm font-medium text-[#1f4f79]">
-          Name <span className="text-red-500">*</span>
+          Name
         </label>
         <input
           type="text"
@@ -95,7 +100,7 @@ export default function AssayInquiryForm() {
 
       <div>
         <label className="mb-1 block text-sm font-medium text-[#1f4f79]">
-          Work Email <span className="text-red-500">*</span>
+          Work Email
         </label>
         <input
           type="email"
@@ -108,7 +113,7 @@ export default function AssayInquiryForm() {
 
       <div>
         <label className="mb-1 block text-sm font-medium text-[#1f4f79]">
-          Organization / Lab <span className="text-red-500">*</span>
+          Organization / Lab
         </label>
         <input
           type="text"
@@ -126,7 +131,7 @@ export default function AssayInquiryForm() {
 
       <div>
         <label className="mb-1 block text-sm font-medium text-[#1f4f79]">
-          What do you need help with? <span className="text-red-500">*</span>
+          What do you need help with?
         </label>
         <select
           value={form.help_type}
@@ -139,7 +144,7 @@ export default function AssayInquiryForm() {
           required
           className="h-11 w-full rounded-md border border-[#d4e3ef] bg-white px-3 text-sm outline-none focus:border-[#73b9e8]"
         >
-          <option value="">Select an option</option>
+          <option value="">Select Option</option>
           {HELP_OPTIONS.map((option) => (
             <option key={option} value={option}>
               {option}
@@ -152,6 +157,7 @@ export default function AssayInquiryForm() {
         <label className="mb-1 block text-sm font-medium text-[#1f4f79]">Additional Details (Optional)</label>
         <textarea
           rows={5}
+          placeholder="Type your message..."
           value={form.additional_details}
           onChange={(event) =>
             setForm((prev) => ({
@@ -168,10 +174,14 @@ export default function AssayInquiryForm() {
 
       <button
         type="submit"
-        disabled={isSubmitting || !canSubmit}
-        className="inline-flex items-center gap-2 rounded-md bg-[#148fda] px-5 py-2.5 text-sm font-medium text-white transition hover:bg-[#0f77b7] disabled:cursor-not-allowed disabled:opacity-60"
+        disabled={isSubmitting}
+        className={
+          submitClassName ??
+          "inline-flex items-center gap-2 rounded-md bg-[#148fda] px-5 py-2.5 text-sm font-medium text-white transition hover:bg-[#0f77b7] disabled:cursor-not-allowed disabled:opacity-60"
+        }
       >
         {isSubmitting ? "Submitting..." : "Submit Inquiry"}
+        {submitArrow}
       </button>
     </form>
   );

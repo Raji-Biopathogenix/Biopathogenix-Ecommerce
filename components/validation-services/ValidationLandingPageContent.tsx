@@ -1,5 +1,6 @@
 "use client";
 
+import { Poppins } from "next/font/google";
 import { useState } from "react";
 import ValidationBottomCta from "@/components/validation-services/ValidationBottomCta";
 import ValidationContactModal from "@/components/validation-services/ValidationContactModal";
@@ -10,13 +11,21 @@ import ValidationPartnersSection from "@/components/validation-services/Validati
 import ValidationPerformanceSection from "@/components/validation-services/ValidationPerformanceSection";
 import ValidationSuccessfulSection from "@/components/validation-services/ValidationSuccessfulSection";
 import ValidationTestimonialsSection from "@/components/validation-services/ValidationTestimonialsSection";
+import styles from "./ValidationPage.module.css";
+import { HexClipDefs } from "./ValidationUi";
+
+// The Figma design's typeface.
+const poppins = Poppins({ subsets: ["latin"], weight: ["400", "500", "600", "700"], display: "swap" });
 
 export default function ValidationLandingPageContent() {
   const [isFormOpen, setIsFormOpen] = useState(false);
 
   return (
     <>
-      <main className="bg-[#f2f4f6]">
+      {/* The shared footer sits outside this page, so its Figma font is applied by family name. */}
+      <style>{`body:has(.${styles.page}) footer { font-family: ${poppins.style.fontFamily}; }`}</style>
+      <HexClipDefs />
+      <main className={`${poppins.className} ${styles.page}`}>
         <ValidationLandingHero onOpenForm={() => setIsFormOpen(true)} />
         <ValidationSuccessfulSection onOpenForm={() => setIsFormOpen(true)} />
         <ValidationInfrastructureSection />
