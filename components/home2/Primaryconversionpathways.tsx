@@ -59,7 +59,7 @@ export default function PrimaryConversionPathways() {
     >
       <div className="mx-auto flex max-w-[1240px] flex-col items-center gap-10 md:gap-14 lg:flex-row lg:items-center lg:justify-between lg:gap-16">
         <div className="w-full max-w-[580px]">
-          <h2 className="text-balance font-['Quicksand'] text-[34px] font-semibold leading-[1.1] tracking-[-0.03em] text-[#173963] sm:text-[40px] lg:text-[52px] xl:text-[60px]">
+          <h2 className="text-balance font-['Quicksand'] text-[34px] font-semibold leading-[1.1] tracking-[-0.03em] text-[#173963] sm:text-[40px] lg:whitespace-nowrap lg:text-[48px] xl:text-[56px]">
             <span className="block">Built for Accuracy.</span>{" "}
             <span className="block text-[#58A7E8]">Backed by Validation.</span>
           </h2>
@@ -98,7 +98,7 @@ export default function PrimaryConversionPathways() {
               <span className="mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-[#EEF6FC] sm:mb-6 sm:h-20 sm:w-20">
                 {card.icon}
               </span>
-              <p className="max-w-[180px] whitespace-pre-line text-[18px] font-semibold leading-[1.25] text-[#102447] sm:text-[22px]">
+              <p className="max-w-[240px] whitespace-pre-line text-[18px] font-semibold leading-[1.25] text-[#102447] sm:text-[22px]">
                 {card.title}
               </p>
             </button>
