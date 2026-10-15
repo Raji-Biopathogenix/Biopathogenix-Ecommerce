@@ -5,9 +5,10 @@ import { API_BASE_URL } from '@/config/env';
 // read NEXT_PUBLIC_API_BASE_URL themselves. They post here and this forwards the request
 // to the backend, the same way the site's other forms reach it.
 export async function POST(request: NextRequest) {
-  let body: unknown;
+  const multipart = request.headers.get('content-type')?.includes('multipart/form-data');
+  let body: BodyInit;
   try {
-    body = await request.json();
+    body = multipart ? await request.formData() : JSON.stringify(await request.json());
   } catch {
     return NextResponse.json({ message: 'Invalid request.' }, { status: 400 });
   }
@@ -15,8 +16,8 @@ export async function POST(request: NextRequest) {
   try {
     const response = await fetch(`${API_BASE_URL}/panel-assessment/`, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(body),
+      headers: multipart ? undefined : { 'Content-Type': 'application/json' },
+      body,
     });
     const data = await response.json().catch(() => ({}));
     return NextResponse.json(data, { status: response.status });
