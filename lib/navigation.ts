@@ -98,7 +98,7 @@ export const NAVIGATION_FALLBACK: NavigationGroup[] = [
       {
         id: 31,
         title: "Our Story",
-        url: "/about/our-story",
+        url: "/about/ourstory",
         order: 1,
         open_in_new_tab: false,
       },

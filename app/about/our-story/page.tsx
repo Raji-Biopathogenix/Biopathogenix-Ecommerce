@@ -1,10 +1,2 @@
-import BasicPage from "@/components/layout/BasicPage";
-
-export default function OurStoryPage() {
-  return (
-    <BasicPage
-      title="Our Story"
-      description="Learn about our mission, values, and the BioPathogenix journey."
-    />
-  );
-}
+// Our Story shows the About page, so /about, /about/our-story and /about/ourstory are the same page.
+export { default } from "../page";

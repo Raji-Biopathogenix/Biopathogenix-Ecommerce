@@ -35,7 +35,8 @@ def sample_order():
     return order
 
 
-@override_settings(ORDER_NOTIFICATION_BCC=['scope@biopathogenix.com', 'rajeswari.gopu@biopathogenix.com', 'order@biopathogenix.com'],
+@override_settings(ORDER_NOTIFICATION_TO=['order@biopathogenix.com'],
+                   ORDER_NOTIFICATION_BCC=['rajeswari.gopu@biopathogenix.com'],
                    PACKING_SLIP_COMPANY_ADDRESS='3004 Park Central Ave\nNicholasville, KY 40356',
                    EMAIL_BACKEND='django.core.mail.backends.locmem.EmailBackend')
 class OrderNotificationTests(SimpleTestCase):
@@ -105,8 +106,8 @@ class OrderNotificationTests(SimpleTestCase):
         self.assertEqual(customer.kwargs['bcc_list'], [])
         self.assertNotIn('/packing-slip', customer.kwargs['html_body'])
         self.assertNotIn('/packing-slip', customer.kwargs['text_body'])
-        self.assertEqual(internal.args[0], [])
-        self.assertEqual(internal.kwargs['bcc_list'], ['scope@biopathogenix.com', 'rajeswari.gopu@biopathogenix.com', 'order@biopathogenix.com'])
+        self.assertEqual(internal.args[0], ['order@biopathogenix.com'])
+        self.assertEqual(internal.kwargs['bcc_list'], ['rajeswari.gopu@biopathogenix.com'])
         self.assertNotIn('cc_list', internal.kwargs)
         self.assertIn('/orders/9033/edit', internal.kwargs['html_body'])
         self.assertIn('/orders/9033/edit', internal.kwargs['text_body'])
@@ -121,8 +122,8 @@ class OrderNotificationTests(SimpleTestCase):
             email_service.send_order_confirmation_emails(sample_order())
         self.assertEqual(len(mail.outbox), 2)
         self.assertEqual(mail.outbox[0].bcc, [])
-        self.assertEqual(mail.outbox[1].to, [])
-        self.assertIn('order@biopathogenix.com', mail.outbox[1].bcc)
+        self.assertEqual(mail.outbox[1].to, ['order@biopathogenix.com'])
+        self.assertEqual(mail.outbox[1].bcc, ['rajeswari.gopu@biopathogenix.com'])
         self.assertNotIn('/packing-slip', mail.outbox[0].alternatives[0].content)
         self.assertIn('/orders/9033/edit', mail.outbox[1].alternatives[0].content)
 

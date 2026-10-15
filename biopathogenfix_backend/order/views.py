@@ -723,11 +723,12 @@ def orderReturnRequestView(request):
     subject      = f"Return Request – Order #{order.id}"
     text_content = f"Return request received for Order #{order.id} from {order.user.email}."
     html_content = render_to_string("order/order_return_request.html", context)
-    bcc_email = ["scope@biopathogenix.com"]
+    # Internal copies go to the order inbox, blind-copied so the customer does not see them.
+    bcc_email = settings.ORDER_NOTIFICATION_TO + settings.ORDER_NOTIFICATION_BCC
     from_email = getattr(settings, 'DEFAULT_FROM_EMAIL', 'noreply@biopathogenix.com')
 
     if getattr(settings, 'GRAPH_ENABLED', False):
-        send_graph_email([order.user.email], subject, html_body=html_content, text_body=text_content, from_email=from_email, cc_list=bcc_email)
+        send_graph_email([order.user.email], subject, html_body=html_content, text_body=text_content, from_email=from_email, bcc_list=bcc_email)
     else:
         email = EmailMultiAlternatives(
             subject= subject,
@@ -769,11 +770,11 @@ def AdminorderReturnRequestView(request):
         text_content = f"Return request has been rejected for Order #{order.id}."
         html_content = render_to_string("order/order_return_request_reject.html", context)
 
-        bcc_email = ["scope@biopathogenix.com"]
+        bcc_email = settings.ORDER_NOTIFICATION_TO + settings.ORDER_NOTIFICATION_BCC
         from_email = getattr(settings, 'DEFAULT_FROM_EMAIL', 'noreply@biopathogenix.com')
 
         if getattr(settings, 'GRAPH_ENABLED', False):
-            send_graph_email([order.user.email], subject, html_body=html_content, text_body=text_content, from_email=from_email, cc_list=bcc_email)
+            send_graph_email([order.user.email], subject, html_body=html_content, text_body=text_content, from_email=from_email, bcc_list=bcc_email)
         else:
             email = EmailMultiAlternatives(
                 subject = subject,

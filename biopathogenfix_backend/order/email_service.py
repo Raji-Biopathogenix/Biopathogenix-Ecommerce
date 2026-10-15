@@ -82,8 +82,9 @@ def send_order_confirmation_emails(order):
         logger.exception('Customer confirmation failed for order %s', order.id)
 
     try:
-        recipients = list(dict.fromkeys(settings.ORDER_NOTIFICATION_BCC))
-        if not recipients:
+        recipients = list(dict.fromkeys(settings.ORDER_NOTIFICATION_TO))
+        bcc = [email for email in dict.fromkeys(settings.ORDER_NOTIFICATION_BCC) if email not in recipients]
+        if not recipients and not bcc:
             return
         purchased = []
         for item in items:
@@ -102,7 +103,7 @@ def send_order_confirmation_emails(order):
             company_address=settings.PACKING_SLIP_COMPANY_ADDRESS,
             card_brand=order.card_brand, card_last4=order.card_last4)
         _send_confirmation_message(
-            to=[], bcc=recipients, subject=f'[BioPathogenix] New order: {number}',
+            to=recipients, bcc=bcc, subject=f'[BioPathogenix] New order: {number}',
             html=render_to_string('emails/internal_order_confirmation.html', internal_context),
             text=f'New order {number}. Total: ${order.amount}.\nView / edit order and access packing slip (staff sign-in required): {edit_url}',
         )
