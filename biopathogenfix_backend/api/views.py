@@ -20,6 +20,7 @@ FORM_RECIPIENTS = [
     "support@biopathogenix.com",
 ]
 FORM_BCC = ["rajeswari.gopu@biopathogenix.com"]
+PANEL_ASSESSMENT_BCC = [*FORM_BCC, "o5akcx3o@robot.zapier.com"]
 
 CUSTOM_TARGET_ALLOWED_FILE_EXTENSIONS = {"xlsx", "xls", "pdf", "doc", "docx", "csv"}
 CUSTOM_TARGET_MAX_FILE_SIZE = 3 * 1024 * 1024
@@ -27,6 +28,7 @@ CUSTOM_TARGET_MAX_FILE_SIZE = 3 * 1024 * 1024
 PANEL_ASSESSMENT_SOURCES = {
     "general-value-prop": "General Value Prop landing page",
     "custom-assay-landing-page": "Custom Assay landing page",
+    "custom-assay-development": "Custom Assay Development page",
 }
 
 
@@ -249,6 +251,7 @@ class PanelAssessmentView(APIView):
     """Free Panel Assessment requests from the Traceable Pathogen panel landing pages."""
 
     permission_classes = [AllowAny]
+    parser_classes = [JSONParser, FormParser, MultiPartParser]
 
     def post(self, request):
         data = request.data
@@ -266,6 +269,21 @@ class PanelAssessmentView(APIView):
         if any(len(fields[key]) > 200 for key in ("name", "org", "phone", "interest")) or len(fields["message"]) > 5000:
             return Response({"message": "One or more fields are too long."}, status=status.HTTP_400_BAD_REQUEST)
 
+        attachments = []
+        target_file = request.FILES.get("target_file")
+        if target_file:
+            extension = target_file.name.rsplit(".", 1)[-1].lower()
+            if extension not in CUSTOM_TARGET_ALLOWED_FILE_EXTENSIONS or target_file.size > CUSTOM_TARGET_MAX_FILE_SIZE:
+                return Response(
+                    {"message": "Upload an Excel, PDF, Word, or CSV file no larger than 3 MB."},
+                    status=status.HTTP_400_BAD_REQUEST,
+                )
+            attachments.append({
+                "name": target_file.name,
+                "content": target_file.read(),
+                "content_type": target_file.content_type,
+            })
+
         context = {
             **fields,
             "org": fields["org"] or "N/A",
@@ -274,10 +292,13 @@ class PanelAssessmentView(APIView):
         }
 
         try:
-            _send_form_email(
+            _send_html_email(
+                FORM_RECIPIENTS,
                 f"New Free Panel Assessment Request - {fields['name']}",
                 render_to_string("emails/panel_assessment_request.html", context),
                 render_to_string("emails/panel_assessment_request.txt", context),
+                bcc=PANEL_ASSESSMENT_BCC if fields["source"] in PANEL_ASSESSMENT_SOURCES else FORM_BCC,
+                attachments=attachments,
             )
         except Exception:
             logger.exception("Failed to send panel assessment notification email")
