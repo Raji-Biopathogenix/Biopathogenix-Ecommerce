@@ -210,6 +210,8 @@
   /* The CTA paragraph sits beside the last heading line ("Design"). */
   .ctaHeading .lead { position: absolute; bottom: 7px; left: min(260px, 18.06vw); margin: 0; }
   .ctaCopy .button { margin-top: min(117px, 8.13vw); }
+  /* Figma card: 1240 x 587.57. */
+  .ctaCard { min-height: 587.57px; }
 }
 
 @media (max-width: 1023px) {
