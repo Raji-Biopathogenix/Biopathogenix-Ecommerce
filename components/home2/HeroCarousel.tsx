@@ -10,7 +10,7 @@ interface HeroCarouselprops {
 }
 
 // The honeycomb's bounding box in the 1440-wide Figma frame.
-const HONEYCOMB = { x: 795, y: 159, w: 613, h: 625 };
+const HONEYCOMB = { x: 793, y: 159, w: 593, h: 625 };
 
 // Figma polygons (6 points), in frame coordinates. The top-left tile's numbers
 // weren't shared, so it is measured from the prototype; it has no stroke.
@@ -19,10 +19,10 @@ const HERO_IMAGES = [
     // Top Left (small)
     src: "/fig-preview/images/303490d404583a39e84a9657020d1ad7f04a4966",
     alt: "Scientist working in a modern laboratory",
-    x: 795,
-    y: 232,
-    w: 239,
-    h: 225,
+    x: 793,
+    y: 231,
+    w: 241,
+    h: 230,
     radius: 20,
     stroke: 0,
   },
@@ -52,12 +52,11 @@ const HERO_IMAGES = [
     // Bottom Right (small)
     src: "/fig-preview/images/341d4c17677780e3ffe716da598d5cd49fe71a94",
     alt: "Scientist writing lab notes beside a microscope",
-    // Same size as the top-left tile so the two small tiles match.
-    x: 1168.5,
-    y: 451.8,
-    w: 239,
-    h: 225,
-    radius: 20,
+    x: 1170.42,
+    y: 441.26,
+    w: 215.34,
+    h: 246.14,
+    radius: 16.92,
     stroke: 8,
   },
 ] as const;
@@ -159,8 +158,10 @@ export default function HeroCarousel({ result }: HeroCarouselprops) {
           </p>
 
           {/* Heading */}
-          <h1 className="text-balance font-['Quicksand'] text-[clamp(32px,8vw,46px)] font-bold leading-[1.1] tracking-[-0.035em] text-[#0F2D5C] sm:text-[56px] sm:tracking-[-0.04em] md:text-[64px] lg:text-[58px] lg:leading-[1.02] xl:text-[72px]">
-            Complete Workflow Solutions for{" "}
+          <h1 className="text-balance font-['Quicksand'] text-[clamp(32px,8vw,46px)] font-bold leading-[1.1] tracking-[-0.035em] text-[#0F2D5C] sm:text-[56px] sm:tracking-[-0.04em] md:text-[64px] lg:whitespace-nowrap lg:text-[52px] lg:leading-[1.02] xl:text-[64px]">
+            {/* Three lines on desktop, as in the Figma: "Complete Workflow / Solutions for / Pathogen Detection." */}
+            Complete Workflow <br className="hidden lg:block" />
+            Solutions for <br className="hidden lg:block" />
             <span className="text-[#4A97D3]">Pathogen Detection.</span>
           </h1>
 
@@ -190,8 +191,8 @@ export default function HeroCarousel({ result }: HeroCarouselprops) {
           </button>
         </div>
 
-        <div className="flex w-full justify-center lg:absolute lg:left-[55.21%] lg:top-[62px] lg:w-[42.57%]">
-          <div className="relative aspect-[613/625] w-full max-w-[320px] sm:max-w-[440px] lg:max-w-none">
+        <div className="flex w-full justify-center lg:absolute lg:left-[55.07%] lg:top-[62px] lg:w-[41.18%]">
+          <div className="relative aspect-[593/625] w-full max-w-[320px] sm:max-w-[440px] lg:max-w-none">
             {HERO_IMAGES.map((image) => (
               <HeroImage key={image.src} {...image} />
             ))}
