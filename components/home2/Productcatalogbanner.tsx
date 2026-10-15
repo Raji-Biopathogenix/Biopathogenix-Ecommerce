@@ -23,7 +23,7 @@ export default function ProductCatalogBanner({
         {/* LEFT CONTENT */}
         <div className="w-full max-w-[500px] pt-2 sm:pt-6 lg:pt-8">
 
-          <h2 className="font-['Poppins'] text-[34px] font-light leading-[0.98] tracking-[-0.03em] !text-[#F4F8FF] drop-shadow-[0_1px_2px_rgba(0,0,0,0.35)] sm:text-[42px] md:text-[58px] xl:text-[68px]">
+          <h2 className="font-['Poppins'] text-[34px] font-light leading-[0.98] tracking-[-0.03em] !text-[#F4F8FF] drop-shadow-[0_1px_2px_rgba(0,0,0,0.35)] sm:whitespace-nowrap sm:text-[42px] md:text-[58px] xl:text-[68px]">
             Explore the
             <br />
 
