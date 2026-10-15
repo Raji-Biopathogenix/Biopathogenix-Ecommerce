@@ -164,7 +164,7 @@ export default function ContactPage({ eyebrow = "Contact" }: { eyebrow?: string 
                 <span className="inline-flex h-11 w-11 items-center justify-center rounded-xl bg-white/10">
                   <Clock3 size={18} />
                 </span>
-                <h3 className="text-xl font-semibold">Office hours</h3>
+                <h3 className="text-xl font-semibold text-white">Office hours</h3>
               </div>
               <div className="mt-6 space-y-4">
                 {officeHours.map((item) => (
