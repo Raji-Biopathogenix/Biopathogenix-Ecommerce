@@ -2,7 +2,7 @@ from django.core import mail
 from django.test import TestCase
 from rest_framework.test import APIClient
 
-from api.views import FORM_RECIPIENTS
+from api.views import FORM_BCC, FORM_RECIPIENTS
 
 
 class PanelAssessmentViewTests(TestCase):
@@ -27,6 +27,7 @@ class PanelAssessmentViewTests(TestCase):
         self.assertEqual(len(mail.outbox), 2)
         notification, confirmation = mail.outbox
         self.assertEqual(notification.to, FORM_RECIPIENTS)
+        self.assertEqual(notification.bcc, FORM_BCC)
         self.assertIn("Jane Doe", notification.subject)
         self.assertIn("Custom Assay landing page", notification.body)
         self.assertIn("6-target AMR panel", notification.body)
@@ -59,8 +60,5 @@ class FormRecipientsTests(TestCase):
         )
 
         self.assertEqual(response.status_code, 200)
-        self.assertEqual(mail.outbox[0].to, FORM_RECIPIENTS)
-        self.assertEqual(
-            FORM_RECIPIENTS,
-            ["rajeswari.gopu@biopathogenix.com", "order@biopathogenix.com", "support@biopathogenix.com"],
-        )
+        self.assertEqual(mail.outbox[0].to, ["order@biopathogenix.com", "support@biopathogenix.com"])
+        self.assertEqual(mail.outbox[0].bcc, ["rajeswari.gopu@biopathogenix.com"])

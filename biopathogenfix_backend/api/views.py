@@ -2,7 +2,6 @@ import logging
 
 from django.conf import settings
 from django.core.mail import EmailMultiAlternatives
-from django.core.mail import send_mail
 from django.template.loader import render_to_string
 from django.utils.html import strip_tags
 from rest_framework import status
@@ -15,12 +14,12 @@ from services.emailService import send_graph_email
 
 logger = logging.getLogger(__name__)
 
-# Every website form request goes to the same team inboxes.
+# Every website form request goes to the same team inboxes, with a blind copy.
 FORM_RECIPIENTS = [
-    "rajeswari.gopu@biopathogenix.com",
     "order@biopathogenix.com",
     "support@biopathogenix.com",
 ]
+FORM_BCC = ["rajeswari.gopu@biopathogenix.com"]
 
 CUSTOM_TARGET_ALLOWED_FILE_EXTENSIONS = {"xlsx", "xls", "pdf", "doc", "docx", "csv"}
 CUSTOM_TARGET_MAX_FILE_SIZE = 3 * 1024 * 1024
@@ -36,6 +35,38 @@ def get_or_none(classmodel, **kwargs):
         return classmodel.objects.get(**kwargs)
     except classmodel.DoesNotExist:
         return None
+
+
+def _send_html_email(recipients, subject, html_body, text_body, bcc=None, attachments=None):
+    from_email = getattr(settings, "DEFAULT_FROM_EMAIL", None)
+    if getattr(settings, "GRAPH_ENABLED", False):
+        send_graph_email(
+            recipients,
+            subject,
+            html_body=html_body,
+            text_body=text_body,
+            from_email=from_email,
+            bcc_list=bcc,
+            attachments=attachments,
+        )
+        return
+
+    email_message = EmailMultiAlternatives(
+        subject=subject, body=text_body, from_email=from_email, to=recipients, bcc=bcc or []
+    )
+    email_message.attach_alternative(html_body, "text/html")
+    for attachment in attachments or []:
+        email_message.attach(
+            attachment["name"],
+            attachment["content"],
+            attachment.get("content_type") or "application/octet-stream",
+        )
+    email_message.send(fail_silently=False)
+
+
+def _send_form_email(subject, html_body, text_body, attachments=None):
+    """Send a website form request to the team inboxes, blind-copying FORM_BCC."""
+    _send_html_email(FORM_RECIPIENTS, subject, html_body, text_body, bcc=FORM_BCC, attachments=attachments)
 
 
 class ContactValidationView(APIView):
@@ -75,7 +106,6 @@ class ContactValidationView(APIView):
                 status=status.HTTP_400_BAD_REQUEST,
             )
 
-        recipients = FORM_RECIPIENTS
         subject = f"New Validation Services Contact Request - {name}"
         context = {
             "name": name,
@@ -92,23 +122,7 @@ class ContactValidationView(APIView):
             text_body = plain_fallback
 
         try:
-            if getattr(settings, "GRAPH_ENABLED", False):
-                send_graph_email(
-                    recipients,
-                    subject,
-                    html_body=html_body,
-                    text_body=text_body,
-                    from_email=getattr(settings, "DEFAULT_FROM_EMAIL", None),
-                )
-            else:
-                send_mail(
-                    subject=subject,
-                    message=text_body,
-                    from_email=getattr(settings, "DEFAULT_FROM_EMAIL", None),
-                    recipient_list=recipients,
-                    html_message=html_body,
-                    fail_silently=False,
-                )
+            _send_form_email(subject, html_body, text_body)
         except Exception:
             logger.exception("Failed to send validation services contact email")
             return Response(
@@ -155,23 +169,7 @@ class QualityControlAvailabilityView(APIView):
             text_body = plain_fallback
 
         try:
-            if getattr(settings, "GRAPH_ENABLED", False):
-                send_graph_email(
-                    FORM_RECIPIENTS,
-                    subject,
-                    html_body=html_body,
-                    text_body=text_body,
-                    from_email=getattr(settings, "DEFAULT_FROM_EMAIL", None),
-                )
-            else:
-                send_mail(
-                    subject=subject,
-                    message=text_body,
-                    from_email=getattr(settings, "DEFAULT_FROM_EMAIL", None),
-                    recipient_list=FORM_RECIPIENTS,
-                    html_message=html_body,
-                    fail_silently=False,
-                )
+            _send_form_email(subject, html_body, text_body)
         except Exception:
             logger.exception("Failed to send quality control availability email")
             return Response(
@@ -233,23 +231,7 @@ class AssayInquiryView(APIView):
             text_body = plain_fallback
 
         try:
-            if getattr(settings, "GRAPH_ENABLED", False):
-                send_graph_email(
-                    FORM_RECIPIENTS,
-                    subject,
-                    html_body=html_body,
-                    text_body=text_body,
-                    from_email=getattr(settings, "DEFAULT_FROM_EMAIL", None),
-                )
-            else:
-                send_mail(
-                    subject=subject,
-                    message=text_body,
-                    from_email=getattr(settings, "DEFAULT_FROM_EMAIL", None),
-                    recipient_list=FORM_RECIPIENTS,
-                    html_message=html_body,
-                    fail_silently=False,
-                )
+            _send_form_email(subject, html_body, text_body)
         except Exception:
             logger.exception("Failed to send assay inquiry email")
             return Response(
@@ -260,21 +242,6 @@ class AssayInquiryView(APIView):
         return Response(
             {"message": "Thank you. Your inquiry has been sent to our team."},
             status=status.HTTP_200_OK,
-        )
-
-
-def _send_html_email(recipients, subject, html_body, text_body):
-    from_email = getattr(settings, "DEFAULT_FROM_EMAIL", None)
-    if getattr(settings, "GRAPH_ENABLED", False):
-        send_graph_email(recipients, subject, html_body=html_body, text_body=text_body, from_email=from_email)
-    else:
-        send_mail(
-            subject=subject,
-            message=text_body,
-            from_email=from_email,
-            recipient_list=recipients,
-            html_message=html_body,
-            fail_silently=False,
         )
 
 
@@ -307,8 +274,7 @@ class PanelAssessmentView(APIView):
         }
 
         try:
-            _send_html_email(
-                FORM_RECIPIENTS,
+            _send_form_email(
                 f"New Free Panel Assessment Request - {fields['name']}",
                 render_to_string("emails/panel_assessment_request.html", context),
                 render_to_string("emails/panel_assessment_request.txt", context),
@@ -400,30 +366,7 @@ class CustomTargetRequestView(APIView):
             text_body = plain_fallback
 
         try:
-            if getattr(settings, "GRAPH_ENABLED", False):
-                send_graph_email(
-                    FORM_RECIPIENTS,
-                    subject,
-                    html_body=html_body,
-                    text_body=text_body,
-                    from_email=getattr(settings, "DEFAULT_FROM_EMAIL", None),
-                    attachments=attachments,
-                )
-            else:
-                email_message = EmailMultiAlternatives(
-                    subject=subject,
-                    body=text_body,
-                    from_email=getattr(settings, "DEFAULT_FROM_EMAIL", None),
-                    to=FORM_RECIPIENTS,
-                )
-                email_message.attach_alternative(html_body, "text/html")
-                for attachment in attachments:
-                    email_message.attach(
-                        attachment["name"],
-                        attachment["content"],
-                        attachment.get("content_type") or "application/octet-stream",
-                    )
-                email_message.send(fail_silently=False)
+            _send_form_email(subject, html_body, text_body, attachments=attachments)
         except Exception:
             logger.exception("Failed to send custom target request email")
             return Response(

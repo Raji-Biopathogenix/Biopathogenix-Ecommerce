@@ -56,6 +56,7 @@ def send_internal_career_application_email(application) -> None:
         body=text_body,
         from_email=getattr(settings, "DEFAULT_FROM_EMAIL", None),
         to=recipients,
+        bcc=_normalize_recipients(getattr(settings, "CAREERS_BCC_EMAIL", "")),
         reply_to=[application.email],
     )
     email.attach_alternative(html_body, "text/html")

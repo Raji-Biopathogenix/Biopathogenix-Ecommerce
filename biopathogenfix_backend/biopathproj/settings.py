@@ -226,15 +226,19 @@ EMAIL_HOST_USER = os.environ.get("EMAIL_HOST_USER", "noreply@biopathogenix.com")
 EMAIL_HOST_PASSWORD = os.environ.get("EMAIL_HOST_PASSWORD", "Ras05143")  # set this in env
 DEFAULT_FROM_EMAIL = os.environ.get("DEFAULT_FROM_EMAIL", EMAIL_HOST_USER)
 CAREERS_RECIPIENT_EMAIL = os.environ.get("CAREERS_RECIPIENT_EMAIL", "careers@biopathogenix.com")
+CAREERS_BCC_EMAIL = os.environ.get("CAREERS_BCC_EMAIL", "rajeswari.gopu@biopathogenix.com")
 EMAIL_TIMEOUT = int(os.environ.get("EMAIL_TIMEOUT", 20))
 WELCOME_LOGO_URL = os.environ.get("WELCOME_LOGO_URL") or (
     (os.getenv('BACKEND_URL') or 'https://api.biopathogenix.com').rstrip('/')
     + '/static/images/email-logo-color.png'
 )
-# Internal new-order notifications are sent separately from customer emails.
+# Internal order notifications are sent separately from customer emails:
+# to the order inbox only, with a blind copy.
+ORDER_NOTIFICATION_TO = [email.strip() for email in os.getenv(
+    'ORDER_NOTIFICATION_TO', 'order@biopathogenix.com',
+).split(',') if email.strip()]
 ORDER_NOTIFICATION_BCC = [email.strip() for email in os.getenv(
-    'ORDER_NOTIFICATION_BCC',
-    'scope@biopathogenix.com,rajeswari.gopu@biopathogenix.com,order@biopathogenix.com',
+    'ORDER_NOTIFICATION_BCC', 'rajeswari.gopu@biopathogenix.com',
 ).split(',') if email.strip()]
 PACKING_SLIP_COMPANY_ADDRESS = os.getenv(
     'PACKING_SLIP_COMPANY_ADDRESS', '3004 Park Central Ave\nNicholasville, KY 40356',
