@@ -29,7 +29,8 @@ function CheckIcon() {
 
 export default function SupportingScientificCommunity() {
   return (
-    <section className="bg-white pt-10 md:pt-16 lg:pt-20">
+    <section className="bg-[linear-gradient(to_bottom,#ffffff_calc(100%-40px),#122855_calc(100%-40px))] pt-10 md:pt-16 lg:pt-20">
+      {/* Navy band at the bottom shows behind the card's rounded corners, joining the catalog banner below (per Figma) */}
       <div className="mx-auto w-full px-4 sm:px-5 lg:px-0">
         {/* Main Card */}
         <div
