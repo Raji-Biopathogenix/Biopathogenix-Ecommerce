@@ -55,10 +55,10 @@ export default function PrimaryConversionPathways() {
 
   return (
     <section
-      className="relative overflow-hidden bg-transparent bg-cover bg-center bg-no-repeat px-4 py-10 sm:px-6 md:px-10 lg:px-16 lg:py-15"
+      className="relative overflow-hidden bg-transparent bg-cover bg-center bg-no-repeat px-4 py-10 sm:px-6 md:px-10 lg:px-[100px] lg:py-[110px]"
     >
-      <div className="mx-auto flex max-w-[1500px] flex-col items-center gap-10 md:gap-14 lg:flex-row lg:items-center lg:justify-between lg:gap-20">
-        <div className="w-full max-w-[610px]">
+      <div className="mx-auto flex max-w-[1240px] flex-col items-center gap-10 md:gap-14 lg:flex-row lg:items-center lg:justify-between lg:gap-16">
+        <div className="w-full max-w-[580px]">
           <h2 className="text-balance font-['Quicksand'] text-[34px] font-semibold leading-[1.1] tracking-[-0.03em] text-[#173963] sm:text-[40px] lg:text-[52px] xl:text-[60px]">
             <span className="block">Built for Accuracy.</span>{" "}
             <span className="block text-[#58A7E8]">Backed by Validation.</span>
@@ -87,13 +87,13 @@ export default function PrimaryConversionPathways() {
           </Link>
         </div>
 
-        <div className="grid w-full max-w-[720px] grid-cols-1 gap-4 sm:gap-6 sm:grid-cols-2">
+        <div className="grid w-full max-w-[610px] shrink-0 grid-cols-1 gap-4 sm:grid-cols-2 sm:gap-5">
           {PATHWAY_CARDS.map((card) => (
             <button
               key={card.title}
               type="button"
               onClick={() => router.push(card.href)}
-              className="flex h-[180px] flex-col items-center justify-center rounded-[18px] bg-white px-5 text-center shadow-[0_12px_40px_rgba(18,53,92,0.08)] transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_18px_55px_rgba(18,53,92,0.12)] sm:h-[220px] sm:px-8"
+              className="flex h-[180px] flex-col items-center justify-center rounded-[18px] bg-white px-5 text-center shadow-[0_12px_40px_rgba(18,53,92,0.08)] transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_18px_55px_rgba(18,53,92,0.12)] sm:h-[230px] sm:px-8 lg:h-[265px] lg:rounded-[22px]"
             >
               <span className="mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-[#EEF6FC] sm:mb-6 sm:h-20 sm:w-20">
                 {card.icon}
