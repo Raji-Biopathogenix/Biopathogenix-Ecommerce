@@ -103,13 +103,13 @@
 
 /* ---- What Makes BioPathogenix Different ---- */
 /* Not clipped: as in Figma, the DNA strand rises above the section's top edge. */
-.difference { position: relative; z-index: 2; isolation: isolate; margin-bottom: -89px; padding: 75px 0 139px; border-radius: 40px; background: var(--soft); }
+.difference { --difference-gutter: clamp(16px, 6.94vw, 100px); --difference-card-width: min(758px, calc(100vw - 2 * var(--difference-gutter))); position: relative; z-index: 2; isolation: isolate; margin-bottom: -89px; padding: 75px 0 52px; border-radius: 40px; background: var(--soft); }
 /* Figma: the blurred DNA image, rotated -24.944deg about its top-left corner. */
 .difference::before { content: ""; position: absolute; z-index: -1; top: -11.41vw; left: 20.257vw; width: 91.66vw; height: 81.03vw; background: url('/images/validation%20services/difference-dna.webp') 0 0 / 100% 100% no-repeat; transform: rotate(-24.944deg); transform-origin: 0 0; pointer-events: none; }
 .difference > .h2 { padding: 0 clamp(16px, 6.94vw, 100px); }
-.cardTrack { display: flex; gap: 25px; margin-top: 67px; padding: 0 clamp(16px, 6.94vw, 100px); overflow-x: auto; scroll-snap-type: x mandatory; scroll-padding-inline: clamp(16px, 6.94vw, 100px); scroll-behavior: smooth; scrollbar-width: none; }
+.cardTrack { position: relative; display: flex; align-items: stretch; gap: 25px; margin: 67px var(--difference-gutter) 0; padding: 0; overflow-x: auto; scroll-snap-type: x mandatory; overscroll-behavior-x: contain; scrollbar-width: none; }
 .cardTrack::-webkit-scrollbar { display: none; }
-.card { flex: 0 0 min(911px, 86vw); min-height: 509px; padding: 36px clamp(24px, 3.82vw, 55px) 27px; border-radius: 40px; background: white; scroll-snap-align: start; }
+.card { box-sizing: border-box; flex: 0 0 var(--difference-card-width); min-width: 0; min-height: 508.47px; padding: 32px clamp(24px, 2.78vw, 40px) 27px; border-radius: 40px; background: white; scroll-snap-align: start; }
 .cardDark { background: linear-gradient(105deg, #000b2d 0%, #001a4c 100%); color: white; }
 .cardNumber { font-size: 18px; line-height: 27px; color: var(--blue); }
 .card h3 { margin-top: 85px; font-size: clamp(30px, 2.92vw, 42px); font-weight: 400; line-height: 1.05; color: var(--navy); }
@@ -127,6 +127,29 @@
 .card h4 { margin: 14px 0 0; font-size: 20px; font-weight: 600; line-height: 29px; color: var(--navy); }
 .card h4 + .checkList { margin-top: 19px; }
 .card .checkList + .lead { margin-top: 21px; }
+
+/* Difference carousel: equal cards with persistent controls below the row. */
+.cardTrack::after { content: ""; flex: 0 0 max(0px, calc(100% - var(--difference-card-width) - 25px)); }
+.cardTrack:focus-visible { outline: 3px solid var(--blue); outline-offset: 4px; }
+.card .cardNumber { font-size: 14px; line-height: 21px; }
+.card h3, .cardDark h3 { margin-top: 60px; font-size: clamp(26px, 2.22vw, 32px); line-height: 1.125; }
+.card h3 + .lead { margin-top: 24px; }
+.card .lead { font-size: 14px; line-height: 22px; }
+.card h4 { font-size: 16px; line-height: 24px; }
+.card .checkList { gap: 8px; }
+.card .checkList li { font-size: 14px; line-height: 22px; }
+.card .standards > p { max-width: 250px; margin-right: 12px; font-size: 14px; line-height: 20px; }
+.card .pill { height: 44px; padding-inline: 12px; font-size: 18px; }
+.card .pill > span { width: 16px; height: 16px; }
+.card .result { font-size: 14px; line-height: 20px; }
+.workflowCopy { margin-top: 12px; }
+.workflowPills { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 16px; }
+.workflowPills .pill { height: auto; min-height: 36px; padding: 8px 10px; font-size: 14px; line-height: 20px; }
+.differenceNav { justify-content: flex-end; margin: 26px var(--difference-gutter) 0; }
+.differenceNav .navButton:focus-visible { outline: 3px solid var(--navy); outline-offset: 4px; }
+.carouselStatus { position: absolute; width: 1px; height: 1px; padding: 0; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+@media (prefers-reduced-motion: reduce) { .cardTrack { scroll-behavior: auto; } }
+
 
 /* ---- Validation Services That Deliver Verified Performance ---- */
 .performance { position: relative; display: grid; gap: 40px; align-items: center; padding: 181px 0 92px; border-radius: 0 0 40px 40px; background: linear-gradient(90deg, #000a2b 0%, #001a4a 100%); color: white; }

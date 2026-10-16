@@ -17,7 +17,7 @@ export default function ProductCatalogBanner({
   const isDownload = Boolean(context?.download_file);
 
   return (
-    <section className="overflow-hidden rounded-b-[24px] bg-[#122855] py-12 sm:py-14 lg:py-[90px]">
+    <section className="overflow-hidden rounded-b-[24px] bg-[#012C56] lg:rounded-b-[40px] py-12 sm:py-14 lg:py-[90px]">
       <div className="mx-auto flex max-w-[1440px] flex-col items-start justify-between gap-8 px-4 sm:px-6 md:px-10 lg:min-h-[720px] lg:flex-row lg:items-center lg:gap-16 lg:px-[100px]">
 
         {/* LEFT CONTENT */}
