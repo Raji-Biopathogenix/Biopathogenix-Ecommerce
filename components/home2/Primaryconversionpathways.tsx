@@ -87,13 +87,13 @@ export default function PrimaryConversionPathways() {
           </Link>
         </div>
 
-        <div className="grid w-full max-w-[610px] shrink-0 grid-cols-1 gap-4 sm:grid-cols-2 sm:gap-5">
+        <div className="grid w-full max-w-[616px] shrink-0 grid-cols-1 gap-4 sm:grid-cols-2 sm:gap-5">
           {PATHWAY_CARDS.map((card) => (
             <button
               key={card.title}
               type="button"
               onClick={() => router.push(card.href)}
-              className="flex h-[180px] flex-col items-center justify-center rounded-[18px] bg-white px-5 text-center shadow-[0_12px_40px_rgba(18,53,92,0.08)] transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_18px_55px_rgba(18,53,92,0.12)] sm:h-[230px] sm:px-8 lg:h-[265px] lg:rounded-[22px]"
+              className="flex h-[180px] flex-col items-center justify-center rounded-[18px] bg-white px-5 text-center shadow-[0_12px_40px_rgba(18,53,92,0.08)] transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_18px_55px_rgba(18,53,92,0.12)] sm:h-[230px] sm:px-8 lg:h-[267px] lg:rounded-[22px]"
             >
               <span className="mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-[#EEF6FC] sm:mb-6 sm:h-20 sm:w-20">
                 {card.icon}

@@ -51,7 +51,7 @@ export default async function Home() {
           className="
           pointer-events-none
           absolute
-          opacity-15
+          opacity-25
           select-none
 
           w-[1100px]
@@ -63,11 +63,13 @@ export default async function Home() {
 
           left-1/2
           -translate-x-1/2
+          lg:left-[calc(50%-1842px)]
+          lg:translate-x-0
 
           top-[60px]
           sm:top-[120px]
           md:top-[180px]
-          lg:top-[220px]
+          lg:top-[257px]
         "
         />
         <HighPerformanceMultiplex />
