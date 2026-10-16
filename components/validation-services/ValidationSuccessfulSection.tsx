@@ -1,12 +1,12 @@
 "use client";
 
 import Image from "next/image";
-import { useEffect, useState, type ReactNode } from "react";
+import { useEffect, useRef, useState, type ReactNode } from "react";
 import styles from "./ValidationPage.module.css";
 import { ButtonArrow, CheckList, NavButtons } from "./ValidationUi";
 
 const AUTO_ADVANCE_MS = 6000;
-const SLIDE_MS = 700;
+
 
 type ValidationSuccessfulSectionProps = {
   onOpenForm: () => void;
@@ -102,57 +102,40 @@ const slides: Slide[] = [
   },
 ];
 
-// A copy of the first slide sits at the end so the carousel always slides left; after
-// reaching the copy it jumps back to the real first slide without animating.
-const track = [...slides, slides[0]];
-
 export default function ValidationSuccessfulSection({ onOpenForm }: ValidationSuccessfulSectionProps) {
+  const trackRef = useRef<HTMLDivElement>(null);
   const [index, setIndex] = useState(0);
-  const [animate, setAnimate] = useState(true);
   const [paused, setPaused] = useState(false);
 
-  // Auto-advance; any slide change (including a button click) restarts the countdown.
+  const goTo = (next: number) => {
+    const track = trackRef.current;
+    const card = track?.children[next] as HTMLElement | undefined;
+    if (!track || !card) return;
+    track.scrollTo({
+      left: card.offsetLeft,
+      behavior: window.matchMedia("(prefers-reduced-motion: reduce)").matches ? "instant" : "smooth",
+    });
+  };
+
   useEffect(() => {
     if (paused || window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
-    const timer = window.setTimeout(() => {
-      setAnimate(true);
-      setIndex((current) => current + 1);
-    }, AUTO_ADVANCE_MS);
+    const timer = window.setTimeout(() => goTo((index + 1) % slides.length), AUTO_ADVANCE_MS);
     return () => window.clearTimeout(timer);
   }, [index, paused]);
 
-  useEffect(() => {
-    if (index !== slides.length) return;
-    const timer = window.setTimeout(() => {
-      setAnimate(false);
-      setIndex(0);
-    }, SLIDE_MS);
-    return () => window.clearTimeout(timer);
-  }, [index]);
-
-  const goNext = () => {
-    if (index >= slides.length) return;
-    setAnimate(true);
-    setIndex(index + 1);
-  };
-
-  // From the first slide, jump to the copy at the end without animating, then slide back
-  // one, so "previous" also moves smoothly.
-  const goPrev = () => {
-    if (index >= slides.length) return;
-    if (index > 0) {
-      setAnimate(true);
-      setIndex(index - 1);
-      return;
-    }
-    setAnimate(false);
-    setIndex(slides.length);
-    window.requestAnimationFrame(() =>
-      window.requestAnimationFrame(() => {
-        setAnimate(true);
-        setIndex(slides.length - 1);
-      }),
-    );
+  const updateIndex = () => {
+    const track = trackRef.current;
+    if (!track) return;
+    let closest = 0;
+    let distance = Infinity;
+    Array.from(track.children).forEach((child, i) => {
+      const offset = Math.abs((child as HTMLElement).offsetLeft - track.scrollLeft);
+      if (offset < distance) {
+        closest = i;
+        distance = offset;
+      }
+    });
+    setIndex(closest);
   };
 
   return (
@@ -161,68 +144,70 @@ export default function ValidationSuccessfulSection({ onOpenForm }: ValidationSu
       onMouseEnter={() => setPaused(true)}
       onMouseLeave={() => setPaused(false)}
       onFocus={() => setPaused(true)}
-      onBlur={() => setPaused(false)}
+      onBlur={(event) => {
+        if (!event.currentTarget.contains(event.relatedTarget)) setPaused(false);
+      }}
       aria-roledescription="carousel"
       aria-label="What a successful validation looks like"
     >
       <div
+        ref={trackRef}
         className={styles.track}
-        style={{
-          transform: `translateX(-${index * 100}%)`,
-          transition: animate ? `transform ${SLIDE_MS}ms ease-in-out` : "none",
+        onScroll={updateIndex}
+        tabIndex={0}
+        aria-label="Validation cards; use left and right arrow keys to browse"
+        onKeyDown={(event) => {
+          if (event.target !== event.currentTarget) return;
+          if (event.key === "ArrowRight" || event.key === "ArrowLeft") {
+            event.preventDefault();
+            goTo((index + (event.key === "ArrowRight" ? 1 : slides.length - 1)) % slides.length);
+          }
         }}
       >
-        {track.map((slide, i) => {
-          const number = (i % slides.length) + 1;
-          const hidden = i !== index;
-          return (
-            <div
-              key={i}
-              className={styles.slide}
-              role="group"
-              aria-roledescription="slide"
-              aria-label={`${number} of ${slides.length}`}
-              aria-hidden={hidden}
-              inert={hidden}
-            >
-              <Image
-                src={slide.image}
-                alt=""
-                fill
-                sizes="100vw"
-                className="object-cover"
-                style={{ objectPosition: slide.imagePosition }}
-              />
-              <div className={styles.slideOverlay} />
-
-              <div className={styles.slideContent}>
-                <div className={styles.slideHead}>
-                  <div>
-                    <h2 className={styles.h2}>
-                      What a <span>Successful</span>
-                      <br />
-                      <span>Validation</span> Looks Like
-                    </h2>
-                    <p className={styles.lead}>
-                      Let&apos;s be honest. Validation is rarely just another project on the bench.
-                    </p>
-                  </div>
-                  <p className={styles.counter}>
-                    {String(number).padStart(2, "0")} / {String(slides.length).padStart(2, "0")}
+        {slides.map((slide, i) => (
+          <article
+            key={slide.image}
+            className={styles.slide}
+            role="group"
+            aria-roledescription="slide"
+            aria-label={`${i + 1} of ${slides.length}`}
+          >
+            <Image
+              src={slide.image}
+              alt=""
+              fill
+              sizes="(max-width: 600px) 88vw, (max-width: 1440px) 72vw, 1040px"
+              className="object-cover"
+              style={{ objectPosition: slide.imagePosition }}
+            />
+            <div className={styles.slideOverlay} />
+            <div className={styles.slideContent}>
+              <div className={styles.slideHead}>
+                <div>
+                  <h2 className={styles.h2}>
+                    What a <span>Successful</span>
+                    <br />
+                    <span>Validation</span> Looks Like
+                  </h2>
+                  <p className={styles.lead}>
+                    Let&apos;s be honest. Validation is rarely just another project on the bench.
                   </p>
                 </div>
-
-                <div className={styles.slideFoot}>
-                  {slide.body(onOpenForm)}
-                  {/* Keeps slide text clear of the previous / next buttons. */}
-                  <div className={styles.navSpacer} aria-hidden="true" />
-                </div>
+                <p className={styles.counter}>
+                  {String(i + 1).padStart(2, "0")} / {String(slides.length).padStart(2, "0")}
+                </p>
               </div>
+              <div className={styles.slideFoot}>{slide.body(onOpenForm)}</div>
             </div>
-          );
-        })}
+          </article>
+        ))}
       </div>
-      <NavButtons onPrev={goPrev} onNext={goNext} label="slide" className={styles.slideNav} />
+      <NavButtons
+        onPrev={() => goTo((index + slides.length - 1) % slides.length)}
+        onNext={() => goTo((index + 1) % slides.length)}
+        label="validation card"
+        className={styles.slideNav}
+      />
     </section>
   );
 }
