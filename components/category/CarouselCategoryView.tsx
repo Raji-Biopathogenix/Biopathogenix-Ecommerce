@@ -1,8 +1,6 @@
 "use client"
-import { useState } from "react";
 import { ProductResponse } from "@/types/product";
 
-import ButtonProps from "../common/Button";
 import Link from "next/link";
 import ProductCarousel from "../ProductDetail/ProductCarousel";
 
@@ -18,15 +16,15 @@ export interface CarouselCategoryViewProps {
 
 export default function CarouselCategoryView({ subCategories, category_slug }: CarouselCategoryViewProps) {
 
-    return (<>
+    return (<div className={category_slug === "product" ? "flex flex-col gap-10 md:gap-16" : undefined}>
         {
             subCategories?.map((productData, index) => {
-                let show_sub_category = productData?.products && productData?.products?.length > 0 ? true : false
+                const show_sub_category = productData?.products && productData?.products?.length > 0 ? true : false
                 // bg-white rounded-lg shadow-md hover:shadow-lg transition-shadow 
                 return (show_sub_category &&
                     <div key={`${index}-${productData?.slug}`}>
-                        <Link href={`/${category_slug}/${productData.slug}`} className="min-w-[200px]">
-                            <h1 className="text-xl font-bold text-[#0b2e59]">{productData.name}</h1>
+                        <Link href={`/${category_slug}/${productData.slug}`} className={category_slug === "product" ? "mb-4 inline-block min-w-[200px]" : "min-w-[200px]"}>
+                            <h2 className="text-xl font-bold text-[#0b2e59]">{productData.name}</h2>
                         </Link>
                         <ProductCarousel
                             products={productData.products}
@@ -40,5 +38,5 @@ export default function CarouselCategoryView({ subCategories, category_slug }: C
                 )
             })
         }
-    </>)
+    </div>)
 }

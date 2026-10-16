@@ -1,4 +1,6 @@
 /* Validation Services page. Sizes and positions follow the Figma design's 1440px frame. */
+/* Approved exceptions: .successful and .difference, including all descendants.
+   Preserve shared rules they depend on; verified corrections are section-scoped below. */
 .page { --navy: #012c56; --ink: #070707; --blue: #4398cc; --button: #0c558a; --outline: #000c38; --soft: #f3f8fc; overflow-x: clip; background: white; color: var(--ink); }
 :where(.page) :where(h1, h2, h3, h4, p) { margin: 0; }
 :where(.page) :where(h1, h2, h3) { letter-spacing: -.02em; }
@@ -270,4 +272,41 @@
   .slideBody h3 { font-size: 24px; }
   .slideCta .slideText { font-size: 20px; }
   .pill { height: 44px; font-size: 18px; }
+}
+
+/* Verified service-page measurements. These selectors intentionally exclude the
+   approved Successful Validation and BioPathogenix Different carousels. */
+.heroCopy h1 {
+  width: min(100%, 672.3px);
+  max-width: 672.3px;
+  letter-spacing: -.07em;
+}
+.infraCopy > .h2,
+.performance .h2,
+.partners > .h2,
+.testimonials > .h2 {
+  font-size: clamp(34px, 4.03vw, 58px);
+  line-height: 1.05;
+  letter-spacing: -.05em;
+}
+.infraCopy > .h2 { width: min(100%, 400px); }
+.partners > .h2 { width: min(100%, 520.86px); margin-inline: auto; }
+.testimonials > .h2 { width: min(100%, 625.26px); margin-inline: auto; font-weight: 400; }
+
+/* Desktop section spacing from the user's 1440px comparison. Only editable
+   parent sections change; approved carousel internals and shared rules do not. */
+@media (min-width: 1280px) {
+  /* Move the hero copy down 4.12px within its existing minimum-height stage. */
+  .heroStage { padding-top: 84.12px; }
+
+  /* Infrastructure needs 32.21px more space above its content. That increase
+     flows through the later carousel and performance sections naturally. */
+  .infrastructure { padding-top: 138.21px; }
+
+  /* Partners need a net +18.14px: retain the infrastructure increase and
+     remove 14.07px from the preceding performance section's bottom space. */
+  .performance { padding-bottom: 77.93px; }
+
+  /* The remaining 0.18px belongs to the testimonials' own upper padding. */
+  .testimonials { padding-top: 87.18px; }
 }

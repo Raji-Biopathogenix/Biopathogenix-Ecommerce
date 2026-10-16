@@ -1,0 +1,128 @@
+/* Homepage measurements use a 1440px document width as the desktop baseline. */
+.page h1, .page h2, .page h3 {
+  /* Override the legacy global rule that maps display fonts to Jakarta Sans. */
+  font-family: inherit !important;
+}
+
+/* Keep these shared-header changes confined to the homepage. */
+:global(body):has(.page) :global(.navbar__actions) > div { gap: 6px; }
+:global(body):has(.page) :global(.header-icon-btn) { width: 40px; height: 40px; flex-shrink: 0; }
+
+@media (min-width: 1280px) {
+  :global(body):has(.page) :global(.navbar) {
+    box-sizing: border-box;
+    width: 100%;
+    max-width: 1288px;
+    height: 100px;
+    padding-inline: 24px;
+  }
+
+  /* 8px top strip + 100px navigation + 1px border + 50px = page Y 159. */
+  .page [data-home="hero-images"] { top: 50px; }
+
+  .page [data-home="pathways"] { padding-top: 49px; }
+  .page [data-home="pathways-layout"] {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 610px;
+    align-items: start;
+    gap: 20px;
+  }
+  .page [data-home="pathways-grid"] {
+    width: 610px;
+    max-width: none;
+    grid-template-columns: repeat(2, 298px);
+    column-gap: 14px;
+    row-gap: 13px;
+  }
+  .page [data-home="pathways-grid"] > button { height: 267px; }
+  .page [data-home="qc-button"] {
+    box-sizing: border-box;
+    width: 432px;
+    height: 59px;
+    padding: 18px 28px;
+    gap: 34px;
+    border-radius: 8px;
+    background: #0c558a;
+    white-space: nowrap;
+    line-height: 23px;
+  }
+  .page [data-home="qc-button"] > span { margin: 0; padding: 0; border: 0; }
+  .page [data-home="team-heading"] {
+    width: 574px;
+    max-width: 100%;
+    font-size: 20px;
+    line-height: 33px;
+    letter-spacing: -.2px;
+  }
+
+  .page [data-home="community-frame"] { max-width: 1440px; margin-inline: auto; border-radius: 40px; }
+  .page [data-home="community-grid"] { min-height: 770px; }
+  .page [data-home="community-photo"] { height: 770px; border-radius: 40px; }
+  .page [data-home="community-photo"] > img { height: 100%; object-fit: cover; }
+  .page [data-home="community-copy"] { align-items: flex-start; padding: 106px 24px 48px 96px; }
+  .page [data-home="community-heading"] {
+    width: 400px;
+    font-size: 58px;
+    font-weight: 400;
+    line-height: 60.9px;
+    letter-spacing: -2.9px;
+    color: #012c56;
+  }
+  .page [data-home="community-heading"] span { color: #4398cc; font-weight: 600; }
+  .page [data-home="community-copy"] p { margin-top: 16px; }
+  .page [data-home="community-copy"] h3 { margin-top: 16px; }
+  .page [data-home="community-copy"] ul { display: grid; gap: 8px; margin-top: 12px; }
+  .page [data-home="community-copy"] li { margin: 0; }
+  .page [data-home="learning-button"] {
+    box-sizing: border-box;
+    width: 432px;
+    height: 59px;
+    padding-inline: 28px;
+    border-radius: 8px;
+    background: #0c558a;
+    justify-content: space-between;
+    margin-top: 16px;
+  }
+
+  .page [data-home="catalog-layout"] { position: relative; display: block; min-height: 720px; }
+  .page [data-home="catalog-copy"] { position: relative; z-index: 1; width: 627px; max-width: none; padding-top: 0; }
+  .page [data-home="catalog-heading"] {
+    width: 627px;
+    font-size: 84px;
+    font-weight: 400;
+    line-height: 84px;
+    letter-spacing: -5.88px;
+    color: #fff !important;
+  }
+  .page [data-home="catalog-heading"] > span:first-of-type { color: #4398cc !important; }
+  .page [data-home="catalog-heading"] > span:last-of-type { font-weight: 400; color: #fff !important; }
+  .page [data-home="catalog-button"] {
+    box-sizing: border-box;
+    width: 331px;
+    height: 59px;
+    padding: 18px 28px;
+    gap: 34px;
+    border-radius: 8px;
+    background: #3e97ce;
+    justify-content: space-between;
+    line-height: 23px;
+  }
+  .page [data-home="catalog-button"] > span { padding: 0; border: 0; }
+  /* The 843 x 687 reference is an artwork group, not this portrait cover.
+     Keep its aspect ratio until the composition can be verified. */
+  .page [data-home="catalog-artwork"] { position: absolute; right: 100px; top: 0; width: min(600px, calc(100% - 840px)); }
+}
+
+@media (max-width: 360px) {
+  :global(body):has(.page) :global(.navbar__logo) img { max-width: 100px; }
+}
+
+@media (min-width: 1024px) and (max-width: 1279px) {
+  .page [data-home="pathways-layout"] { gap: 24px; }
+  .page [data-home="pathways-grid"] { width: 50%; max-width: 610px; gap: 14px; }
+  .page [data-home="pathways-layout"] > div:first-child { min-width: 0; }
+  .page [data-home="pathways-layout"] h2 { white-space: normal; }
+  .page [data-home="catalog-artwork"] { width: 44%; }
+  .page [data-home="catalog-layout"] { gap: 24px; }
+  .page [data-home="catalog-heading"] { white-space: normal; }
+}

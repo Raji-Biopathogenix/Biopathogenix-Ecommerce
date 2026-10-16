@@ -54,7 +54,7 @@
 /* ---- Below the hero: sizes and positions follow the Figma design's 1440px frame. ---- */
 .body { --navy: #012c56; --ink: #070707; --blue: #4398cc; --button: #0c558a; --outline: #000c38; color: var(--ink); background: white; }
 .body h2, .body h3 { margin: 0; letter-spacing: -.02em; }
-.body h2 { font-size: clamp(34px, 4.03vw, 58px); font-weight: 400; line-height: 1.05; }
+.body h2 { font-size: clamp(34px, 4.03vw, 58px); font-weight: 400; line-height: 1.05; letter-spacing: -.05em; }
 .body h2 span { color: var(--blue); font-weight: 600; }
 .eyebrow { margin: 0 0 2px; font-size: clamp(13px, 1.11vw, 16px); font-weight: 600; line-height: 1.2; letter-spacing: .1em; color: var(--navy); }
 .lead { margin: 22px 0 0; font-size: 16px; line-height: 26px; }
@@ -84,6 +84,7 @@
 .splitImage { position: relative; min-height: 320px; overflow: hidden; border-radius: 40px; }
 .splitCopy { align-self: center; padding: 48px 24px; }
 .custom { background: var(--navy); }
+.custom h2 { width: min(100%, 540px); }
 .support { background: linear-gradient(110deg, #000c38 0%, #01204a 100%); }
 .support .lead { max-width: 505px; }
 
@@ -96,13 +97,13 @@
 .standard { background-position: center calc(-31.39vw); }
 .documentation { background-position: center calc(-29.03vw); }
 .standard { padding: 111px 24px 169px; text-align: center; }
-.standard h2 { color: var(--navy); }
+.standard h2 { width: min(100%, 750px); margin-inline: auto; color: var(--navy); }
 .standard h2 span { font-weight: 600; }
 .standard .lead { max-width: 740px; margin: 34px auto 0; }
 .documentation { display: grid; align-items: center; padding-top: 145px; }
 .docImage { position: relative; min-height: 320px; overflow: hidden; border-radius: 40px; }
 .docCopy { padding: 40px 24px; }
-.docCopy h2 { color: var(--navy); }
+.docCopy h2 { width: min(100%, 586px); color: var(--navy); }
 .docCopy .lead { max-width: 470px; margin-bottom: 37px; }
 
 .contact { position: relative; display: grid; gap: 40px; margin-top: 103px; padding: 48px 16px; }
@@ -112,8 +113,8 @@
 .contactCopy { align-self: center; }
 .contactCopy .lead { max-width: 460px; margin-bottom: 36px; }
 .formCard { scroll-margin-top: 112px; padding: 40px 24px; border-radius: 36px; background: white; box-shadow: 0 12px 40px rgb(1 44 86 / .05); }
-.formCard h3 { margin-bottom: 24px; text-align: center; font-size: clamp(26px, 2.22vw, 32px); font-weight: 600; color: var(--navy); }
-.formCard form { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 18px 16px; margin: 0; }
+.formCard h3 { margin-bottom: 24px; text-align: center; font-size: clamp(26px, 2.23vw, 32px); font-weight: 600; line-height: 1.05; letter-spacing: -.05em; color: var(--navy); }
+.formCard form { display: grid; width: min(100%, 475px); grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 18px 16px; margin: 0 auto; }
 .formCard form > * { grid-column: 1 / -1; margin: 0; }
 .formCard form > div:nth-child(1), .formCard form > div:nth-child(2) { grid-column: auto; min-width: 0; }
 .formCard label { display: block; margin-bottom: 8px; font-size: 14px; font-weight: 400; color: var(--ink); }
@@ -124,7 +125,7 @@
 .formCard form button { justify-self: start; margin-top: 6px; }
 
 .cta { margin: 120px 16px 0; padding: 62px 24px 111px; border-radius: 40px; background: linear-gradient(110deg, #000c38 0%, #002052 100%); text-align: center; color: white; }
-.cta h2 { font-size: clamp(38px, 5.35vw, 77px); line-height: 1.04; color: white; }
+.cta h2 { width: min(100%, 729.52px); margin-inline: auto; font-size: clamp(38px, 5.36vw, 77.05px); line-height: 1; letter-spacing: -.07em; color: white; }
 .cta h2 span { font-weight: 700; }
 .cta .lead { max-width: 590px; margin: 34px auto 41px; }
 
@@ -144,6 +145,10 @@
   .contact::before { inset: 76px 0 21px; }
   .formCard { padding: 41px 53px 90px; }
   .cta { margin-inline: 6.94vw; }
+}
+
+@media (min-width: 1280px) {
+  .cta h2 { font-size: 77.05px; letter-spacing: -5.39px; }
 }
 
 @media (max-width: 1023px) {
@@ -180,4 +185,31 @@
 :global(body):has(.body) footer > div > div:last-child { margin-top: 72px; padding-top: 22px; border-color: #e3e7ee; font-size: 16px; color: #070707; }
 @media (min-width: 1024px) {
   :global(body):has(.body) footer > div > div:first-child { grid-template-columns: 478px 319px 241px 1fr; gap: 0; }
+}
+
+/* Desktop alignment pass using the supplied 1440px comparison.
+   Keep the verified heading widths/type and smaller-screen layouts intact. */
+@media (min-width: 1280px) {
+  /* The right column starts at 720px at the comparison width. The asymmetric
+     vertical padding moves centered copy down 1.75px without growing the panel. */
+  .custom .splitCopy { padding-left: 69px; padding-top: 3.5px; }
+
+  /* Move Standard Assays content down 27.81px while retaining the section's
+     total padding, so the following sections do not inherit that offset. */
+  .standard { padding-top: 138.81px; padding-bottom: 141.19px; }
+
+  /* 720px column + 67px inset. Centered copy moves down half its added padding. */
+  .docCopy { padding-left: 67px; padding-top: 6.5px; }
+
+  /* 1440 - 152 - 581 + 53 = 760px for the 475px form's left edge. */
+  .contact { margin-top: 119px; padding-right: 152px; }
+  .formCard h3 { width: min(100%, 475px); margin-inline: auto; margin-bottom: 30.4px; }
+
+  /* Remove the inline control's baseline/descender gap. Field sizes and the
+     form's existing 18px row gaps stay intact; the form can grow with feedback. */
+  .formCard textarea { display: block; }
+
+  /* The contact section gains ~14.21px overall after removing the baseline gap.
+     The remaining ~50px belongs to the space before the final CTA. */
+  .cta { margin-top: 170px; }
 }
