@@ -1,9 +1,8 @@
 "use client";
 
-import { useEffect, useRef } from "react";
-import { useRouter } from "next/navigation";
+import { useEffect, useRef, useState } from "react";
 import { LandingPageType } from "@/types/header";
-import { ChevronRight } from "lucide-react";
+import { ChevronLeft, ChevronRight } from "lucide-react";
 
 interface ShopByCategoryprops {
   result?: LandingPageType;
@@ -39,15 +38,63 @@ const CATEGORIES = [
 ] as const;
 
 export default function ShopByCategory({ result: _result }: ShopByCategoryprops) {
-  const router = useRouter();
   const trackRef = useRef<HTMLDivElement>(null);
+  const [canScroll, setCanScroll] = useState({ left: false, right: false });
   void _result;
 
-  // Start with the row centred so both edge cards are partly visible, as in the Figma frame.
+  const scrollTrack = (left: number) => {
+    trackRef.current?.scrollTo({
+      left,
+      behavior: window.matchMedia("(prefers-reduced-motion: reduce)").matches
+        ? "instant"
+        : "smooth",
+    });
+  };
+
+  const revealCard = (card: HTMLAnchorElement) => {
+    const track = trackRef.current;
+    if (!track) return;
+    const viewport = track.getBoundingClientRect();
+    const bounds = card.getBoundingClientRect();
+    const padding = 12;
+
+    if (bounds.left < viewport.left) {
+      scrollTrack(track.scrollLeft + bounds.left - viewport.left - padding);
+    } else if (bounds.right > viewport.right) {
+      scrollTrack(track.scrollLeft + bounds.right - viewport.right + padding);
+    }
+  };
+
+  const step = (direction: -1 | 1) => {
+    const track = trackRef.current;
+    const card = track?.firstElementChild;
+    if (!track || !card) return;
+    const gap = parseFloat(window.getComputedStyle(track).columnGap) || 0;
+    scrollTrack(track.scrollLeft + direction * (card.getBoundingClientRect().width + gap));
+  };
+
+  // Keep the desktop edge previews; start at the first card on small screens.
   useEffect(() => {
     const track = trackRef.current;
     if (!track) return;
-    track.scrollLeft = (track.scrollWidth - track.clientWidth) / 2;
+    track.scrollLeft = window.matchMedia("(min-width: 768px)").matches
+      ? (track.scrollWidth - track.clientWidth) / 2
+      : 0;
+
+    const updateControls = () => {
+      setCanScroll({
+        left: track.scrollLeft > 1,
+        right: track.scrollLeft < track.scrollWidth - track.clientWidth - 1,
+      });
+    };
+    updateControls();
+    track.addEventListener("scroll", updateControls, { passive: true });
+    const observer = new ResizeObserver(updateControls);
+    observer.observe(track);
+    return () => {
+      track.removeEventListener("scroll", updateControls);
+      observer.disconnect();
+    };
   }, []);
 
   return (
@@ -89,18 +136,27 @@ export default function ShopByCategory({ result: _result }: ShopByCategoryprops)
         </div>
 
         <div className="relative top-6 w-full sm:top-8 lg:top-10">
-          {/* As in the Figma frame: equal cards in one row, centred, with the outer cards cut off by the page edge. */}
+          {/* Hovering a clipped card brings it fully into view. Touch users can swipe. */}
           <div
+            id="shop-category-track"
             ref={trackRef}
-            className="flex w-full snap-x snap-mandatory gap-3 overflow-x-auto px-3 [scrollbar-width:none] sm:gap-4 [&::-webkit-scrollbar]:hidden"
+            role="region"
+            aria-label="Product categories"
+            className="flex w-full snap-x snap-mandatory gap-3 overflow-x-auto px-3 [scrollbar-width:none] sm:gap-4 md:snap-none [&::-webkit-scrollbar]:hidden"
           >
             {CATEGORIES.map((category) => {
               const link = category.link;
 
               return (
-                <div
+                <a
                   key={category.title}
-                  onClick={() => router.push(link)}
+                  href={link}
+                  onPointerEnter={(event) => {
+                    if (event.pointerType === "mouse" && window.matchMedia("(hover: hover) and (pointer: fine)").matches) {
+                      revealCard(event.currentTarget);
+                    }
+                  }}
+                  onFocus={(event) => revealCard(event.currentTarget)}
                   className="
                         group
                         relative
@@ -111,6 +167,10 @@ export default function ShopByCategory({ result: _result }: ShopByCategoryprops)
                         cursor-pointer
                         overflow-hidden
                         rounded-[20px]
+                        outline-none
+                        focus-visible:ring-4
+                        focus-visible:ring-inset
+                        focus-visible:ring-[#5AA7E8]
                         sm:w-[320px]
                         sm:rounded-[24px]
                         lg:w-[400px]
@@ -130,6 +190,8 @@ export default function ShopByCategory({ result: _result }: ShopByCategoryprops)
                             transition-transform
                             duration-500
                             group-hover:scale-105
+                            motion-reduce:transition-none
+                            motion-reduce:group-hover:scale-100
                         "
                   />
                   {/* Gradient */}
@@ -151,6 +213,8 @@ export default function ShopByCategory({ result: _result }: ShopByCategoryprops)
                           transition-all
                           duration-300
                           group-hover:translate-x-1
+                          motion-reduce:transition-none
+                          motion-reduce:group-hover:translate-x-0
                           sm:h-10
                           sm:w-10
                           lg:h-12
@@ -160,9 +224,31 @@ export default function ShopByCategory({ result: _result }: ShopByCategoryprops)
                       <ChevronRight className="h-4 w-4 text-[#173963] sm:h-4.5 sm:w-4.5 lg:h-5 lg:w-5" />
                     </div>
                   </div>
-                </div>
+                </a>
               );
             })}
+          </div>
+          <div className="mt-6 flex items-center justify-center gap-3">
+            <button
+              type="button"
+              aria-label="Previous categories"
+              aria-controls="shop-category-track"
+              disabled={!canScroll.left}
+              onClick={() => step(-1)}
+              className="flex h-11 w-11 items-center justify-center rounded-full border border-[#173963]/20 text-[#173963] transition-colors hover:border-[#173963] hover:bg-[#173963] hover:text-white focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#5AA7E8] disabled:cursor-default disabled:opacity-30 disabled:hover:border-[#173963]/20 disabled:hover:bg-transparent disabled:hover:text-[#173963] motion-reduce:transition-none"
+            >
+              <ChevronLeft className="h-5 w-5" aria-hidden="true" />
+            </button>
+            <button
+              type="button"
+              aria-label="Next categories"
+              aria-controls="shop-category-track"
+              disabled={!canScroll.right}
+              onClick={() => step(1)}
+              className="flex h-11 w-11 items-center justify-center rounded-full border border-[#173963]/20 text-[#173963] transition-colors hover:border-[#173963] hover:bg-[#173963] hover:text-white focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#5AA7E8] disabled:cursor-default disabled:opacity-30 disabled:hover:border-[#173963]/20 disabled:hover:bg-transparent disabled:hover:text-[#173963] motion-reduce:transition-none"
+            >
+              <ChevronRight className="h-5 w-5" aria-hidden="true" />
+            </button>
           </div>
         </div>
       </div>
