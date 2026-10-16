@@ -7,6 +7,10 @@ import HighPerformanceMultiplex from "@/components/home2/HighPerformanceMultiple
 import PrimaryConversionPathways from '@/components/home2/Primaryconversionpathways';
 import SupportingScientificCommunity from '@/components/home2/Supportingscientificcommunity';
 import ProductCatalogBanner from "@/components/home2/Productcatalogbanner";
+import { Poppins } from "next/font/google";
+import styles from "./HomePage.module.css";
+
+const poppins = Poppins({ subsets: ["latin"], weight: ["400", "500", "600", "700"], display: "swap" });
 
 export type LandingPageResult = LandingPageResponse["result"];
 export const dynamic = "force-dynamic";
@@ -41,7 +45,8 @@ export default async function Home() {
   const productCatalog = findSection(pageContents, ["catalog"]);
 
   return (
-    <main className="min-h-screen bg-white">
+    <main className={`${poppins.className} ${styles.page} min-h-screen bg-white`}>
+      <style>{`body:has(.${styles.page}) .navbar, body:has(.${styles.page}) footer { font-family: ${poppins.style.fontFamily}; --font-body: ${poppins.style.fontFamily}; }`}</style>
       <HeroCarousel result={hero} />
       <Shopbycategory result={shopByCategory} />
       <div className="relative overflow-hidden">

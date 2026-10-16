@@ -55,9 +55,10 @@ export default function PrimaryConversionPathways() {
 
   return (
     <section
+      data-home="pathways"
       className="relative overflow-hidden bg-transparent bg-cover bg-center bg-no-repeat px-4 py-10 sm:px-6 md:px-10 lg:px-[100px] lg:py-[110px]"
     >
-      <div className="mx-auto flex max-w-[1240px] flex-col items-center gap-10 md:gap-14 lg:flex-row lg:items-center lg:justify-between lg:gap-16">
+      <div data-home="pathways-layout" className="mx-auto flex max-w-[1240px] flex-col items-center gap-10 md:gap-14 lg:flex-row lg:items-center lg:justify-between lg:gap-16">
         <div className="w-full max-w-[580px]">
           <h2 className="text-balance font-['Quicksand'] text-[34px] font-semibold leading-[1.1] tracking-[-0.03em] text-[#173963] sm:text-[40px] lg:whitespace-nowrap lg:text-[48px] xl:text-[56px]">
             <span className="block">Built for Accuracy.</span>{" "}
@@ -77,6 +78,7 @@ export default function PrimaryConversionPathways() {
           </p>
 
           <Link
+            data-home="qc-button"
             className="mt-8 inline-flex h-[50px] w-full items-center justify-center rounded-lg bg-[#174372] px-5 text-[14px] font-semibold text-white transition-all duration-300 hover:bg-[#12345a] sm:mt-10 sm:h-[56px] sm:w-auto sm:px-8 sm:text-[16px]"
             href="/services/validation-services"
           >
@@ -87,7 +89,7 @@ export default function PrimaryConversionPathways() {
           </Link>
         </div>
 
-        <div className="grid w-full max-w-[616px] shrink-0 grid-cols-1 gap-4 sm:grid-cols-2 sm:gap-5">
+        <div data-home="pathways-grid" className="grid w-full max-w-[610px] shrink-0 grid-cols-1 gap-4 sm:grid-cols-2 sm:gap-5">
           {PATHWAY_CARDS.map((card) => (
             <button
               key={card.title}

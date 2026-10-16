@@ -64,7 +64,7 @@ export default function HighPerformanceMultiplex() {
                 and nucleic acid analysis.
               </p>
 
-              <h4 className="mt-5 text-[15px] font-semibold leading-snug !text-white sm:text-[18px] lg:mt-8 lg:text-[18px]">
+              <h4 data-home="team-heading" className="mt-5 text-[15px] font-semibold leading-snug !text-white sm:text-[18px] lg:mt-8 lg:text-[18px]">
                 Our teams work directly with scientists to develop
               </h4>
 

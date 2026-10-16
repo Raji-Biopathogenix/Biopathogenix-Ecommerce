@@ -34,6 +34,7 @@ export default function SupportingScientificCommunity() {
       <div className="mx-auto w-full px-4 sm:px-5 lg:px-0">
         {/* Main Card */}
         <div
+          data-home="community-frame"
           className="relative overflow-hidden rounded-[24px] md:rounded-[32px] lg:rounded-[38px]"
           style={{
             backgroundImage: 'url("/images/home/supporting-bg.png")',
@@ -45,10 +46,10 @@ export default function SupportingScientificCommunity() {
           {/* Optional Light Overlay */}
           <div className="absolute inset-0 bg-white/20" />
 
-          <div className="relative grid grid-cols-1 lg:min-h-[760px] lg:grid-cols-[50%_50%]">
+          <div data-home="community-grid" className="relative grid grid-cols-1 lg:min-h-[760px] lg:grid-cols-[50%_50%]">
             {/* LEFT IMAGE */}
             <div className="p-3 md:p-5 lg:p-0">
-              <div className="overflow-hidden rounded-[24px] md:rounded-[30px] lg:rounded-[34px] shadow-[0_25px_60px_rgba(23,57,99,0.12)] h-full">
+              <div data-home="community-photo" className="overflow-hidden rounded-[24px] md:rounded-[30px] lg:rounded-[34px] shadow-[0_25px_60px_rgba(23,57,99,0.12)] h-full">
                 <img
                   src="/fig-preview/images/0377cb72fc5481097071d3d22006c7e168cb930c"
                   alt="Scientific Community"
@@ -58,9 +59,9 @@ export default function SupportingScientificCommunity() {
             </div>
 
             {/* RIGHT CONTENT */}
-            <div className="flex items-center px-4 py-7 sm:px-8 sm:py-10 md:px-10 md:py-12 lg:px-16">
+            <div data-home="community-copy" className="flex min-w-0 items-center px-4 py-7 sm:px-8 sm:py-10 md:px-10 md:py-12 lg:px-16">
               <div className="max-w-[610px]">
-                <h2 className="font-['Quicksand'] text-[30px] font-bold leading-[1] tracking-[-1px] text-[#173963] sm:text-[38px] md:text-[48px] lg:text-[60px] lg:tracking-[-2px]">
+                <h2 data-home="community-heading" className="font-['Quicksand'] text-[30px] font-bold leading-[1] tracking-[-1px] text-[#173963] sm:text-[38px] md:text-[48px] lg:text-[60px] lg:tracking-[-2px]">
                   Supporting the
                   <br />
                   <span className="text-[#49A9E6]">Scientific</span>
@@ -91,6 +92,7 @@ export default function SupportingScientificCommunity() {
                 </ul>
 
                 <Link
+                  data-home="learning-button"
                   href="/resources/blog-learning-center"
                   className="mt-7 inline-flex h-[48px] items-center rounded-xl bg-[#0E5C97] px-5 text-[14px] font-semibold text-white transition-all duration-300 hover:bg-[#0B4F82] focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#0E5C97] sm:h-[56px] sm:px-7 sm:text-[16px] md:mt-9 lg:mt-10 lg:h-[62px] lg:px-8 lg:text-[18px]"
                 >

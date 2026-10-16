@@ -191,7 +191,7 @@ export default function HeroCarousel({ result }: HeroCarouselprops) {
           </button>
         </div>
 
-        <div className="flex w-full justify-center lg:absolute lg:left-[55.07%] lg:top-[62px] lg:w-[41.18%]">
+        <div data-home="hero-images" className="flex w-full justify-center lg:absolute lg:left-[55.07%] lg:top-[68px] lg:w-[41.18%]">
           <div className="relative aspect-[593/625] w-full max-w-[320px] sm:max-w-[440px] lg:max-w-none">
             {HERO_IMAGES.map((image) => (
               <HeroImage key={image.src} {...image} />

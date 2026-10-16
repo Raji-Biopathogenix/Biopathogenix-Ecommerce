@@ -9,6 +9,21 @@ export interface CategoryWiseProductsProps {
   subCategories: ProductResponse[];
 }
 
+// Product overview order; products within each section still sort A–Z.
+const PRODUCT_SECTIONS = [
+  /consumables?|lab supplies/,
+  /extraction|sample prep/,
+  /assay|pcr.*(?:kits|panels)/,
+  /\bppe\b|personal protect/,
+  /new arrivals/,
+];
+
+function productSectionRank(category: ProductResponse) {
+  const label = `${category.slug} ${category.name}`.toLowerCase().replace(/[-_]/g, " ");
+  const rank = PRODUCT_SECTIONS.findIndex((pattern) => pattern.test(label));
+  return rank < 0 ? PRODUCT_SECTIONS.length : rank;
+}
+
 export default function CategoryWiseProducts({
   category_name,
   category_slug,
@@ -18,8 +33,14 @@ export default function CategoryWiseProducts({
     sensitivity: "base",
     numeric: true,
   });
-  const sortedCategories = [...subCategories]
-    .sort((a, b) => alphabetical.compare(a.name, b.name))
+  const sortedCategories = [...(subCategories ?? [])]
+    .sort((a, b) => {
+      if (category_slug === "product") {
+        const sectionOrder = productSectionRank(a) - productSectionRank(b);
+        if (sectionOrder !== 0) return sectionOrder;
+      }
+      return alphabetical.compare(a.name, b.name);
+    })
     .map((category) => ({
       ...category,
       products: [...(category.products ?? [])].sort((a, b) =>
