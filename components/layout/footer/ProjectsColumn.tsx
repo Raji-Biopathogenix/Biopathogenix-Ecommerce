@@ -1,9 +1,7 @@
 import Link from "next/link";
 
 const projects = [
-  { label: "AI x Science", href: "#" },
   { label: "Bacterium is Beautiful", href: "https://www.bacteriumisbeautiful.com/" },
-  { label: "Event Series", href: "#" },
   { label: "LinkedIn Circle", href: "https://www.linkedin.com/groups/14778657/" },
 ];
 

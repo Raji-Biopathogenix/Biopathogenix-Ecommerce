@@ -58,15 +58,18 @@
 .hexRightMain { left: 6.04%; top: 37.35%; width: 73.26%; }
 
 /* ---- What a Successful Validation Looks Like ---- */
-.successful { position: relative; z-index: 1; margin-top: -20px; overflow: hidden; border-radius: 40px; background: #0a1d3d; }
-.track { display: flex; }
-.slide { position: relative; flex: 0 0 100%; }
+.successful { position: relative; z-index: 1; margin-top: -20px; padding: 0 clamp(16px, 4vw, 64px) 28px; overflow: hidden; background: #f3f8fc; }
+.track { position: relative; display: flex; align-items: stretch; gap: 24px; overflow-x: auto; scroll-snap-type: x mandatory; scrollbar-width: none; border-radius: 32px; }
+.track::-webkit-scrollbar { display: none; }
+.track::after { content: ""; flex: 0 0 max(0px, calc(100% - min(1040px, 72vw) - 24px)); }
+.track:focus-visible { outline: 3px solid var(--blue); outline-offset: 5px; }
+.slide { position: relative; flex: 0 0 min(1040px, 72vw); overflow: hidden; border-radius: 32px; background: #0a1d3d; scroll-snap-align: start; }
 .slideOverlay { position: absolute; inset: 0; background: linear-gradient(90deg, rgb(2 12 44 / .97) 0%, rgb(2 14 50 / .9) 38%, rgb(4 18 60 / .55) 68%, rgb(4 18 60 / .18) 100%); }
-.slideContent { position: relative; display: flex; flex-direction: column; justify-content: space-between; gap: 40px; min-height: clamp(560px, 57.78vw, 832px); padding: 76px clamp(24px, 6.94vw, 100px) 75px clamp(24px, 7.15vw, 103px); color: white; }
+.slideContent { position: relative; display: flex; flex-direction: column; justify-content: space-between; gap: 100px; min-height: clamp(600px, 48vw, 720px); height: 100%; padding: 64px clamp(28px, 3.5vw, 56px) 48px; color: white; }
 .slideHead { display: flex; align-items: flex-start; justify-content: space-between; gap: 24px; }
-.slideHead .h2 { color: white; }
+.slideHead .h2 { color: white; font-size: clamp(30px, 3.1vw, 46px); }
 .slideHead .lead { margin-top: 15px; color: white; }
-.counter { flex-shrink: 0; padding-top: 2px; font-size: 18px; letter-spacing: .3em; color: rgb(255 255 255 / .85); }
+.counter { position: absolute; right: 28px; top: 24px; font-size: 12px; letter-spacing: .2em; color: rgb(255 255 255 / .85); }
 .slideFoot { display: flex; align-items: flex-end; justify-content: space-between; gap: 32px; }
 .slideBody { max-width: 640px; }
 .slideBody h3 { font-size: clamp(24px, 2.08vw, 30px); font-weight: 600; line-height: 36px; color: white; }
@@ -75,9 +78,9 @@
 .slideBody .checkList li { line-height: 23px; }
 .slideText { font-size: clamp(16px, 1.39vw, 20px); line-height: 1.55; color: white; }
 .slideText + .checkList { margin-top: 28px; }
-/* Previous / next stay put while slides move; the spacer reserves their room in each slide. */
-.slideNav { position: absolute; right: clamp(24px, 6.94vw, 100px); bottom: clamp(40px, 5.21vw, 75px); z-index: 2; }
-.navSpacer { flex-shrink: 0; width: calc(2 * clamp(52px, 5.28vw, 76px) + 11px); height: clamp(52px, 5.28vw, 76px); }
+/* Controls sit below the row so every card's content stays unobstructed. */
+.slideNav { justify-content: flex-end; margin-top: 24px; }
+.slideNav .navButton { width: 52px; height: 52px; }
 .slideCta { display: flex; flex-wrap: wrap; align-items: flex-end; gap: 28px; max-width: none; }
 .slideCta .slideText { max-width: 560px; font-size: clamp(20px, 1.94vw, 28px); font-weight: 600; line-height: 1.3; }
 
@@ -236,7 +239,12 @@
 @media (max-width: 560px) {
   .button { width: 100%; height: 54px; gap: 16px; padding-inline: 20px; white-space: normal; }
   .heroActions { flex-direction: column; }
-  .slideContent { padding-top: 40px; padding-bottom: 40px; }
-  .counter { display: none; }
+  .slide { flex-basis: 88vw; border-radius: 24px; }
+  .track { gap: 16px; border-radius: 24px; }
+  .track::after { flex-basis: max(0px, calc(100% - 88vw - 16px)); }
+  .slideContent { min-height: 660px; padding: 56px 24px 32px; gap: 60px; }
+  .slideHead .h2 { font-size: 28px; }
+  .slideBody h3 { font-size: 24px; }
+  .slideCta .slideText { font-size: 20px; }
   .pill { height: 44px; font-size: 18px; }
 }
