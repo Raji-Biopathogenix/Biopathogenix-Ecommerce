@@ -25,6 +25,8 @@
     submit.disabled = true;
     try {
       var data = new FormData(form);
+      var protection = await window.BPXFormProtection.fields(form);
+      Object.keys(protection).forEach(function(key){ data.set(key, protection[key]); });
       var file = form.elements.target_file.files[0];
       if (file && (file.size > 3 * 1024 * 1024 || !/\.(xlsx?|pdf|docx?|csv)$/i.test(file.name))) {
         throw new Error('Upload an Excel, PDF, Word, or CSV file no larger than 3 MB.');
@@ -39,7 +41,7 @@
       data.set('message', details.join('\n'));
       data.set('interest', 'Custom multiplex qPCR assay development');
       data.set('source', 'custom-assay-development');
-      var response = await fetch('/api/panel-assessment', { method: 'POST', body: data });
+      var response = await fetch(await window.BPXFormProtection.endpoint('/panel-assessment/'), { method: 'POST', body: data });
       var result = await response.json();
       if (!response.ok) throw new Error(result.message || 'Unable to send your request. Please try again.');
       window.location.assign('/traceable-asset-panel/bpx-thank-you-custom-assay');

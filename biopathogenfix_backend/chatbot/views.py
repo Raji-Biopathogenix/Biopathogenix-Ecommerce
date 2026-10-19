@@ -2,7 +2,7 @@ import logging
 import os
 
 from django.conf import settings
-from django.core.mail import send_mail
+from django.core.mail import EmailMultiAlternatives
 from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.views import APIView
@@ -13,23 +13,19 @@ from ai.answer import answer_chat_request
 from ai.intake import build_assay_intake_email_html
 from .models import PathogenPanelLookup, normalize_lookup_text
 from services.emailService import send_graph_email
+from api.form_protection import protect_form
+from utils.form_recipients import website_recipients, form_bcc
 
 logger = logging.getLogger(__name__)
 
 
 def _get_recipients(form_type: str) -> list[str]:
     """Return the correct recipient list based on form type."""
-    if form_type in ("sales_quote", "contact"):
-        raw = (
-            os.environ.get("ORDER_TO_EMAIL")
-            or getattr(settings, "ORDER_TO_EMAIL", "")
-            or "order@biopathogenix.com"
-        )
-    elif form_type in ("validation_service",):
+    if form_type in ("validation_service",):
         raw = os.environ.get("VALIDATION_TO_EMAIL") or getattr(settings, "VALIDATION_TO_EMAIL", "validation@biopathogenix.com")
     else:
         raw = os.environ.get("SUPPORT_TO_EMAIL") or getattr(settings, "SUPPORT_TO_EMAIL", "support@biopathogenix.com")
-    return [e.strip() for e in raw.split(",") if e.strip()]
+    return website_recipients(raw, "validation@biopathogenix.com" if form_type == "validation_service" else "support@biopathogenix.com")
 
 
 def _send_email(recipients: list[str], subject: str, html_body: str) -> None:
@@ -45,20 +41,22 @@ def _send_email(recipients: list[str], subject: str, html_body: str) -> None:
                 html_body=html_body,
                 text_body=strip_tags(html_body),
                 from_email=graph_sender,
+                bcc_list=form_bcc(recipients),
             )
             return
         except Exception:
             logger.warning("Graph email failed — falling back to SMTP")
 
     # SMTP fallback (used when Graph is not configured or credentials have expired)
-    send_mail(
+    email = EmailMultiAlternatives(
         subject=subject,
-        message=strip_tags(html_body),
+        body=strip_tags(html_body),
         from_email=smtp_sender,
-        recipient_list=recipients,
-        html_message=html_body,
-        fail_silently=False,
+        to=recipients,
+        bcc=form_bcc(recipients),
     )
+    email.attach_alternative(html_body, "text/html")
+    email.send(fail_silently=False)
 
 
 class ChatView(APIView):
@@ -143,6 +141,7 @@ class PathogenLookupSearchView(APIView):
 
 
 class ContactFormView(APIView):
+    @protect_form
     def post(self, request):
         data = request.data
         first_name = (data.get("first_name") or "").strip()
@@ -200,6 +199,7 @@ class ContactFormView(APIView):
 
 
 class AssayIntakeCreateView(APIView):
+    @protect_form
     def post(self, request):
         data = request.data
 

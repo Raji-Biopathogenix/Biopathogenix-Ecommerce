@@ -17,7 +17,7 @@ from order.packing_slips import PackingSlipView
 
 from home.views import HeaderMenuViewset, CareerOpenRoleViewset, CareerApplicationCreateView,LandingPageView,BlogPostViewset
 
-from api.views import AssayInquiryView, ContactValidationView, CustomTargetRequestView, PanelAssessmentView, QualityControlAvailabilityView
+from api.views import AssayInquiryView, ContactValidationView, CustomTargetRequestView, PanelAssessmentView, QualityControlAvailabilityView, FormProtectionConfigView
 from payments.views import create_payment_intent, create_setup_intent, list_payment_methods, save_payment_method, stripe_config
 from payments.qb_cards import payment_methods as qb_payment_methods
 
@@ -42,6 +42,7 @@ router.register(r'blog-posts',BlogPostViewset,'blog-posts')
 
 # Login 
 urlpatterns =[
+    path('form-protection-config/', FormProtectionConfigView.as_view(), name='form_protection_config'),
     path('signup/', CustomerViews.as_view(), name='signup'),
     path('check-email/', EmailAvailabilityView.as_view(), name='check-email'),
     path('login/', LoginCustomer.as_view(), name='login'),

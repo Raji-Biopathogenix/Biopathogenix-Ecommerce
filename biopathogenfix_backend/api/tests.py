@@ -1,9 +1,10 @@
 from django.core import mail
+from django.core.cache import cache
 from django.core.files.uploadedfile import SimpleUploadedFile
 from django.test import TestCase
 from rest_framework.test import APIClient
 
-from api.views import FORM_BCC, FORM_RECIPIENTS, PANEL_ASSESSMENT_BCC
+from api.views import FORM_BCC, FORM_RECIPIENTS, PANEL_ASSESSMENT_BCC, LANDING_PAGE_RECIPIENTS
 
 
 class PanelAssessmentViewTests(TestCase):
@@ -19,6 +20,7 @@ class PanelAssessmentViewTests(TestCase):
     }
 
     def setUp(self):
+        cache.clear()
         self.client = APIClient()
 
     def test_sends_team_notification_and_submitter_confirmation(self):
@@ -27,7 +29,7 @@ class PanelAssessmentViewTests(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertEqual(len(mail.outbox), 2)
         notification, confirmation = mail.outbox
-        self.assertEqual(notification.to, FORM_RECIPIENTS)
+        self.assertEqual(notification.to, LANDING_PAGE_RECIPIENTS)
         self.assertEqual(notification.bcc, PANEL_ASSESSMENT_BCC)
         self.assertIn("Jane Doe", notification.subject)
         self.assertIn("Custom Assay landing page", notification.body)
@@ -45,6 +47,9 @@ class PanelAssessmentViewTests(TestCase):
                     "general-value-prop", "custom-assay-landing-page", "custom-assay-development"
                 ) else FORM_BCC
                 self.assertEqual(mail.outbox[0].bcc, expected)
+                self.assertEqual(mail.outbox[0].to, LANDING_PAGE_RECIPIENTS if source in (
+                    "general-value-prop", "custom-assay-landing-page", "custom-assay-development"
+                ) else FORM_RECIPIENTS)
                 self.assertEqual(mail.outbox[1].bcc, [])
 
     def test_development_form_attachment_is_in_team_email_only(self):
@@ -80,6 +85,9 @@ class PanelAssessmentViewTests(TestCase):
 
 
 class FormRecipientsTests(TestCase):
+    def setUp(self):
+        cache.clear()
+
     def test_assay_inquiry_goes_to_team_inboxes(self):
         response = APIClient().post(
             "/api/assay-inquiry/",
@@ -93,5 +101,5 @@ class FormRecipientsTests(TestCase):
         )
 
         self.assertEqual(response.status_code, 200)
-        self.assertEqual(mail.outbox[0].to, ["order@biopathogenix.com", "support@biopathogenix.com"])
+        self.assertEqual(mail.outbox[0].to, ["support@biopathogenix.com"])
         self.assertEqual(mail.outbox[0].bcc, ["rajeswari.gopu@biopathogenix.com"])

@@ -11,6 +11,7 @@ from category.models import Category
 from prd_variant.models import ProductSKU, ProductVariantOption
 from django.db.models import Prefetch
 from rest_framework.pagination import PageNumberPagination
+from rest_framework.exceptions import NotFound
 from django.db.models import Q
 from django.http import QueryDict
 import logging
@@ -31,6 +32,12 @@ from django.db.models import F, Prefetch
 
 PRODUCT_CACHE_TTL = 60 * 15  # 15 minutes
 
+
+def _valid_catalog_slug(value):
+    return bool(value and re.fullmatch(r"[a-zA-Z0-9_-]{1,255}", value)) and value.lower() not in {
+        "product-tag", "wp-admin", "wp-content", "wp-includes", "wp-json",
+    }
+
 def get_product_cache_key(slug):
     return f"product_detail:{slug}"
 
@@ -40,12 +47,13 @@ def get_category_cache_key(slug):
 
 
 SUB_CATEGORY_CACHE_TTL = 60 * 15
-def get_sub_category_cache_key(category_slug, sub_category_slug, order_param, page=1):
+def get_sub_category_cache_key(category_slug, sub_category_slug, order_param, page=1, page_size=8):
     """
     Unique key per slug + order + page combination.
     Example: subcategory_products:bio:proteins:asc:1
     """
-    return f"subcategory_products:{category_slug}:{sub_category_slug}:{order_param or 'asc'}:{page}"
+    # Versioned to avoid incomplete entries left by the previous loader endpoint.
+    return f"subcategory_products:v2:{category_slug}:{sub_category_slug}:{order_param or 'asc'}:{page}:{page_size}"
 
 logger = logging.getLogger(__name__)
 
@@ -267,7 +275,11 @@ class ProductViewset(viewsets.ModelViewSet):
 
     @action(detail=False,methods=['GET'],permission_classes=[AllowAny], url_path='get-products-by-category')
     def GetProductByCategoryView(self, request, *args, **kwargs):
-        category_slug = request.query_params['category_slug']
+        category_slug = request.query_params.get('category_slug')
+        if not category_slug:
+            return Response({"status": "error", "message": "category_slug is required"}, status=400)
+        if not _valid_catalog_slug(category_slug):
+            return Response({"status": "error", "message": "Data Not Found"}, status=404)
         try:
             cache_key = get_category_cache_key(category_slug)
             cached_data = cache.get(cache_key)
@@ -354,8 +366,11 @@ class ProductViewset(viewsets.ModelViewSet):
         try:
             if not category_slug or not sub_category_slug:
                 return Response({"status": "error", "message": "category_slug and sub_category_slug are required"}, status=400)
+            if not _valid_catalog_slug(category_slug) or not _valid_catalog_slug(sub_category_slug):
+                return Response({"status": "error", "message": "Data Not Found"}, status=404)
             
-            cache_key   = get_sub_category_cache_key(category_slug, sub_category_slug, order_param, page_number)
+            page_size = self.paginator.get_page_size(request)
+            cache_key = get_sub_category_cache_key(category_slug, sub_category_slug, order_param, page_number, page_size)
             cached_data = cache.get(cache_key)
 
             
@@ -449,131 +464,18 @@ class ProductViewset(viewsets.ModelViewSet):
             cache.set(cache_key, response_data, SUB_CATEGORY_CACHE_TTL)       
             return Response(response_data, status=200)
 
-        except Exception as e:
+        except (Category.DoesNotExist, NotFound):
+            return Response({"status": "error", "message": "Data Not Found"}, status=404)
+        except Exception:
             logger.exception("Failed to fetch products by sub-category %s/%s", category_slug, sub_category_slug)
-            return Response({"status": "error", "message": "Data Not Found"}, status=400)
+            return Response({"status": "error", "message": "Unable to load products"}, status=500)
         
 
     
     @action(detail=False,methods=['GET'],permission_classes=[AllowAny], url_path='get-products-by-sub-category-loaderView')
     def GetProductBySubCategoryViewLoader(self, request, *args, **kwargs):
-        category_slug = request.query_params.get('category_slug')
-        sub_category_slug = request.query_params.get('sub_category_slug')
-        res: QueryDict = request.query_params
-        order_param = (res.get("orderBy") or "").strip()
-        orderBy = "name"
-        page_number = request.query_params.get("page", 1)
-
-
-        try:
-            if not category_slug or not sub_category_slug:
-                return Response({"status": "error", "message": "category_slug and sub_category_slug are required"}, status=400)
-            
-            cache_key   = get_sub_category_cache_key(category_slug, sub_category_slug, order_param, page_number)
-            cached_data = cache.get(cache_key)
-            print("============",cached_data,cache_key)
-
-            subCatExist = Category.objects.get(slug=sub_category_slug,is_active=True)
-            if not subCatExist:
-                return Response({"status":"error","message": "Data Not Found",}, status=404)
-            
-            if cached_data:
-                if subCatExist.display_type == "product_card":
-                    return  self.get_paginated_response(cached_data)
-
-                return Response({
-                    "status": "success",
-                    "message": "Data Fetch successfully",
-                    "result": cached_data
-                }, status=200)
-            
-            categoryExist = Category.objects.get(slug= category_slug,is_active=True)
-            if not categoryExist:
-                return Response({"status":"error","message": "Data Not Found",}, status=404)
-            
-
-            result = []
-            if subCatExist.display_type == "product_card":
-
-                if order_param == "desc":
-                    orderBy = "-name"
-                elif order_param == "asc":
-                    orderBy = "name"
-                elif order_param == "rating":
-                    orderBy = "-created_at"
-
-                products = Product.objects.filter(categories__id=subCatExist.id, is_active=True).prefetch_related(
-                    Prefetch(
-                        'variant_options',
-                        queryset=ProductVariantOption.objects.filter(variant_option__variant__is_active=True,variant_option__is_active=True).select_related(
-                            'variant_option__variant'  # single query with JOIN
-                        )
-                    ),               
-                    Prefetch(                          
-                        'skus',
-                        queryset=ProductSKU.objects.filter(is_active=True).prefetch_related('sku_options'),
-                        to_attr='active_skus'
-                    )).order_by(orderBy)
-
-                page = self.paginate_queryset(products)
-                if page is not None:
-                    serializer = ProductByCategorySerializer(page, many=True,context=_product_serializer_context(request))
-                    data ={
-                        'view': 'product_by_subcategory',
-                        'serializer': serializer.data,
-                         "category":{
-                            "name":categoryExist.name,
-                            "slug":categoryExist.slug
-                            },
-                        "subCategory":{
-                            "display_type":subCatExist.display_type,
-                            "name":subCatExist.name,
-                            "slug":subCatExist.slug
-                            }
-                    }
-                    cache.set(cache_key, data, SUB_CATEGORY_CACHE_TTL)
-                    return  self.get_paginated_response(data)
-                
-                result = ProductByCategorySerializer(products, many=True, context=_product_serializer_context(request)).data
-            
-            elif subCatExist.display_type == "multi_level_cat":
-                children = list(categoryExist.children.filter(is_active=True).order_by("sort_order", "name"))
-                result = []
-                for child in children:
-                    products = list(Product.objects.filter(categories__id=child.id, is_active=True).distinct().order_by("name").values("id", "name", "slug", "trademark"))
-                    result.append(
-                        {
-                            "id": child.id,
-                            "name": child.name,
-                            "slug": child.slug,
-                            "products": products,
-                        }
-                    )
-
-            response_data = {
-                                 "data": result,
-                                 "category": {
-                                     "name": categoryExist.name,
-                                     "slug": categoryExist.slug
-                                 },
-                                 "subCategory": {
-                                     "display_type": subCatExist.display_type,
-                                     "name": subCatExist.name,
-                                     "slug": subCatExist.slug
-                                 }
-            }
-
-
-            cache.set(cache_key, response_data, SUB_CATEGORY_CACHE_TTL)
-            return Response({"status": "success",
-                             "message": "Data Fetch successfully",
-                             "result": response_data
-                             }, status=200)
-
-        except Exception as e:
-            logger.exception("Failed to fetch products by sub-category %s/%s", category_slug, sub_category_slug)
-            return Response({"status": "error", "message": "Data Not Found"}, status=400)
-        
+        # Use the complete cached response, including pagination, on every request.
+        return self.GetProductBySubCategoryView(request, *args, **kwargs)
 
 
     @action(detail=False,methods=['GET'],permission_classes=[AllowAny], url_path='search')

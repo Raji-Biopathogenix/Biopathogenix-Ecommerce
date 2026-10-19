@@ -1,5 +1,6 @@
 "use client";
 
+import FormProtection, { getFormProtection } from "@/components/forms/FormProtection";
 import { FormEvent, useMemo, useState } from "react";
 import { fetchJson } from "@/lib/api";
 import type { AssayTypeConfig } from "@/lib/assays";
@@ -50,7 +51,9 @@ export default function AssayCustomTargetForm({ config }: Props) {
 
     setIsSubmitting(true);
     try {
+      const protection = await getFormProtection(formElement);
       const payload = new FormData();
+      Object.entries(protection).forEach(([key, value]) => payload.append(key, value));
       payload.append("name", form.name);
       payload.append("email", form.email);
       payload.append("organization_lab", form.organization_lab);
@@ -75,8 +78,8 @@ export default function AssayCustomTargetForm({ config }: Props) {
       });
       setTargetFile(null);
       formElement.reset();
-    } catch {
-      setError("Unable to send the request right now. Please try again.");
+    } catch (submitError) {
+      setError(submitError instanceof Error ? submitError.message : "Unable to send the request right now. Please try again.");
     } finally {
       setIsSubmitting(false);
     }
@@ -96,6 +99,7 @@ export default function AssayCustomTargetForm({ config }: Props) {
         </div>
 
         <form className="rounded-md border border-[#cfe1ec] bg-white p-6 shadow-sm" onSubmit={handleSubmit}>
+        <FormProtection />
           <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
             <label className="text-sm font-bold text-[#0b2e59]">
               Name

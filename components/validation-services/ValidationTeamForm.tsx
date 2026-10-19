@@ -1,5 +1,6 @@
 "use client";
 
+import FormProtection, { getFormProtection } from "@/components/forms/FormProtection";
 import { FormEvent, useMemo, useState } from "react";
 import { fetchJson } from "@/lib/api";
 
@@ -66,6 +67,7 @@ export default function ValidationTeamForm({
 
   const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
+    const formElement = event.currentTarget as HTMLFormElement;
     setError("");
     setSuccess("");
 
@@ -76,9 +78,10 @@ export default function ValidationTeamForm({
 
     setIsSubmitting(true);
     try {
+      const protection = await getFormProtection(formElement);
       const response = await fetchJson<ContactValidationResponse>("/contact-validation/", {
         method: "POST",
-        body: form,
+        body: { ...form, ...protection },
       });
 
       setSuccess(response.message || "Your request has been submitted.");
@@ -95,7 +98,7 @@ export default function ValidationTeamForm({
       }
     } catch (submitError) {
       console.error("Failed to submit validation services form", submitError);
-      setError("Unable to submit right now. Please try again.");
+      setError(submitError instanceof Error ? submitError.message : "Unable to submit right now. Please try again.");
     } finally {
       setIsSubmitting(false);
     }
@@ -112,6 +115,7 @@ export default function ValidationTeamForm({
       )}
 
       <form className="space-y-5" onSubmit={handleSubmit}>
+        <FormProtection />
           <div>
             <label className="mb-2 block text-sm font-medium text-[#0B3C5D]">
               Name <span className="text-red-500">*</span>

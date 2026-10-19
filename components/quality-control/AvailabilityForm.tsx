@@ -1,5 +1,6 @@
 "use client";
 
+import FormProtection, { getFormProtection } from "@/components/forms/FormProtection";
 import { FormEvent, useMemo, useState } from "react";
 import { fetchJson } from "@/lib/api";
 
@@ -50,6 +51,7 @@ export default function AvailabilityForm({
 
   const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
+    const formElement = event.currentTarget as HTMLFormElement;
     setError("");
     setSuccess("");
 
@@ -60,9 +62,10 @@ export default function AvailabilityForm({
 
     setIsSubmitting(true);
     try {
+      const protection = await getFormProtection(formElement);
       const response = await fetchJson<AvailabilityResponse>("/quality-control-availability/", {
         method: "POST",
-        body: form,
+        body: { ...form, ...protection },
       });
 
       setSuccess(response.message || "Your request has been submitted.");
@@ -72,7 +75,7 @@ export default function AvailabilityForm({
       }
     } catch (submitError) {
       console.error("Failed to submit quality control availability form", submitError);
-      setError("Unable to submit right now. Please try again.");
+      setError(submitError instanceof Error ? submitError.message : "Unable to submit right now. Please try again.");
     } finally {
       setIsSubmitting(false);
     }
@@ -91,6 +94,7 @@ export default function AvailabilityForm({
       )}
 
       <form className="space-y-5" onSubmit={handleSubmit}>
+        <FormProtection />
         <div className="grid gap-5 sm:grid-cols-2">
           <div>
             <label className="mb-2 block text-sm font-medium text-[#0B3C5D]">

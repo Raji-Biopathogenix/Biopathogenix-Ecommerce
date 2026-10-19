@@ -1,17 +1,11 @@
-import { API_BASE_URL } from "@/config/env";
+import { fetchCatalogPage } from "@/lib/catalog-pages";
 import { ProductsByCategoryResponse, CategoryResponse,ProductResponse } from "@/types/product";
 import CategoryWiseProducts from "@/components/category/CategoryWiseProducts";
 
 
 async function fetchProductsByCategory(category: string): Promise<CategoryResponse> {
-  const res = await fetch(`${API_BASE_URL}/v1/products/get-products-by-category/?category_slug=${category}`, {
-    // next: { revalidate: 60 },
-  });
-  if (!res.ok) return null as any;
-  const payload: ProductsByCategoryResponse = await res.json();
-  return payload?.result ?? {};
+  return fetchCatalogPage<CategoryResponse>("get-products-by-category", { category_slug: category }, 3600);
 }
-
 
 export default async function CategoryPage({ params }: { params: Promise<{ category: string }> }) {
   const { category } = await params;

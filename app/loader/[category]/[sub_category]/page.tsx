@@ -1,4 +1,4 @@
-import { API_BASE_URL } from "@/config/env";
+import { fetchCatalogPage } from "@/lib/catalog-pages";
 import {productServices } from '@/services/productServices';
 import { Products, MultiLevelCatgoryResponse, ProductsByCategoryResponse, SubCategoryResponse,SubCategoryProductCardResponse } from "@/types/product";
 
@@ -6,13 +6,10 @@ import ProductLoaderMoreView from '@/components/category/product/ProductLoaderMo
 import Pagination from "@/components/pagination/pagination";
 import MultiLevelCategoryView from "@/components/category/MultiLevelCategoryView";
 
-async function fetchProductsDataBySubCategory(category: string, subCategory: string,currentPage:number,orderBy:string): Promise<SubCategoryResponse | null> {
-  const res = await fetch(`${API_BASE_URL}/v1/products/get-products-by-sub-category-loaderView/?category_slug=${category}&sub_category_slug=${subCategory}&page=1&orderBy=${orderBy}`,
-  { cache: "no-store" }
-  );
-  if (!res.ok) return null;
-  const payload: ProductsByCategoryResponse = await res.json();
-  return payload?.result ?? {};
+async function fetchProductsDataBySubCategory(category: string, subCategory: string, currentPage: number, orderBy: string): Promise<SubCategoryResponse> {
+  return fetchCatalogPage<SubCategoryResponse>("get-products-by-sub-category-loaderView", {
+    category_slug: category, sub_category_slug: subCategory, page: currentPage, orderBy,
+  });
 }
 
 export default async function SubCategoryPage({

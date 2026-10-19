@@ -1,5 +1,6 @@
 "use client";
 
+import FormProtection, { getFormProtection } from "@/components/forms/FormProtection";
 import React, { useEffect, useState } from "react";
 import { API_BASE_URL } from "@/config/env";
 
@@ -37,6 +38,7 @@ export default function AssayIntakeForm({
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
+    const formElement = e.currentTarget as HTMLFormElement;
     setError(null);
 
     if (!name.trim() || !email.trim() || !reason.trim()) {
@@ -50,10 +52,12 @@ export default function AssayIntakeForm({
 
     setLoading(true);
     try {
+      const protection = await getFormProtection(formElement);
       const res = await fetch(DJANGO_API, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
+          ...protection,
           assayType,
           name: name.trim(),
           email: email.trim(),
@@ -93,6 +97,7 @@ export default function AssayIntakeForm({
       </div>
 
       <form onSubmit={handleSubmit} className="space-y-2">
+        <FormProtection />
         <input
           className="w-full rounded-xl border border-[#d5e3f2] bg-[#f8fbff] px-3 py-2 text-sm outline-none focus:border-[#0b2e4f]"
           placeholder="Name *"

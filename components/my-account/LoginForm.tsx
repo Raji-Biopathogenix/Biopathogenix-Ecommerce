@@ -1,6 +1,7 @@
 "use client";
 
 import "./my-account.css";
+import FormProtection, { getFormProtection } from "@/components/forms/FormProtection";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { useRouter } from 'next/navigation'
@@ -260,6 +261,7 @@ export default function LoginForm({ returnTo = '/my-account/dashboard' }: { retu
 
   const handleRegister = async (event: React.FormEvent) => {
     event.preventDefault();
+    const formElement = event.currentTarget as HTMLFormElement;
     if (registerEmailError) {
       return;
     }
@@ -267,7 +269,8 @@ export default function LoginForm({ returnTo = '/my-account/dashboard' }: { retu
     setShowMainPageLoader(true)
     setRegisterLoading(true)
     try {
-        const response = await loginServices.UserSignUp({...register,state: Number(register.state)})
+        const protection = await getFormProtection(formElement);
+        const response = await loginServices.UserSignUp({...register,state: Number(register.state), ...protection})
         console.log("response",response)
         if(response?.status === "success"){
           setShowMainPageLoader(false)
@@ -365,6 +368,7 @@ export default function LoginForm({ returnTo = '/my-account/dashboard' }: { retu
 
           {/* ================= REGISTER ================= */}
           <form className="account-card" onSubmit={handleRegister}>
+            <FormProtection />
 
             <h3 className="account-section-title">REGISTER</h3>
 

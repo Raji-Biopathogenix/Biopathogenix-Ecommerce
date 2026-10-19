@@ -798,9 +798,7 @@ export default function ChatWidget() {
                     onSuccess={() => {
                       const type = assayForm?.assayType;
                       const contactEmail =
-                        type === "sales_quote"
-                          ? "order@biopathogenix.com"
-                          : type === "validation_service"
+                        type === "validation_service"
                           ? "validation@biopathogenix.com"
                           : "support@biopathogenix.com";
                       setAssayForm(null);

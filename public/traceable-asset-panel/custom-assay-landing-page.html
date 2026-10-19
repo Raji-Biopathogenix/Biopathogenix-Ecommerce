@@ -283,7 +283,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
       <div class="form-card" id="quote-form">
         <h3>Request a FREE Panel Assessment</h3>
         <p>Share your testing needs, target requirements, or product interests, and BioPathogenix will follow up with the appropriate solution and pricing.</p>
-        <form class="js-lead-form" novalidate>
+        <form data-spam-protected class="js-lead-form" novalidate>
           <div class="form-row">
             <div class="field"><label for="n1">Full Name</label><input id="n1" type="text" name="name" required></div>
             <div class="field"><label for="e1">Work Email</label><input id="e1" type="email" name="email" required></div>
@@ -511,18 +511,20 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
       button.textContent = 'Sending…';
       status.className = 'form-status';
 
-      fetch('/api/panel-assessment', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(params)
+      window.BPXFormProtection.fields(form).then(async function(protection){
+        return fetch(await window.BPXFormProtection.endpoint('/panel-assessment/'), {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(Object.assign({}, params, protection))
+        });
       })
         .then(function(response){
-          if (!response.ok) throw new Error('Request failed: ' + response.status);
+          if (!response.ok) return response.json().then(function(data){ throw new Error(data.message || 'Unable to send your request.'); });
           window.location.href = THANK_YOU;
         })
         .catch(function(err){
           console.error('BioPathogenix: panel assessment request failed', err);
-          showStatus('error', 'Something went wrong sending your request. Please email Order@BioPathogenix.com directly.');
+          showStatus('error', err.message || 'Unable to send your request. Please try again.');
           button.disabled = false;
           button.textContent = originalLabel;
         });
@@ -530,5 +532,6 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
   });
 })();
 </script>
+<script src="/form-protection.js"></script>
 </body>
 </html>

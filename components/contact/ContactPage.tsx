@@ -1,5 +1,6 @@
 "use client";
 
+import FormProtection, { getFormProtection } from "@/components/forms/FormProtection";
 import { useState } from "react";
 import { ArrowRight, Clock3, Mail, MapPin, Phone, Sparkles } from "lucide-react";
 import { API_BASE_URL } from "@/config/env";
@@ -25,8 +26,8 @@ const emptyForm: FormState = {
 const contactStats = [
   {
     label: "Email",
-    value: "order@biopathogenix.com",
-    href: "mailto:order@biopathogenix.com",
+    value: "support@biopathogenix.com",
+    href: "mailto:support@biopathogenix.com",
     icon: Mail,
   },
   {
@@ -61,6 +62,7 @@ export default function ContactPage({ eyebrow = "Contact" }: { eyebrow?: string 
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
+    const formElement = e.currentTarget as HTMLFormElement;
     setError(null);
     setSuccess(false);
 
@@ -71,10 +73,11 @@ export default function ContactPage({ eyebrow = "Contact" }: { eyebrow?: string 
 
     setLoading(true);
     try {
+      const protection = await getFormProtection(formElement);
       const res = await fetch(`${API_BASE_URL}/contact-form/`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(form),
+        body: JSON.stringify({ ...form, ...protection }),
       });
 
       if (!res.ok) {
@@ -111,7 +114,7 @@ export default function ContactPage({ eyebrow = "Contact" }: { eyebrow?: string 
             </h1>
             <p className="mt-4 max-w-xl text-base leading-7 text-slate-600">
               Send us your question, request, or quote details and our team will
-              route it directly to <span className="font-semibold text-[#0b2e59]">order@biopathogenix.com</span>.
+              route it directly to <span className="font-semibold text-[#0b2e59]">support@biopathogenix.com</span>.
             </p>
           </div>
         </div>
@@ -218,6 +221,7 @@ export default function ContactPage({ eyebrow = "Contact" }: { eyebrow?: string 
               </div>
             ) : (
               <form className="space-y-5" onSubmit={handleSubmit}>
+        <FormProtection />
                 <div className="grid gap-5 md:grid-cols-2">
                   <Field
                     label="First name"

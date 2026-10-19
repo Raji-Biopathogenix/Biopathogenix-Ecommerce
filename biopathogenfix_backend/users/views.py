@@ -26,6 +26,7 @@ from config.settings import configSettings
 from django.contrib.auth.hashers import check_password
 
 from api.views import get_or_none
+from api.form_protection import protect_form
 
 import logging
 import os
@@ -108,6 +109,7 @@ class CustomerViews(APIView):
             )
         return super().handle_exception(exc)
 
+    @protect_form
     def post(self, request):
         data = request.data.copy()
         if "email" in data and data["email"]:
@@ -120,7 +122,7 @@ class CustomerViews(APIView):
 
         generated_password = get_random_string(12)
         with transaction.atomic():
-            user = serializer.save()
+            user = serializer.save(is_active=False)
             user.save()
 
             # is_active=True

@@ -286,6 +286,22 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 USE_REDIS_CACHE = os.getenv("USE_REDIS_CACHE", "false").lower() == "true"
 
+# Public form protection. Configure both Turnstile keys to enable the challenge.
+TURNSTILE_SITE_KEY = os.getenv("TURNSTILE_SITE_KEY", "").strip()
+TURNSTILE_SECRET_KEY = os.getenv("TURNSTILE_SECRET_KEY", "").strip()
+TURNSTILE_ALLOWED_HOSTNAMES = [
+    host.strip().lower() for host in os.getenv(
+        "TURNSTILE_ALLOWED_HOSTNAMES", "biopathogenix.com,www.biopathogenix.com"
+    ).split(",") if host.strip()
+]
+if bool(TURNSTILE_SITE_KEY) != bool(TURNSTILE_SECRET_KEY):
+    raise ValueError("Configure both TURNSTILE_SITE_KEY and TURNSTILE_SECRET_KEY together")
+FORM_SUBMISSIONS_PER_15_MINUTES = int(os.getenv("FORM_SUBMISSIONS_PER_15_MINUTES", "10"))
+FORM_SUBMISSIONS_PER_EMAIL_PER_HOUR = int(os.getenv("FORM_SUBMISSIONS_PER_EMAIL_PER_HOUR", "5"))
+FORM_TRUSTED_PROXY_IPS = [
+    ip.strip() for ip in os.getenv("FORM_TRUSTED_PROXY_IPS", "").split(",") if ip.strip()
+]
+
 from celery.schedules import crontab
  
 CELERY_BEAT_SCHEDULE = {

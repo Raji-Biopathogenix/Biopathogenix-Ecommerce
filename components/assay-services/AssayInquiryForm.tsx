@@ -1,5 +1,6 @@
 "use client";
 
+import FormProtection, { getFormProtection } from "@/components/forms/FormProtection";
 import { FormEvent, ReactNode, useMemo, useState } from "react";
 import { fetchJson } from "@/lib/api";
 
@@ -52,6 +53,7 @@ export default function AssayInquiryForm({ submitClassName, submitArrow }: Assay
 
   const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
+    const formElement = event.currentTarget as HTMLFormElement;
     setError("");
     setSuccess("");
 
@@ -62,9 +64,10 @@ export default function AssayInquiryForm({ submitClassName, submitArrow }: Assay
 
     setIsSubmitting(true);
     try {
+      const protection = await getFormProtection(formElement);
       const response = await fetchJson<AssayInquiryResponse>("/assay-inquiry/", {
         method: "POST",
-        body: form,
+        body: { ...form, ...protection },
       });
 
       setSuccess(response.message || "Your inquiry has been submitted.");
@@ -77,7 +80,7 @@ export default function AssayInquiryForm({ submitClassName, submitArrow }: Assay
       });
     } catch (submitError) {
       console.error("Failed to submit assay inquiry form", submitError);
-      setError("Unable to submit right now. Please try again.");
+      setError(submitError instanceof Error ? submitError.message : "Unable to submit right now. Please try again.");
     } finally {
       setIsSubmitting(false);
     }
@@ -85,6 +88,7 @@ export default function AssayInquiryForm({ submitClassName, submitArrow }: Assay
 
   return (
     <form className="mt-4 space-y-3" onSubmit={handleSubmit}>
+        <FormProtection />
       <div>
         <label className="mb-1 block text-sm font-medium text-[#1f4f79]">
           Name

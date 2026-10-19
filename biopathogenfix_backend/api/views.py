@@ -11,15 +11,19 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from services.emailService import send_graph_email
+from .form_protection import protect_form
+from utils.form_recipients import FORM_RECIPIENTS, FORM_BCC, LANDING_PAGE_RECIPIENTS
 
 logger = logging.getLogger(__name__)
 
-# Every website form request goes to the same team inboxes, with a blind copy.
-FORM_RECIPIENTS = [
-    "order@biopathogenix.com",
-    "support@biopathogenix.com",
-]
-FORM_BCC = ["rajeswari.gopu@biopathogenix.com"]
+
+class FormProtectionConfigView(APIView):
+    permission_classes = [AllowAny]
+
+    def get(self, request):
+        return Response({"site_key": settings.TURNSTILE_SITE_KEY})
+
+# Only the three standalone landing pages send their leads to the order inbox.
 PANEL_ASSESSMENT_BCC = [*FORM_BCC, "o5akcx3o@robot.zapier.com"]
 
 CUSTOM_TARGET_ALLOWED_FILE_EXTENSIONS = {"xlsx", "xls", "pdf", "doc", "docx", "csv"}
@@ -74,6 +78,7 @@ def _send_form_email(subject, html_body, text_body, attachments=None):
 class ContactValidationView(APIView):
     permission_classes = [AllowAny]
 
+    @protect_form
     def post(self, request):
         data = request.data
         name = (data.get("name") or "").strip()
@@ -141,6 +146,7 @@ class ContactValidationView(APIView):
 class QualityControlAvailabilityView(APIView):
     permission_classes = [AllowAny]
 
+    @protect_form
     def post(self, request):
         data = request.data
         first_name = (data.get("first_name") or "").strip()
@@ -188,6 +194,7 @@ class QualityControlAvailabilityView(APIView):
 class AssayInquiryView(APIView):
     permission_classes = [AllowAny]
 
+    @protect_form
     def post(self, request):
         data = request.data
         name = (data.get("name") or "").strip()
@@ -253,6 +260,7 @@ class PanelAssessmentView(APIView):
     permission_classes = [AllowAny]
     parser_classes = [JSONParser, FormParser, MultiPartParser]
 
+    @protect_form
     def post(self, request):
         data = request.data
         fields = {
@@ -293,7 +301,7 @@ class PanelAssessmentView(APIView):
 
         try:
             _send_html_email(
-                FORM_RECIPIENTS,
+                LANDING_PAGE_RECIPIENTS if fields["source"] in PANEL_ASSESSMENT_SOURCES else FORM_RECIPIENTS,
                 f"New Free Panel Assessment Request - {fields['name']}",
                 render_to_string("emails/panel_assessment_request.html", context),
                 render_to_string("emails/panel_assessment_request.txt", context),
@@ -328,6 +336,7 @@ class CustomTargetRequestView(APIView):
     permission_classes = [AllowAny]
     parser_classes = [JSONParser, FormParser, MultiPartParser]
 
+    @protect_form
     def post(self, request):
         data = request.data
         name = (data.get("name") or "").strip()

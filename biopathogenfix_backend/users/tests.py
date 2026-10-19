@@ -1,4 +1,5 @@
 from django.test import TestCase
+from django.core.cache import cache
 from django.db import IntegrityError
 from unittest.mock import patch
 from rest_framework.test import APIClient
@@ -7,6 +8,9 @@ from .models import CustomUser, Laboratory
 from .serializers import UserSerializer
 
 class SignupErrorReportingTests(TestCase):
+    def setUp(self):
+        cache.clear()
+
     def test_unexpected_signup_failure_reports_server_exception(self):
         client = APIClient()
         client.raise_request_exception = False
@@ -28,6 +32,9 @@ class SignupErrorReportingTests(TestCase):
         self.assertIn("test initialization failure", logs.output[0])
 
 class AutomaticLaboratoryTests(TestCase):
+    def setUp(self):
+        cache.clear()
+
     def test_full_signup_request_with_company_and_address(self):
         country = Country.objects.create(name="United States", code="US")
         state = State.objects.create(name="Kentucky", code="KY", country=country)
