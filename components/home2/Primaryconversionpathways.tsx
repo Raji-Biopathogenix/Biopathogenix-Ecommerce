@@ -59,10 +59,10 @@ export default function PrimaryConversionPathways() {
       className="relative overflow-hidden bg-transparent bg-cover bg-center bg-no-repeat px-4 py-10 sm:px-6 md:px-10 lg:px-[100px] lg:py-[110px]"
     >
       <div data-home="pathways-layout" className="mx-auto flex max-w-[1240px] flex-col items-center gap-10 md:gap-14 lg:flex-row lg:items-center lg:justify-between lg:gap-16">
-        <div className="w-full max-w-[580px]">
-          <h2 className="text-balance font-['Quicksand'] text-[34px] font-semibold leading-[1.1] tracking-[-0.03em] text-[#173963] sm:text-[40px] lg:whitespace-nowrap lg:text-[48px] xl:text-[56px]">
-            <span className="block">Built for Accuracy.</span>{" "}
-            <span className="block text-[#58A7E8]">Backed by Validation.</span>
+        <div data-home="pathways-copy" className="w-full max-w-[580px]">
+          <h2 data-home="pathways-heading" className="text-balance font-['Quicksand'] text-[34px] font-semibold leading-[1.1] tracking-[-0.03em] text-[#173963] sm:text-[40px] lg:whitespace-nowrap lg:text-[48px] xl:text-[56px]">
+            <span className="block">Primary Conversion</span>{" "}
+            <span className="block text-[#58A7E8]">Pathways</span>
           </h2>
 
           <p className="mt-5 max-w-[520px] text-[15px] leading-7 text-[#3a5070] sm:text-[16px] sm:leading-8">

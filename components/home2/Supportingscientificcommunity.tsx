@@ -29,7 +29,7 @@ function CheckIcon() {
 
 export default function SupportingScientificCommunity() {
   return (
-    <section className="bg-[linear-gradient(to_bottom,#ffffff_calc(100%-40px),#012C56_calc(100%-40px))] pt-10 md:pt-16 lg:pt-20">
+    <section data-home="community" className="bg-[linear-gradient(to_bottom,#ffffff_calc(100%-40px),#012C56_calc(100%-40px))] pt-10 md:pt-16 lg:pt-20">
       {/* Navy band at the bottom shows behind the card's rounded corners, joining the catalog banner below (per Figma) */}
       <div className="mx-auto w-full px-4 sm:px-5 lg:px-0">
         {/* Main Card */}
@@ -63,9 +63,9 @@ export default function SupportingScientificCommunity() {
               <div className="max-w-[610px]">
                 <h2 data-home="community-heading" className="font-['Quicksand'] text-[30px] font-bold leading-[1] tracking-[-1px] text-[#173963] sm:text-[38px] md:text-[48px] lg:text-[60px] lg:tracking-[-2px]">
                   Supporting the
-                  <br />
+                  {" "}
                   <span className="text-[#49A9E6]">Scientific</span>
-                  <br />
+                  {" "}
                   <span className="text-[#49A9E6]">Community</span>
                 </h2>
 

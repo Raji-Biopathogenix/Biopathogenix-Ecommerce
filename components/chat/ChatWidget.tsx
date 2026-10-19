@@ -78,7 +78,7 @@ export default function ChatWidget() {
     setSending,
   } = useChatStore();
 
-  const [showQuickPopup, setShowQuickPopup] = useState(true);
+  const [showQuickPopup, setShowQuickPopup] = useState(false);
   const [flowStep, setFlowStep] = useState<AssayFlowStep>(null);
   const [assayForm, setAssayForm] = useState<AssayFormState | null>(null);
   const [showInChatQuickOptions, setShowInChatQuickOptions] = useState(false);
@@ -521,7 +521,7 @@ export default function ChatWidget() {
                 className="px-2 py-1 text-xs rounded-md border border-white/30 hover:bg-white/10"
                 onClick={() => {
                   close();
-                  setShowQuickPopup(true);
+                  setShowQuickPopup(false);
                   setFlowStep(null);
                 }}
                 aria-label="Close chat"

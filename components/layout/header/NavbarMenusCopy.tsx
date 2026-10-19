@@ -84,9 +84,12 @@ const NavbarMenus = () => {
         aria-expanded={openMenu === slug}
         onMouseEnter={() => setOpenMenu(slug)}
         onMouseLeave={() => setOpenMenu(null)}
+        onFocus={() => setOpenMenu(slug)}
+        onBlur={(event) => { if (!event.currentTarget.contains(event.relatedTarget)) setOpenMenu(null); }}
       >
         <button
           type="button"
+          onClick={() => setOpenMenu(slug)}
           className="text-[15px] font-semibold tracking-[0.02em] text-[#0b2e59] hover:text-[#0b76d1] transition"
         >
           {group.title}
@@ -120,7 +123,7 @@ const NavbarMenus = () => {
   };
 
   return (
-    <nav className="hidden lg:flex items-center gap-8">
+    <nav aria-label="Website navigation" className="hidden lg:flex items-center gap-8" onKeyDown={(event) => { if (event.key === "Escape") setOpenMenu(null); }}>
       {/* SHOP */}
       <li
         className="relative list-none"
@@ -128,6 +131,8 @@ const NavbarMenus = () => {
         aria-expanded={openMenu === "products"}
         onMouseEnter={() => setOpenMenu("products")}
         onMouseLeave={() => setOpenMenu(null)}
+        onFocus={() => setOpenMenu("products")}
+        onBlur={(event) => { if (!event.currentTarget.contains(event.relatedTarget)) setOpenMenu(null); }}
       >
         <Link
           href="/shop"

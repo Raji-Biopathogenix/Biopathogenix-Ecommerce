@@ -3,6 +3,7 @@
 import { useState } from "react";
 import Logo from "./Logo";
 import NavItem from "./NavbarMenus";
+import FallbackNavigation from "./NavbarMenusCopy";
 import HeaderIcons from "./HeaderIcons";
 import "./header.css";
 import { usePathname } from 'next/navigation';
@@ -78,9 +79,9 @@ function HeaderSection({ menus,search_categories,top_searchs }: HeaderSectionPro
 
         {/* Desktop Nav Links */}
         <div className="navbar__links">
-          {menus.map((item) => (
+          {menus.length ? menus.map((item) => (
             <NavItem key={item.id} item={item} />
-          ))}
+          )) : <FallbackNavigation />}
 
           {
             isSuperAdmin() &&  AdminMenus.map((item) => (

@@ -17,7 +17,7 @@ export default function ProductCatalogBanner({
   const isDownload = Boolean(context?.download_file);
 
   return (
-    <section className="overflow-hidden rounded-b-[24px] bg-[#012C56] lg:rounded-b-[40px] py-12 sm:py-14 lg:py-[90px]">
+    <section data-home="catalog" className="overflow-hidden rounded-b-[24px] bg-[#012C56] lg:rounded-b-[40px] py-12 sm:py-14 lg:py-[90px]">
       <div data-home="catalog-layout" className="mx-auto flex max-w-[1440px] flex-col items-start justify-between gap-8 px-4 sm:px-6 md:px-10 lg:min-h-[720px] lg:flex-row lg:items-center lg:gap-16 lg:px-[100px]">
 
         {/* LEFT CONTENT */}
@@ -25,13 +25,13 @@ export default function ProductCatalogBanner({
 
           <h2 data-home="catalog-heading" className="font-['Poppins'] text-[34px] font-normal leading-[0.98] tracking-[-0.03em] !text-[#F4F8FF] drop-shadow-[0_1px_2px_rgba(0,0,0,0.35)] sm:whitespace-nowrap sm:text-[42px] md:text-[58px] xl:text-[68px]">
             Explore the
-            <br />
+            {" "}
 
             <span className="font-semibold !text-[#67C2F2]">
               BioPathogenix
             </span>
 
-            <br />
+            {" "}
 
             <span className="font-normal !text-[#F4F8FF]">
               Product Catalog

@@ -51,6 +51,7 @@ export default async function Home() {
       <Shopbycategory result={shopByCategory} />
       <div className="relative overflow-hidden">
         <img
+          data-home="background-pattern"
           src="/images/home/primary-bg.png"
           alt=""
           className="

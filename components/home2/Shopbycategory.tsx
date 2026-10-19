@@ -98,8 +98,8 @@ export default function ShopByCategory({ result: _result }: ShopByCategoryprops)
   }, []);
 
   return (
-    <section className="relative overflow-hidden bg-white py-14 sm:py-16 lg:py-20">
-      <div className="relative">
+    <section data-home="categories" className="relative overflow-hidden bg-white py-14 sm:py-16 lg:py-20">
+      <div data-home="category-artwork" className="relative">
         <h2
           className="
                     pointer-events-none

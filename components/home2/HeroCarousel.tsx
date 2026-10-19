@@ -140,6 +140,7 @@ export default function HeroCarousel({ result }: HeroCarouselprops) {
 
   return (
     <section
+      data-home="hero"
       className="overflow-hidden bg-[#edf3f8] px-5 pb-6 pt-7 sm:px-6 sm:py-12 md:px-10 md:py-10 lg:p-0"
       style={{
         backgroundImage: "url('/images/home/hero-bg.png')",
@@ -150,8 +151,8 @@ export default function HeroCarousel({ result }: HeroCarouselprops) {
     >
       {/* Laid out on the 1440-wide Figma frame: the hero is 828px tall below the
           97px header, text starts 104px in, and the honeycomb sits at HONEYCOMB. */}
-      <div className="relative mx-auto flex max-w-[1440px] flex-col items-center gap-5 sm:items-start sm:gap-8 lg:block lg:min-h-[828px]">
-        <div className="relative w-full max-w-[760px] text-center sm:text-left lg:flex lg:w-[54%] lg:max-w-none lg:flex-col lg:pb-[80px] lg:pl-[104px] lg:pt-[87px]">
+      <div data-home="hero-layout" className="relative mx-auto flex max-w-[1440px] flex-col items-center gap-5 sm:items-start sm:gap-8 lg:block lg:min-h-[828px]">
+        <div data-home="hero-copy" className="relative w-full max-w-[760px] text-center sm:text-left lg:flex lg:w-[54%] lg:max-w-none lg:flex-col lg:pb-[80px] lg:pl-[104px] lg:pt-[87px]">
           {/* Top Label */}
           <p className="mx-auto mb-4 w-fit rounded-full border border-[#c8dcea] bg-white/70 px-3 py-2 text-[9px] font-bold uppercase tracking-[0.12em] text-[#153B67] sm:mx-0 sm:mb-5 sm:w-auto sm:rounded-none sm:border-0 sm:bg-transparent sm:p-0 sm:text-[13px] sm:tracking-[0.22em] lg:mb-[22px] lg:text-[15px] lg:tracking-[0.14em]">
             ADVANCED MULTIPLEX QPCR SUPPLIER
