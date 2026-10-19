@@ -73,13 +73,12 @@ export default function ShopByCategory({ result: _result }: ShopByCategoryprops)
     scrollTrack(track.scrollLeft + direction * (card.getBoundingClientRect().width + gap));
   };
 
-  // Keep the desktop edge previews; start at the first card on small screens.
+  // Start at the first card so it is fully visible; the next card peeks in on the right
+  // to show the row scrolls.
   useEffect(() => {
     const track = trackRef.current;
     if (!track) return;
-    track.scrollLeft = window.matchMedia("(min-width: 768px)").matches
-      ? (track.scrollWidth - track.clientWidth) / 2
-      : 0;
+    track.scrollLeft = 0;
 
     const updateControls = () => {
       setCanScroll({

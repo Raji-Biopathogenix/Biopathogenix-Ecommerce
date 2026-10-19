@@ -7,12 +7,16 @@ import FallbackNavigation from "./NavbarMenusCopy";
 import HeaderIcons from "./HeaderIcons";
 import "./header.css";
 import { usePathname } from 'next/navigation';
+import { Poppins } from "next/font/google";
 
 import {useAuth} from "@/context/AuthContext";
 // import SearchBar from "./SearchBar";
 import {HeaderItem,SearchCategoryItem, TopSearchItem} from "@/types/header"
 
 import  MobileMenu from './mobileopen'
+
+// The Figma header uses Poppins on every page.
+const poppins = Poppins({ subsets: ["latin"], weight: ["400", "500", "600", "700"], display: "swap", variable: "--font-header" });
 
 interface HeaderSectionProps{
   menus : HeaderItem[]
@@ -58,7 +62,7 @@ function HeaderSection({ menus,search_categories,top_searchs }: HeaderSectionPro
     hideHeader?<></>: <>
 
 
-    <div className="navbar_container">
+    <div className={`navbar_container ${poppins.variable}`}>
  <nav className="navbar" role="navigation" aria-label="Main navigation">
         <div className="navbar__start">
           {/* Hamburger - first child so it sits on the left on mobile */}

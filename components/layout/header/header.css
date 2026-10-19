@@ -20,6 +20,8 @@
   background: #ffffff;
   border-bottom: 1px solid #dfe8f2;
   backdrop-filter: none;
+  --font-body: var(--font-header), "Plus Jakarta Sans", "Manrope", Arial, Helvetica, sans-serif;
+  --font-display: var(--font-header), "Plus Jakarta Sans", "Manrope", Arial, Helvetica, sans-serif;
 }
 
 .navbar_container::before {
@@ -385,6 +387,88 @@
 .mobile-menu__login:hover {
   background: rgba(79, 135, 203, 0.08);
   color: var(--nav-accent);
+}
+
+/* Desktop header from the 1440 Figma frame: 8px strip + 89px bar, content 1240 wide (100px gutters),
+   logo 202 wide, menu centred in Poppins 15 medium #0A1C3A, icons 40px navy circles 5px apart. */
+@media (min-width: 1024px) {
+  .navbar {
+    width: calc(100% - 2 * clamp(20px, 6.9444vw, 160px));
+    height: auto;
+    min-height: clamp(80px, 6.1806vw, 142px);
+    padding-inline: 0;
+  }
+
+  .navbar__start,
+  .navbar__actions {
+    flex: 1 1 0;
+    min-width: 0;
+  }
+
+  .navbar__actions {
+    justify-content: flex-end;
+  }
+
+  .navbar__links {
+    flex: 0 1 auto;
+  }
+
+  .navbar__links,
+  .navbar__links > nav {
+    gap: clamp(12px, 2.2222vw, 40px);
+  }
+
+  .navbar__logo img {
+    width: clamp(145px, 14.0278vw, 270px);
+    height: auto;
+  }
+
+  .navbar__links nav > a,
+  .navbar__links nav > li > a,
+  .navbar__links nav > li > button,
+  .nav-item__label {
+    font-size: clamp(13px, 1.0417vw, 20px);
+    font-weight: 500;
+    letter-spacing: 0;
+    color: #0a1c3a;
+  }
+
+  /* Dropdown triggers get the Figma chevron. */
+  .navbar__links nav > li[aria-haspopup] > :first-child {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+  }
+
+  .navbar__links nav > li[aria-haspopup] > :first-child::after {
+    content: "";
+    width: 12px;
+    height: 12px;
+    background: currentColor;
+    -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath d='M4 6l4 4 4-4' fill='none' stroke='black' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") center / contain no-repeat;
+    mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath d='M4 6l4 4 4-4' fill='none' stroke='black' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") center / contain no-repeat;
+  }
+
+  .navbar__actions > div {
+    gap: 5px;
+  }
+
+  .navbar__actions .header-icon-btn {
+    width: 40px;
+    height: 40px;
+    background: #245088;
+    color: #ffffff;
+  }
+
+  .navbar__actions .header-icon-btn:hover {
+    background: #1b3f6c;
+    color: #ffffff;
+  }
+
+  .navbar__actions .header-icon {
+    width: 18px;
+    height: 18px;
+  }
 }
 
 @media (max-width: 768px) {

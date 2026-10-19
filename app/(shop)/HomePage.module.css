@@ -123,19 +123,46 @@
   .page [data-home="community-copy"] h3 { font-size: clamp(17px, 1.5278cqw, 29px); }
   .page [data-home="catalog-copy"] p { max-width: 29.8611cqw; font-size: clamp(14px, 1.0417cqw, 20px); line-height: 1.8667; }
   .page [data-home="qc-button"], .page [data-home="learning-button"], .page [data-home="catalog-button"] { font-size: clamp(14px, 1.1111cqw, 21px); min-height: 4.0972cqw; padding: 1.25cqw 1.9444cqw; }
+
+  /* Section boxes from the 1440 x 5774 Figma frame (1px = .069444cqw). */
+  /* Hero: 828 tall below the 97px header; copy at x100 y174, honeycomb at x793 y159. */
+  .page [data-home="hero"] { padding-block: 0; }
+  .page [data-home="hero-layout"] { grid-template-columns: 48.125cqw 41.1806cqw; gap: 0; align-items: start; min-height: 57.5cqw; }
+  .page [data-home="hero-copy"] { margin-top: 5.3472cqw; }
+  .page [data-home="hero-images"] { margin-top: 4.3056cqw; }
+  /* Shop by Category: 1012 tall; cards at y1234-1797 (309 below the section top), 140 above the DNA section. */
+  .page [data-home="categories"] { min-height: 70.2778cqw; padding-top: 13.3333cqw; }
+  /* DNA: 1440 x 856, the image layer covers the whole section. */
+  .page [data-home="dna-frame"] > img { width: 100%; }
+  .page [data-home="dna-frame"] > div:nth-of-type(2) { display: none; }
+  .page [data-home="dna-content"] { min-height: 59.4444cqw; align-content: center; padding-block: 4.4444cqw; }
+  /* Pathways: 865 tall, cards start 158 below the DNA section and end 160 above the next. */
+  .page [data-home="pathways"] { padding-top: 10.9722cqw; padding-bottom: 11.1111cqw; }
+  /* Community: 1440 x 770 directly below the pathways, photo 720 x 770 at x0. */
+  .page [data-home="community"] { padding-top: 0; }
+  .page [data-home="community-copy"] { padding-block: 4.4444cqw; }
+  /* Catalog: 867 tall; heading 627 wide, artwork frame 843 x 687 at x789 y99, bleeding past the right edge. */
+  .page [data-home="catalog"] { padding-top: 6.875cqw; padding-bottom: 5.625cqw; }
+  .page [data-home="catalog-layout"] { grid-template-columns: 43.5417cqw 58.5417cqw; gap: 4.3056cqw; }
+  .page [data-home="catalog-artwork"] { height: 47.7083cqw; }
+  /* The brochure sits at the left of the frame; the empty part of the frame runs past the page edge. */
+  .page [data-home="catalog-artwork"] > img { width: 100%; max-width: none; height: 100%; object-position: left center; }
+  /* Buttons: conversion 432 x 59, catalog 331 x 59; the arrow glyph must not grow the line box. */
+  .page [data-home="qc-button"] > span, .page [data-home="catalog-button"] > span:last-child { line-height: 1; }
+  .page [data-home="qc-button"] { min-width: 30cqw; justify-content: space-between; }
+  .page [data-home="catalog-button"] { min-width: 22.9861cqw; justify-content: space-between; }
+  /* Background DNA pattern: 3456 x 1344 at 25% opacity, x -1122, 113 below the DNA section top. */
+  .page [data-home="background-pattern"] { opacity: .25; width: 240cqw; left: -77.9167cqw; top: 7.8472cqw; transform: none; }
+  /* Pathways copy: 485 wide, Poppins 16 / 165%, 1% tracking, #070707. */
+  .page [data-home="pathways-copy"] > p { max-width: 33.6806cqw; line-height: 1.65; letter-spacing: .01em; color: #070707; }
 }
 
 /* Header and footer use the same alignment without depending on API success. */
 :global(body):has(.page) :global(.navbar), :global(body):has(.page) footer > div { width: calc(100% - 2 * clamp(20px, 6.9444vw, 160px)); max-width: none; padding-inline: 0; margin-inline: auto; }
-:global(body):has(.page) :global(.navbar) { position: relative; height: auto; min-height: 88px; padding-block: 16px; gap: 16px; }
-:global(body):has(.page) :global(.navbar__links) { min-width: 0; flex: 1; gap: clamp(8px, 1.4vw, 24px); flex-wrap: wrap; }
-:global(body):has(.page) :global(.navbar__links) > nav { gap: clamp(10px, 1.4vw, 24px); }
-:global(body):has(.page) :global(.navbar__links) > nav > a, :global(body):has(.page) :global(.navbar__links) > nav > li > a, :global(body):has(.page) :global(.navbar__links) > nav > li > button { font-size: clamp(13px, 1.05vw, 20px); white-space: nowrap; }
-:global(body):has(.page) :global(.nav-item__label) { font-size: clamp(13px, 1.05vw, 21px); padding-inline: 4px; }
-:global(body):has(.page) :global(.navbar__actions) > div { gap: 6px; }
-:global(body):has(.page) :global(.header-icon-btn) { width: 36px; height: 36px; flex-shrink: 0; }
-:global(body):has(.page) :global(.navbar__start) { flex-shrink: 0; }
-:global(body):has(.page) :global(.navbar__logo) img { width: clamp(145px, 14.5833vw, 280px); max-width: 100%; height: auto; }
+/* Figma: header + hero is 925 (8px top strip + 89px navbar + 828px hero); nav links have 36px gaps. */
+:global(body):has(.page) :global(.navbar) { position: relative; height: auto; min-height: clamp(80px, 6.1806vw, 142px); padding-block: 16px; gap: 16px; }
+/* Header sizes (logo, menu font, icons) come from the shared header.css so every page matches. */
+:global(body):has(.page) :global(.navbar__links) > nav > a, :global(body):has(.page) :global(.navbar__links) > nav > li > a, :global(body):has(.page) :global(.navbar__links) > nav > li > button { white-space: nowrap; }
 :global(body):has(.page) :global(.navbar__links) > nav > li > ul { left: auto; right: 0; max-width: calc(100vw - 2 * var(--home-gutter, 40px)); }
 :global(body):has(.page) :global(.navbar__links) > nav > li > ul:global(.invisible) { display: none; }
 :global(body):has(.page) :global(.navbar__links) > nav > li:first-child { position: static; }
