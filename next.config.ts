@@ -45,7 +45,7 @@ const nextConfig: NextConfig = {
       },
       {
         protocol: 'https',
-        hostname: 'bio.biopathogenix.com',
+        hostname: 'www.biopathogenix.com',
         pathname: '/media/**',
       },
     ],

@@ -13,27 +13,27 @@ const CATEGORIES = [
   {
     title: "Specimen Collection Supplies",
     image: "/fig-preview/images/47de23b4d89bd43c2c82125a838f1ca90b06ab66",
-    link: "https://bio.biopathogenix.com/product/specimen-collection-supplies",
+    link: "/product/specimen-collection-supplies",
   },
   {
     title: "qPCR Assays",
     image: "/fig-preview/images/964c41576142d9cb765f65a59510cc79a66be001",
-    link: "https://bio.biopathogenix.com/product/qplex-pcr-assays",
+    link: "/product/qplex-pcr-assays",
   },
   {
     title: "DNA/RNA Extraction Kits",
     image: "/fig-preview/images/060537cbda24b2a5cd4fc145fa7271e599487b7c",
-    link: "https://bio.biopathogenix.com/product/extraction-sample-prep",
+    link: "/product/extraction-sample-prep",
   },
   {
     title: "PCR Lab Consumables",
     image: "/fig-preview/images/341d4c17677780e3ffe716da598d5cd49fe71a93",
-    link: "https://bio.biopathogenix.com/product/specimen-collection-supplies",
+    link: "/product/specimen-collection-supplies",
   },
   {
     title: "Personal Protection Equipment",
     image: "/images/PPE/face-mask-img-for-website-1-1000x1000.jpg",
-    link: "https://bio.biopathogenix.com/product/ppe",
+    link: "/product/ppe",
   },
 ] as const;
 

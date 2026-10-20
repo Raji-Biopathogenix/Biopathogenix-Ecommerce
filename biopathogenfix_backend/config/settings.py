@@ -47,7 +47,7 @@ class Settings:
     UPS_CLIENT_SECRET =  os.getenv('UPS_CLIENT_SECRET')
     UPS_ACCOUNT_NUMBER =  os.getenv('UPS_ACCOUNT_NUMBER') 
     UPS_BASE_URL = os.getenv('UPS_BASE_URL')
-    FRONTEND_URL = os.getenv('FRONTEND_URL')
+    FRONTEND_URL = (os.getenv('FRONTEND_URL') or 'https://www.biopathogenix.com').rstrip('/')
 
     # ---- Company Details  --------
     COMPANY_NAME = os.getenv("COMPANY_NAME")
