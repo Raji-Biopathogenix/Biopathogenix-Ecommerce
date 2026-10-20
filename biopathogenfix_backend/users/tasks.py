@@ -4,10 +4,13 @@ from celery import shared_task
 from services.emailService import send_graph_email
 from django.template.loader import render_to_string
 from django.conf import settings
-from django.core.mail import send_mail
+from django.core.mail import EmailMultiAlternatives, send_mail
 from config.settings import configSettings
 
 logger = logging.getLogger(__name__)
+
+# Copied on every new-registration verification email.
+REGISTRATION_CC = ["order@biopathogenix.com"]
 
 
 @shared_task(bind=True, max_retries=3, default_retry_delay=60)
@@ -19,11 +22,14 @@ def send_verification_email(self, email, context):
         html_message = render_to_string("verification_email.html", context)
         plain_message = render_to_string("welcome.txt", context)
         from_email = getattr(settings, "DEFAULT_FROM_EMAIL", "example@example.com")
+        cc_list = [cc for cc in REGISTRATION_CC if cc.lower() != str(email).lower()]
 
         if getattr(settings, "GRAPH_ENABLED", False):
-            send_graph_email([email], subject, html_body=html_message, text_body=plain_message, from_email=from_email)
+            send_graph_email([email], subject, html_body=html_message, text_body=plain_message, from_email=from_email, cc_list=cc_list)
         else:
-            send_mail(subject, plain_message, from_email, [email], html_message=html_message, fail_silently=False)
+            message = EmailMultiAlternatives(subject, plain_message, from_email, [email], cc=cc_list)
+            message.attach_alternative(html_message, "text/html")
+            message.send(fail_silently=False)
 
         logger.info("Verification email sent to %s", email)
         return {"status": "sent", "to": email}
