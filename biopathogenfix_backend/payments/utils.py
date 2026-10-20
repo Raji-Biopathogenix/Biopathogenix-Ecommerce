@@ -791,7 +791,9 @@ def _record_qb_payment(
     if str(config.realm_id) != str(realm_id):
         raise ValueError("Payment belongs to a different QuickBooks company.")
     return record_captured_payment(access_token, realm_id, base_url, get_qb_base_url(config),
-                                   customer_id, invoice_id, amount, transaction_id)
+                                   customer_id, invoice_id, amount, transaction_id,
+                                   intuit_payment_linking=getattr(
+                                       settings, 'QB_INTUIT_PAYMENT_LINKING_ENABLED', False))
 
 
 def create_qb_invoice(access_token: str, order, orderItems: list, payment_method: str,user) -> dict:
@@ -1037,6 +1039,7 @@ def create_qb_refund_receipt(
     customer_id:  str,
     amount:       float,
     description:  str = '',
+    *, charge_id: str = '', refund_id: str = '', invoice_id: str = '', recoverable=False,
 ) -> dict:
     """
     Records a refund in QuickBooks' Accounting books (Sales -> Refund
@@ -1084,6 +1087,13 @@ def create_qb_refund_receipt(
             }
         ],
     }
+
+    if recoverable or getattr(settings, 'QB_INTUIT_PAYMENT_LINKING_ENABLED', False):
+        from .qb_payment_sync import record_intuit_refund_receipt
+        return record_intuit_refund_receipt(
+            access_token, realm_id, base_url, get_qb_base_url(config),
+            customer_id, invoice_id, charge_id, refund_id, amount, refund_payload,
+            intuit_payment_linking=getattr(settings, 'QB_INTUIT_PAYMENT_LINKING_ENABLED', False))
 
     response = requests.post(
         f"{base_url}/v3/company/{realm_id}/refundreceipt",

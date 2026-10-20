@@ -170,6 +170,8 @@ class AllOrderSerializer(serializers.ModelSerializer):
                 "is_cancellable",
                 "is_refundable",
                 "refund_status",
+                "refund_accounting_state",
+                "qb_refund_id",
                 "refund_amount",
                 "refunded_at",
         ]

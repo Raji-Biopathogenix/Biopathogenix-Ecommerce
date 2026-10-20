@@ -44,3 +44,9 @@ next-env.d.ts
 /biopathogenfix_backend/logs/*.log
 /biopathogenfix_backend/staticfiles/
 /.tmp/
+
+# Local databases and sandbox/debug artifacts
+db.sqlite3
+/quickbooks-sandbox-*.json
+/resp.json
+/ppt_dump.txt

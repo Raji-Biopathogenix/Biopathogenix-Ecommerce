@@ -103,6 +103,7 @@ class DepositInspectionTests(SimpleTestCase):
         self.order = SimpleNamespace(qb_realm_id='realm', qb_customer_id='customer',
             qb_invoice_id='invoice-101', transaction_id='charge-101', amount=Decimal('290.44'))
         self.payment = {'Id': 'payment-101', 'TotalAmt': 290.44,
+            'PaymentRefNum': 'charge-101',
             'CustomerRef': {'value': 'customer'},
             'CreditCardPayment': {'CreditChargeResponse': {'CCTransId': 'charge-101'}},
             'Line': [{'Amount': 290.44, 'LinkedTxn': [{'TxnId': 'invoice-101', 'TxnType': 'Invoice'}]}]}

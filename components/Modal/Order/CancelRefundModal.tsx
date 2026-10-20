@@ -86,16 +86,20 @@ function ConfirmStep({
 function DoneStep({ type, result, onClose }: {
   type: Tab; result: CancelResult | RefundResult; onClose: () => void;
 }) {
+  const pending = result.status === 'pending';
   return (
     <div className="flex flex-col items-center text-center px-6 py-8 space-y-4">
-      <div className="w-16 h-16 rounded-full bg-green-50 flex items-center justify-center">
-        <CheckCircle className="w-8 h-8 text-green-500" />
+      <div className={`w-16 h-16 rounded-full flex items-center justify-center ${pending ? 'bg-amber-50' : 'bg-green-50'}`}>
+        {pending ? <AlertTriangle className="w-8 h-8 text-amber-600" /> : <CheckCircle className="w-8 h-8 text-green-500" />}
       </div>
       <div className="space-y-1.5">
         <h3 className="text-base font-semibold text-gray-900">
-          {type === 'cancel' ? 'Order Cancelled' : 'Refund Processed'}
+          {type === 'cancel' ? 'Order Cancelled' : pending ? 'Refund Follow-up Pending' : 'Refund Processed'}
         </h3>
         <p className="text-sm text-gray-500">{result.message}</p>
+        {'refund_accounting_error' in result.data && result.data.refund_accounting_error && (
+          <p className="text-sm text-amber-700" role="status">{result.data.refund_accounting_error}</p>
+        )}
         {'refund_amount' in result?.data && (
           <p className="text-3xl font-bold text-green-600 pt-1">
             ${result.data?.refund_amount}
@@ -188,7 +192,7 @@ export default function CancelRefundModal({ orderId, orderNumber, eligibility, o
       let payload = {  refund_amount:    refundAmountNum,   refund_notes:     refundNotes.trim(),}
       const res = await OrderServices.RefundOrder(orderId,payload)
       console.log("RefundOrder response:", res)
-      if (res?.status === "success") {
+      if (res?.status === "success" || res?.status === "pending") {
         setStep("done")
         return  res as RefundResult;
       }

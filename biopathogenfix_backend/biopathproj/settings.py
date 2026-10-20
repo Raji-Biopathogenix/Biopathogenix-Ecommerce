@@ -49,6 +49,10 @@ def _env_bool(name: str, default: str = "False") -> bool:
     return os.getenv(name, default).lower() in ("1", "true", "yes", "on")
 
 
+# Enable only after sandbox verification and a controlled merchant-settlement test.
+QB_INTUIT_PAYMENT_LINKING_ENABLED = _env_bool('QB_INTUIT_PAYMENT_LINKING_ENABLED')
+
+
 # Application definition
 
 INSTALLED_APPS = [
@@ -305,6 +309,10 @@ FORM_TRUSTED_PROXY_IPS = [
 from celery.schedules import crontab
  
 CELERY_BEAT_SCHEDULE = {
+    "qb-refund-sync-every-five-min": {
+        "task": "payments.retry_pending_qb_refunds",
+        "schedule": crontab(minute="*/5"),
+    },
     "qb-payment-sync-every-five-min": {
         "task": "payments.retry_pending_qb_payments",
         "schedule": crontab(minute="*/5"),

@@ -145,6 +145,16 @@ class Order(models.Model):
     refund_notes = models.TextField(null=True, blank=True)
     refund_reference = models.CharField(max_length=100, null=True, blank=True)
 
+    @property
+    def refund_accounting_state(self):
+        refund = getattr(self, 'whole_refund', None)
+        return refund.state if refund else ''
+
+    @property
+    def qb_refund_id(self):
+        refund = getattr(self, 'whole_refund', None)
+        return refund.refund_id if refund else ''
+
     
     
 
@@ -166,6 +176,8 @@ class Order(models.Model):
     def is_refundable(self):
         # Item cancellations refund their own share; a whole-order refund would pay it twice.
         if self.pk and self.item_cancellations.exists():
+            return False
+        if self.pk and getattr(self, 'whole_refund', None) is not None:
             return False
         return self.status in ('returned', 'partially_returned','cancelled')
     # and self.refund_amount == 0.00
@@ -450,3 +462,26 @@ class ItemCancellation(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     email_sent = models.BooleanField(default=False)
+
+
+class OrderRefund(models.Model):
+    """One durable whole-order refund; staff references never replace provider IDs."""
+    import uuid
+    key = models.UUIDField(default=uuid.uuid4, unique=True, editable=False)
+    order = models.OneToOneField(Order, on_delete=models.PROTECT, related_name='whole_refund')
+    amount = models.DecimalField(max_digits=10, decimal_places=2)
+    charge_id = models.CharField(max_length=100)
+    realm_id = models.CharField(max_length=100)
+    customer_id = models.CharField(max_length=100)
+    invoice_id = models.CharField(max_length=100)
+    refund_id = models.CharField(max_length=100, blank=True)
+    refund_status = models.CharField(max_length=32, blank=True)
+    state = models.CharField(max_length=32, default='ready', db_index=True)
+    accounting_id = models.CharField(max_length=100, blank=True)
+    error = models.TextField(blank=True)
+    notes = models.TextField(blank=True)
+    staff_reference = models.CharField(max_length=100, blank=True)
+    email_sent = models.BooleanField(default=False)
+    created_by = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.PROTECT)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)

@@ -54,12 +54,13 @@ def _money(value):
 
 
 def record_captured_payment(token, realm_id, accounting_url, payments_url,
-                            customer_id, invoice_id, amount, charge_id):
+                            customer_id, invoice_id, amount, charge_id,
+                            *, intuit_payment_linking=False):
     """Return the linked Payment; fail closed if existing books disagree.
 
     PaymentRefNum allows lookup after a timeout. requestid also makes concurrent
-    submissions of the same charge idempotent at Intuit. CreditChargeResponse
-    carries the processor identity used by the merchant deposit workflow.
+    submissions of the same charge idempotent at Intuit. Accounting confirmation
+    here does not establish that the merchant payout has settled or linked.
     """
     if not charge_id or str(charge_id).startswith(('pi_', 'INV-')):
         raise ValueError('A captured Intuit charge is required for payment synchronization.')
@@ -133,6 +134,8 @@ def record_captured_payment(token, realm_id, accounting_url, payments_url,
         'Line': [{'Amount': float(amount), 'LinkedTxn': [
             {'TxnId': str(invoice_id), 'TxnType': 'Invoice'}]}],
     }
+    if intuit_payment_linking:
+        payload['TxnSource'] = 'IntuitPayment'
     if charge.get('created'):
         payload['TxnDate'] = charge['created'][:10]
     response = requests.post(company_url + '/payment',
@@ -154,11 +157,102 @@ def _validate_payment(payment, customer_id, invoice_id, amount, charge_id):
         if any(str(link.get('TxnId')) == str(invoice_id) and link.get('TxnType') == 'Invoice'
                for link in line.get('LinkedTxn', []))), Decimal('0'))
     response = payment.get('CreditCardPayment', {}).get('CreditChargeResponse', {})
+    # QBO can omit CreditChargeResponse even when it accepted the payment.
+    # Confirm accounting using the exact reference, customer, amount and invoice;
+    # TxnSource identifies an Intuit payment when the optional response is absent.
+    # Never treat a conflicting processor reference as a successful sync.
+    returned_charge_id = response.get('CCTransId')
+    processor_confirmed = (
+        str(returned_charge_id) == str(charge_id) if returned_charge_id is not None
+        else payment.get('TxnSource') == 'IntuitPayment'
+    )
     if (not payment.get('Id') or str(payment.get('CustomerRef', {}).get('value')) != str(customer_id)
             or _money(payment.get('TotalAmt')) != amount or linked_amount != amount
             or payment.get('CurrencyRef', {}).get('value', 'USD') != 'USD'
-            or str(response.get('CCTransId')) != str(charge_id)):
+            or str(payment.get('PaymentRefNum')) != str(charge_id)
+            or not processor_confirmed):
         raise ValueError('QuickBooks payment linkage is unconfirmed. Accounting review required.')
+
+
+def record_intuit_refund_receipt(token, realm_id, accounting_url, payments_url,
+                                 customer_id, invoice_id, charge_id, refund_id,
+                                 amount, payload, *, intuit_payment_linking=True):
+    """Record an issued refund once, without refunding money or creating deposits.
+
+    The nested Payments endpoint verifies the refund belongs to this charge.
+    The invoice verifies the accounting customer. The stored marker and requestid
+    support recovery after a timeout; merchant settlement is verified separately.
+    """
+    if not all((customer_id, invoice_id, charge_id, refund_id)):
+        raise ValueError('Verified invoice, charge and refund references are required.')
+    amount = _money(amount)
+    if amount <= 0:
+        raise ValueError('Refund amount must be positive.')
+    headers = {'Authorization': f'Bearer {token}', 'Accept': 'application/json'}
+    company_url = f'{accounting_url}/v3/company/{quote(str(realm_id), safe="")}'
+
+    def get(url, params=None):
+        response = requests.get(url, headers=headers, params=params, timeout=15)
+        response.raise_for_status()
+        data = response.json()
+        if 'Fault' in data:
+            raise ValueError('Unable to verify the QuickBooks refund records.')
+        return data
+
+    refund = get(f'{payments_url}/quickbooks/v4/payments/charges/'
+                 f'{quote(str(charge_id), safe="")}/refunds/{quote(str(refund_id), safe="")}')
+    if (str(refund.get('id')) != str(refund_id) or refund.get('status') != 'ISSUED'
+            or _money(refund.get('amount')) != amount):
+        raise ValueError('The issued refund does not match this charge and amount.')
+    invoice = get(company_url + '/invoice/' + quote(str(invoice_id), safe='')).get('Invoice', {})
+    if (str(invoice.get('Id')) != str(invoice_id)
+            or str(invoice.get('CustomerRef', {}).get('value')) != str(customer_id)
+            or invoice.get('CurrencyRef', {}).get('value', 'USD') != 'USD'
+            or _money(invoice.get('TotalAmt')) < amount):
+        raise ValueError('The refund invoice does not match this customer and amount.')
+    if str(payload.get('CustomerRef', {}).get('value')) != str(customer_id):
+        raise ValueError('The refund payload belongs to a different customer.')
+
+    marker = f'Intuit refund {refund_id}; charge {charge_id}; invoice {invoice_id}'
+
+    def validate(receipt):
+        if (not receipt.get('Id')
+                or str(receipt.get('CustomerRef', {}).get('value')) != str(customer_id)
+                or _money(receipt.get('TotalAmt')) != amount
+                or receipt.get('CurrencyRef', {}).get('value', 'USD') != 'USD'
+                or (intuit_payment_linking and receipt.get('TxnSource') != 'IntuitPayment')
+                or marker not in receipt.get('PrivateNote', '')):
+            raise ValueError('QuickBooks refund accounting is unconfirmed; review before retrying.')
+        return receipt
+
+    customer = str(customer_id).replace('\\', '\\\\').replace("'", "\\'")
+    matches = []
+    start = 1
+    while True:
+        result = get(company_url + '/query', {'query':
+            f"SELECT * FROM RefundReceipt WHERE CustomerRef = '{customer}' STARTPOSITION {start} MAXRESULTS 1000"})
+        if 'QueryResponse' not in result:
+            raise ValueError('Unable to check existing refund receipts.')
+        rows = result['QueryResponse'].get('RefundReceipt', [])
+        matches.extend(row for row in rows if marker in row.get('PrivateNote', ''))
+        if len(rows) < 1000:
+            break
+        start += 1000
+    if len(matches) > 1:
+        raise ValueError('Duplicate refund receipts require accounting review.')
+    if matches:
+        return validate(matches[0])
+
+    payload = {**payload, 'PrivateNote': (payload.get('PrivateNote', '') + '\n' + marker).strip()}
+    if intuit_payment_linking:
+        payload.update(TxnSource='IntuitPayment', CreditCardPayment={'CreditChargeResponse': {
+            'CCTransId': str(refund_id), 'Status': 'Completed'}})
+    response = requests.post(company_url + '/refundreceipt',
+        headers={**headers, 'Content-Type': 'application/json'},
+        params={'requestid': str(uuid.uuid5(uuid.NAMESPACE_URL, f'qb-refund:{realm_id}:{refund_id}'))},
+        json=payload, timeout=15)
+    response.raise_for_status()
+    return validate(response.json().get('RefundReceipt', {}))
 
 
 def sync_order_payment(order, token):

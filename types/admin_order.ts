@@ -257,6 +257,11 @@ export interface RefundResult {
   data: {
     status ?:  string;
     refund_status?: string;
+    refund_accounting_state?: string;
+    refund_accounting_pending?: boolean;
+    refund_accounting_error?: string;
+    qb_refund_id?: string;
+    qb_refund_receipt_id?: string;
     refund_amount: string;
     refunded_at: string;
     refund_reference?: string;

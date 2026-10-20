@@ -427,6 +427,21 @@ class ItemCancellationTests(TestCase):
         self.assertEqual(op.state, 'complete')
         self.assertEqual(refund.call_args.kwargs['request_id'], str(op.key))
 
+    @override_settings(QB_INTUIT_PAYMENT_LINKING_ENABLED=True)
+    def test_item_cancellation_routes_issued_refund_to_verified_accounting(self):
+        self.order.transaction_id = 'qb-charge'
+        self.order.save()
+        op = self.prepare()
+        self.books.record_refund.return_value = {'Id': 'receipt', 'TotalAmt': 63.79}
+        self.books.post.return_value = self.invoice
+        with patch.object(service, 'Books', return_value=self.books), \
+                patch.object(service, 'refund_qb_charge', return_value={'id': 'qb-refund', 'status': 'ISSUED'}):
+            service.process(op)
+            service.process(op)
+        self.assertEqual(op.state, 'complete')
+        self.books.record_refund.assert_called_once_with(op)
+        self.assertEqual(op.refund_id, 'qb-refund')
+
     def test_api_confirmation_uses_server_amount(self):
         request = APIRequestFactory().post('/cancel/', {'cancel_notes': 'Out of stock', 'expected_amount': '1.00'}, format='json')
         force_authenticate(request, user=self.admin)

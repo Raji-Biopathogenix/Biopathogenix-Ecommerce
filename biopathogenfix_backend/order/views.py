@@ -26,8 +26,6 @@ from payments.utils import (
     charge_card,
     create_qb_invoice,
     notify_admin_critical,
-    refund_qb_charge,
-    create_qb_refund_receipt,
 )
 from payments.stripe_utils import refund_stripe_payment, verify_checkout_payment_intent
 from prd_variant.models import ProductSKU
@@ -991,9 +989,33 @@ class CancelOrderView(APIView):
 class RefundOrderView(APIView):
     permission_classes = [IsOrderAdmin]
 
+    def post(self, request, order_id):
+        order = get_object_or_404(Order, id=order_id)
+        if str(order.transaction_id or '').startswith('pi_'):
+            return self._post_stripe(request, order_id)
+        serializer = RefundOrderSerializer(data=request.data, context={'order': order})
+        if not serializer.is_valid():
+            return Response(serializer.errors, status=400)
+        from .whole_refunds import prepare, process, summary
+        data = serializer.validated_data
+        try:
+            refund = prepare(order_id, data['refund_amount'], request.user,
+                             data.get('refund_notes', ''), data.get('refund_reference', ''))
+        except ValueError as exc:
+            return Response({'status': 'error', 'message': str(exc)}, status=400)
+        refund = process(refund.pk)
+        result = summary(refund)
+        complete = refund.state == 'complete'
+        if refund.state == 'failed':
+            return Response({'status': 'error', 'message': 'The provider declined the refund.',
+                             'data': result}, status=400)
+        return Response({'status': 'success' if complete else 'pending',
+                         'message': 'Refund recorded.' if complete else
+                                    'Refund confirmation or accounting is pending; see the saved status.',
+                         'data': result}, status=200 if complete else 202)
 
     @db_transaction.atomic
-    def post(self, request, order_id):
+    def _post_stripe(self, request, order_id):
         order = get_object_or_404(Order.objects.select_for_update(), id=order_id)
 
         if order.item_cancellations.exists():
@@ -1060,89 +1082,6 @@ class RefundOrderView(APIView):
 
             send_refund_email(order, response_data)
             return Response({"status":"success","message":"Refunded Amount","data":response_data})
-
-        # Call QB Payments refund 
-        try:
-            access_token = get_valid_qb_token()
-        except Exception as e:
-            error_msg = str(e)
-            if "QB_REFRESH_EXPIRED" in error_msg:
-                # Admin needs to re-authorize — this should never reach end users in production
-                logger.critical("QB refresh token expired — admin action required")
-                return Response({"status":"error","message": "Payment service is currently unavailable. Please try again later or contact support.","retry": False}, status=503)
-            return Response({ "status":"error", "message": error_msg, "retry": True }, status=503)
-
-        try:
-            qb_response = refund_qb_charge(
-                access_token = access_token,
-                charge_id   = order.transaction_id,
-                amount      = refund_amount,
-                description = (data.get('refund_notes') or f"Refund for Order #{order.id}"),
-            )
-            # QB refund response fields
-            qb_refund_id  = qb_response.get('id',     '')
-            qb_status     = qb_response.get('status', '')  # ISSUED / DECLINED
-            qb_created    = qb_response.get('created', '')
-
-        except Exception as e:
-            return Response({"status":"error",'message': str(e)},status=400)
-
-        # Check QB status
-        if qb_status == 'DECLINED':
-            return Response({"status":"error",'message': f'QB refund declined: {qb_response}'},status=400)
-
-        # Record the refund in QB's Accounting books too — refund_qb_charge()
-        # only moves the money via the Payments API, it never touches the
-        # invoice/payment history on its own (never fails the refund itself).
-        if order.user.quickbook_customer_id:
-            try:
-                create_qb_refund_receipt(
-                    access_token=access_token,
-                    customer_id=order.user.quickbook_customer_id,
-                    amount=refund_amount,
-                    description=data.get('refund_notes') or f"Refund for Order #{order.id}",
-                )
-            except Exception as e:
-                logger.error(
-                    f"QB Refund Receipt creation FAILED for Order #{order.id} | "
-                    f"error={e} | ACTION: Manually record refund in QB admin"
-                )
-
-        # Update order
-        is_partially_refunded = refund_amount < float(order.amount)
-        order.is_partially_refunded = is_partially_refunded
-        order.refund_status = qb_status.lower()
-        order.refund_amount = data['refund_amount']
-        order.refunded_at = qb_created
-        order.refunded_by = request.user
-        order.refund_notes = data.get('refund_notes', '')
-        order.refund_reference = data.get('refund_reference', '') or qb_refund_id
-        order.status           = 'partially_refunded' if is_partially_refunded else 'refunded'
-
-        # 'qb_refund_id', 
-        order.save(update_fields=[
-            'refund_status', 'refund_amount', 'refunded_at',
-            'refunded_by', 'refund_notes', 'refund_reference',
-            'status', 'updated_at','is_partially_refunded'
-        ])
-
-        # Build response 
-        response_data = {
-            'status':          order.status,
-            'refund_status':   qb_status,
-            'refund_amount':   str(order.refund_amount),
-            'refunded_at':     order.refunded_at,
-            'qb_refund_id':    qb_refund_id,
-            'qb_status':       qb_status,
-            'refunded_by':     request.user.get_full_name or request.user.email,
-            'message':         f'Refund of ${order.refund_amount} processed successfully.',
-        }
-
-        # Send email 
-        send_refund_email(order, response_data)
-
-        return Response({"status":"success","message":"Refunded Amount","data":response_data})
-
 
 
 

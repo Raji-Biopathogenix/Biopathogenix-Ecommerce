@@ -35,3 +35,18 @@ def retry_pending_qb_payments():
             # expose provider responses/card details in task logs.
             logger.warning('QuickBooks payment sync pending for order %s', order_id)
     return synced
+
+
+@shared_task(name='payments.retry_pending_qb_refunds')
+def retry_pending_qb_refunds():
+    from order.models import OrderRefund
+    from order.whole_refunds import process
+    ids = list(OrderRefund.objects.filter(state__in=['provider_pending', 'accounting_pending'])
+               .order_by('id').values_list('id', flat=True))
+    completed = 0
+    for refund_id in ids:
+        try:
+            completed += process(refund_id).state == 'complete'
+        except Exception:
+            logger.warning('QuickBooks refund confirmation pending for operation %s', refund_id)
+    return completed

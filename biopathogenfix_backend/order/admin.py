@@ -86,3 +86,20 @@ class ItemCancellationAdmin(admin.ModelAdmin):
 
     def has_delete_permission(self, request, obj=None):
         return False
+
+
+from .models import OrderRefund
+
+
+@admin.register(OrderRefund)
+class OrderRefundAdmin(admin.ModelAdmin):
+    list_display = ('id', 'order_id', 'amount', 'state', 'refund_status', 'refund_id', 'accounting_id')
+    list_filter = ('state', 'refund_status')
+    search_fields = ('order__id', 'refund_id', 'accounting_id', 'staff_reference')
+    readonly_fields = tuple(field.name for field in OrderRefund._meta.fields)
+
+    def has_add_permission(self, request):
+        return False
+
+    def has_delete_permission(self, request, obj=None):
+        return False

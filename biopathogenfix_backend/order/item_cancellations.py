@@ -4,6 +4,7 @@ from decimal import Decimal, ROUND_DOWN, ROUND_HALF_UP
 import logging
 
 import requests
+from django.conf import settings
 from django.db import transaction
 from django.utils import timezone
 from payments.models import QBConfig
@@ -158,6 +159,22 @@ class Books:
         if not data.get(name, {}).get('Id'):
             raise ValueError('QuickBooks did not confirm the accounting update.')
         return data[name]
+
+    def record_refund(self, op):
+        if not op.order.transaction_id:
+            raise ValueError('The original payment reference is missing.')
+        if (not getattr(settings, 'QB_INTUIT_PAYMENT_LINKING_ENABLED', False)
+                or op.order.transaction_id.startswith('pi_')):
+            return self.post('refundreceipt', op.accounting_payload, op.key)
+        from payments.qb_payment_sync import record_intuit_refund_receipt
+        from payments.utils import get_qb_base_url
+        config = QBConfig.get()
+        if str(config.realm_id) != op.order.qb_realm_id:
+            raise ValueError('Refund belongs to a different QuickBooks company.')
+        return record_intuit_refund_receipt(
+            self.token, config.realm_id, get_qb_accounting_base_url(config), get_qb_base_url(config),
+            op.order.qb_customer_id, op.order.qb_invoice_id, op.order.transaction_id,
+            op.refund_id, op.amount, op.accounting_payload)
 
 
 def preflight(order, item, breakdown, books):
@@ -340,6 +357,8 @@ def record_refund(op, refund):
 
 
 def retrieve_refund(op, books, refund_id):
+    if not op.order.transaction_id:
+        raise ValueError('The original payment reference is missing.')
     if op.order.transaction_id.startswith('pi_'):
         refund = get_stripe_client().refunds.retrieve(refund_id)
         if str(refund.payment_intent) != op.order.transaction_id or money(Decimal(refund.amount) / 100) != op.amount:
@@ -483,7 +502,10 @@ def process(op):
                 # before their first accounting submission (uncertain requests stop above).
                 op.accounting_payload['ShippingTaxIncludedInTotalTax'] = True
                 op.save(update_fields=['accounting_payload'])
-                result = books.post('refundreceipt' if op.paid else 'invoice', op.accounting_payload, op.key)
+                if op.paid and getattr(settings, 'QB_INTUIT_PAYMENT_LINKING_ENABLED', False):
+                    result = books.record_refund(op)
+                else:
+                    result = books.post('refundreceipt' if op.paid else 'invoice', op.accounting_payload, op.key)
                 op.accounting_id = str(result['Id'])
                 op.save(update_fields=['accounting_id', 'updated_at'])
                 expected = op.amount if op.paid else money(financial_summary(op.order)['remaining_total'])

@@ -20,6 +20,7 @@ class CapturedPaymentTests(SimpleTestCase):
         self.invoice = {'Id': 'invoice-1', 'CustomerRef': {'value': 'customer-1'},
             'Balance': 58.30, 'TotalAmt': 58.30}
         self.payment = {'Id': 'payment-1', 'TotalAmt': 58.30,
+            'PaymentRefNum': 'charge-1',
             'CustomerRef': {'value': 'customer-1'},
             'CreditCardPayment': {'CreditChargeResponse': {'CCTransId': 'charge-1'}},
             'Line': [{'Amount': 58.30, 'LinkedTxn': [
@@ -30,7 +31,8 @@ class CapturedPaymentTests(SimpleTestCase):
 
     def record(self):
         return record_captured_payment('token', 'realm', 'https://books.test',
-            'https://payments.test', 'customer-1', 'invoice-1', Decimal('58.30'), 'charge-1')
+            'https://payments.test', 'customer-1', 'invoice-1', Decimal('58.30'), 'charge-1',
+            intuit_payment_linking=True)
 
     def setup_get(self, get):
         get.side_effect = [self.response(self.charge), self.response({'QueryResponse': {}}),
@@ -46,6 +48,7 @@ class CapturedPaymentTests(SimpleTestCase):
         self.assertNotIn('DepositToAccountRef', payload)
         self.assertIs(payload['ProcessPayment'], False)
         self.assertEqual(payload['PaymentRefNum'], 'charge-1')
+        self.assertEqual(payload['TxnSource'], 'IntuitPayment')
         self.assertEqual(payload['TxnDate'], '2026-10-08')
         metadata = payload['CreditCardPayment']['CreditChargeResponse']
         self.assertEqual(metadata['CCTransId'], 'charge-1')
@@ -79,6 +82,44 @@ class CapturedPaymentTests(SimpleTestCase):
         self.assertEqual(self.record()['Id'], 'payment-1')
         post.assert_not_called()
         self.assertEqual(get.call_count, 2)
+
+    @patch('payments.qb_payment_sync.requests.post')
+    @patch('payments.qb_payment_sync.requests.get')
+    def test_sandbox_response_without_charge_response_is_confirmed_and_reused(self, get, post):
+        self.payment['TxnSource'] = 'IntuitPayment'
+        self.payment['CreditCardPayment'] = {'CreditChargeInfo': {}}
+        self.setup_get(get)
+        post.return_value = self.response({'Payment': self.payment})
+        first = self.record()
+        get.side_effect = [self.response(self.charge),
+            self.response({'QueryResponse': {'Payment': [self.payment]}})]
+        self.assertEqual(self.record()['Id'], first['Id'])
+        self.assertEqual(post.call_count, 1)
+
+    @patch('payments.qb_payment_sync.requests.post')
+    @patch('payments.qb_payment_sync.requests.get')
+    def test_source_does_not_override_wrong_reference_or_accounting_identity(self, get, post):
+        self.payment['TxnSource'] = 'IntuitPayment'
+        self.payment['CreditCardPayment'] = {'CreditChargeInfo': {}}
+        for updates in ({'PaymentRefNum': 'other'}, {'PaymentRefNum': None},
+                        {'CustomerRef': {'value': 'other'}}, {'Line': []},
+                        {'TotalAmt': 10}, {'CurrencyRef': {'value': 'CAD'}},
+                        {'CreditCardPayment': {'CreditChargeResponse': {'CCTransId': 'other'}}}):
+            with self.subTest(updates=updates):
+                get.side_effect = [self.response(self.charge),
+                    self.response({'QueryResponse': {'Payment': [{**self.payment, **updates}]}})]
+                with self.assertRaises(ValueError):
+                    self.record()
+        post.assert_not_called()
+
+    @patch('payments.qb_payment_sync.requests.post')
+    @patch('payments.qb_payment_sync.requests.get')
+    def test_source_feature_disabled_by_default(self, get, post):
+        self.setup_get(get)
+        post.return_value = self.response({'Payment': self.payment})
+        record_captured_payment('token', 'realm', 'https://books.test',
+            'https://payments.test', 'customer-1', 'invoice-1', Decimal('58.30'), 'charge-1')
+        self.assertNotIn('TxnSource', post.call_args.kwargs['json'])
 
     @patch('payments.qb_payment_sync.requests.post')
     @patch('payments.qb_payment_sync.requests.get')
