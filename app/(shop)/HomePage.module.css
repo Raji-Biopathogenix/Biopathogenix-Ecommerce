@@ -130,8 +130,10 @@
   .page [data-home="hero-layout"] { grid-template-columns: 48.125cqw 41.1806cqw; gap: 0; align-items: start; min-height: 57.5cqw; }
   .page [data-home="hero-copy"] { margin-top: 5.3472cqw; }
   .page [data-home="hero-images"] { margin-top: 4.3056cqw; }
-  /* Shop by Category: 1012 tall; cards at y1234-1797 (309 below the section top), 140 above the DNA section. */
-  .page [data-home="categories"] { min-height: 70.2778cqw; padding-top: 13.3333cqw; }
+  /* Shop by Category: cards start 309 below the section top; the arrows end 73 above the DNA section. */
+  .page [data-home="categories"] { min-height: 0; padding-top: 13.3333cqw; padding-bottom: 5.0694cqw; }
+  /* Half a card + three cards + half a card fill the width: four card widths and four gaps. */
+  .page [data-home="category-artwork"] :global(#shop-category-track) > a { width: calc((100cqw - 4.4444cqw) / 4); }
   /* DNA: 1440 x 856, the image layer covers the whole section. */
   .page [data-home="dna-frame"] > img { width: 100%; }
   .page [data-home="dna-frame"] > div:nth-of-type(2) { display: none; }

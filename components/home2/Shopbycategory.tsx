@@ -16,7 +16,7 @@ const CATEGORIES = [
     link: "https://bio.biopathogenix.com/product/specimen-collection-supplies",
   },
   {
-    title: "Custom & Standard qPCR Assays",
+    title: "qPCR Assays",
     image: "/fig-preview/images/964c41576142d9cb765f65a59510cc79a66be001",
     link: "https://bio.biopathogenix.com/product/qplex-pcr-assays",
   },
@@ -73,12 +73,14 @@ export default function ShopByCategory({ result: _result }: ShopByCategoryprops)
     scrollTrack(track.scrollLeft + direction * (card.getBoundingClientRect().width + gap));
   };
 
-  // Start at the first card so it is fully visible; the next card peeks in on the right
-  // to show the row scrolls.
+  // Desktop: centre the row so three cards show in full with half a card at each edge
+  // (card widths are set in HomePage.module.css). Smaller screens start at the first card.
   useEffect(() => {
     const track = trackRef.current;
     if (!track) return;
-    track.scrollLeft = 0;
+    track.scrollLeft = window.matchMedia("(min-width: 1024px)").matches
+      ? (track.scrollWidth - track.clientWidth) / 2
+      : 0;
 
     const updateControls = () => {
       setCanScroll({
