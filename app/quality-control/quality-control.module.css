@@ -1,0 +1,69 @@
+/* Quality Control page. Sizes and positions follow the Figma frame (node 38437-48) at 1440px;
+   desktop values scale with the page (1px = .069444cqw). */
+.page { --navy: #012c56; --ink: #070707; --blue: #4398cc; --button: #0c558a; container-type: inline-size; overflow-x: clip; background: white; color: var(--ink); }
+.page h1, .page h2, .page h3, .page p { margin: 0; }
+
+/* ---- Hero: a #F4F6FC band (500 tall in Figma including the 97px header). ---- */
+.hero { position: relative; overflow: hidden; padding: 64px 20px; background: #f4f6fc; text-align: center; }
+.hero h1 { position: relative; z-index: 1; font-size: clamp(44px, 5.1389cqw, 99px); font-weight: 400; line-height: 1; letter-spacing: -.07em; color: var(--navy); }
+.hero h1 span { font-weight: 600; color: var(--blue); }
+.heroHex { display: none; }
+
+/* ---- Cards on the DNA background ---- */
+.body { position: relative; isolation: isolate; padding: 56px 20px 64px; }
+/* Figma: the DNA image (2294 x 892, rotated 180deg, 30% opacity) and two blurred #3E97CE glows. */
+.body::before { content: ""; position: absolute; z-index: -1; inset: 0; background:
+  radial-gradient(circle at 106.32cqw 30.83cqw, rgb(62 151 206 / .12), rgb(62 151 206 / 0) 69.44cqw),
+  radial-gradient(circle at -6.25cqw 40.49cqw, rgb(62 151 206 / .12), rgb(62 151 206 / 0) 69.44cqw); pointer-events: none; }
+.dna { position: absolute; z-index: -1; top: 10.97cqw; left: -28.4cqw; width: 159.31cqw; height: auto; max-width: none; opacity: .3; transform: rotate(180deg); pointer-events: none; }
+
+.cards { display: grid; gap: 24px; max-width: 1240px; margin: 0 auto; }
+.card { display: flex; flex-direction: column; overflow: hidden; border-radius: 20px; background: white; box-shadow: 0 0 100px rgb(0 0 0 / .1); }
+.cardImage { position: relative; aspect-ratio: 4 / 3; border-radius: 20px 20px 0 0; overflow: hidden; }
+.cardBody { display: flex; flex: 1; flex-direction: column; padding: 30px 30px 35px; }
+.card h3 { font-size: 24px; font-weight: 400; line-height: 1.05; letter-spacing: -.05em; color: var(--navy); }
+.card p { max-width: 321px; margin-top: 12px; font-size: 16px; line-height: 1.65; letter-spacing: .01em; }
+.cardLink { margin-top: auto; padding-top: 28px; font-size: 18px; font-weight: 600; line-height: 1.15; letter-spacing: -.04em; color: var(--blue); }
+.cardLink:hover { color: var(--button); }
+
+/* ---- Final CTA: 1240 x 519, gradient #002159 (top right) to #00021B (bottom left). ---- */
+.cta { margin: 48px auto 0; max-width: 1240px; padding: 64px 24px; border-radius: 40px; background: linear-gradient(to bottom left, #002159, #00021b); text-align: center; color: white; }
+.cta h2 { font-size: clamp(38px, 5.3472cqw, 103px); font-weight: 400; line-height: 1; letter-spacing: -.07em; color: white; }
+.cta h2 span { font-weight: 600; color: var(--blue); }
+.cta p { max-width: 622px; margin: 16px auto 0; font-size: 16px; line-height: 1.65; letter-spacing: .01em; }
+.button { display: inline-flex; align-items: center; justify-content: space-between; gap: 14px; width: 390px; max-width: 100%; height: 59px; margin-top: 38px; padding: 0 24px 0 28px; border: 0; border-radius: 8px; background: var(--button); color: white; font-size: clamp(16px, 1.3889cqw, 20px); font-weight: 600; line-height: 1.15; letter-spacing: -.04em; cursor: pointer; transition: background .2s; }
+.button:hover { background: #094a72; }
+.buttonArrow { display: flex; align-items: center; padding-left: 12px; border-left: 1px solid currentColor; line-height: 1; }
+.buttonArrow svg { width: 20px; height: 20px; }
+
+@media (min-width: 640px) {
+  .cards { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+
+@media (min-width: 1024px) {
+  /* Hero: 403 tall below the header, heading 141px down; hexagons at their Figma coordinates. */
+  .hero { height: 27.9861cqw; padding: 9.7917cqw 0 0; }
+  .heroHex { display: block; }
+  :global(body):has(.page) :global(.navbar_container) { background: #f4f6fc; border-bottom: 0; }
+  :global(body):has(.page) :global(.navbar_container)::before { display: none; }
+
+  /* Cards: 400 x 555 at x100 / 520 / 940, 120px below the hero; photo 400 x 300. */
+  .body { padding: 8.3333cqw 6.9444cqw 0; }
+  .cards { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 1.3889cqw; max-width: none; }
+  .card { position: relative; min-height: 38.5417cqw; }
+  .cardImage { aspect-ratio: auto; height: 20.8333cqw; }
+  .cardBody { padding: 30px 30px 0; }
+  /* Links sit 35px above each card's bottom edge, whatever the copy length. */
+  .cardLink { position: absolute; left: 30px; bottom: 35px; padding: 0; }
+
+  /* CTA: 105px below the cards; heading 100px down, copy at 270, button at 360, 519 tall. */
+  .cta { margin-top: 7.2917cqw; min-height: 36.0417cqw; padding: 6.9444cqw 0 0; }
+  .cta p { margin-top: 1.1111cqw; }
+  .button { margin-top: 2.5694cqw; }
+}
+
+/* The last nav dropdown opens leftwards so it stays on screen. (The footer's Figma
+   styling lives in the shared footer component.) */
+@media (min-width: 1024px) {
+  :global(body):has(.page) :global(.navbar__links) > nav > li:last-child > ul { left: auto; right: 0; }
+}

@@ -2,18 +2,33 @@
 
 import Image from "next/image";
 import Link from "next/link";
+import { Poppins } from "next/font/google";
 import { useState } from "react";
+import { ArrowRight } from "lucide-react";
+import FigmaHexImage from "@/components/common/FigmaHexImage";
 import AvailabilityModal from "@/components/quality-control/AvailabilityModal";
+import styles from "./quality-control.module.css";
 
-const HEX_PATTERN_BG =
-  "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='84' height='146' viewBox='0 0 84 146'%3E%3Cpath d='M42 0L84 24V96L42 120L0 96V24Z' fill='none' stroke='%23cfe4f2' stroke-width='1'/%3E%3Cpath d='M42 26L84 50V122L42 146L0 122V50Z' fill='none' stroke='%23cfe4f2' stroke-width='1'/%3E%3C/svg%3E";
+// The Figma design's typeface.
+const poppins = Poppins({ subsets: ["latin"], weight: ["400", "500", "600", "700"], display: "swap" });
+
+// Figma px on the 1440 frame, as page-width units.
+const cq = (px: number) => `${(px / 14.4).toFixed(4)}cqw`;
+
+// Hero hexagons (Figma polygons; y is measured from the hero's top, below the 97px header).
+const HERO_HEXES = [
+  { src: "/images/figma/hex-holding-tubes.webp", x: -232.3, y: 42, size: 346.6, radius: 23.1, crop: [0.5011, 0.2956, 1, 0] },
+  { src: "/images/figma/hex-qc-left-small.webp", x: 90.8, y: 77, size: 195.8, radius: 13.9, crop: [0.787, 0.105, 1, 0] },
+  { src: "/images/figma/hex-microscope-laptop.webp", x: 1340.8, y: -6, size: 336, radius: 23.1, crop: [0.631, 0.1845, 1, 0] },
+  { src: "/images/figma/hex-qc-right-small.webp", x: 1169.1, y: 99.2, size: 195.8, radius: 27.7, crop: [1, 0, 0.5602, 0.0331] },
+] as const;
 
 const cards = [
   {
     title: "Split Sample Testing",
     description:
       "Compare your results with the results of other laboratories by testing the same sample, verifying the accuracy of your tests.",
-    image: "/images/quality-control/Split-Sample-Testing.jpg",
+    image: "/images/figma/qc-split-sample.webp",
     linkText: "Learn More",
     link: "/split-sample-testing",
   },
@@ -21,7 +36,7 @@ const cards = [
     title: "BioBank/Contrived Samples",
     description:
       "A control designed to assess the performance of downstream molecular assays.",
-    image: "/images/quality-control/Contrived-Sample.jpg",
+    image: "/images/figma/qc-biobank.webp",
     linkText: "Shop Now",
     link: "/contrived-samples",
   },
@@ -29,7 +44,7 @@ const cards = [
     title: "Quality Control and Validation kits",
     description:
       "Designed to monitor the efficiency and consistency of RNA/DNA extraction from various sample types.",
-    image: "/images/quality-control/BPX-Extraction-Controls.jpg",
+    image: "/images/figma/qc-validation-kits.webp",
     linkText: "Shop Now",
     link: "/quality-control-and-validation-kits",
   },
@@ -39,114 +54,68 @@ export default function QualityControlPage() {
   const [isModalOpen, setIsModalOpen] = useState(false);
 
   return (
-    <main className="w-full bg-white">
-      {/* ================= HERO SECTION ================= */}
-      <section
-        className="relative w-full overflow-hidden px-6 py-20 md:px-14 md:py-24"
-        style={{
-          backgroundImage: `radial-gradient(circle at 68% 22%, rgba(255,255,255,0.98), rgba(235,242,250,0.72) 28%, transparent 58%), radial-gradient(circle at 18% 68%, rgba(255,255,255,0.96), transparent 40%), url("${HEX_PATTERN_BG}"), linear-gradient(135deg,#f7f9fc 0%,#e8eff7 100%)`,
-        }}
-      >
-        <Image
-          src="/images/about/Molecular-Diagnostics.webp"
-          alt=""
-          width={192}
-          height={214}
-          className="hidden lg:block absolute left-[4%] top-[12%]"
-        />
-        <Image
-          src="/images/about/Protective-Equipment.webp"
-          alt=""
-          width={120}
-          height={134}
-          className="hidden lg:block absolute left-[13%] bottom-[10%]"
-        />
-        <Image
-          src="/images/about/Microscope.webp"
-          alt=""
-          width={120}
-          height={134}
-          className="hidden lg:block absolute right-[13%] top-[10%]"
-        />
-        <Image
-          src="/images/about/Disease-Testing.webp"
-          alt=""
-          width={192}
-          height={214}
-          className="hidden lg:block absolute right-[4%] bottom-[12%]"
-        />
-
-        <div className="relative mx-auto max-w-3xl text-center">
-          <h1 className="font-['Quicksand'] text-[2.6rem] font-bold leading-[1.05] tracking-[-0.02em] text-[#132a52] sm:text-[3.2rem] md:text-[3.6rem]">
-            Quality <span className="text-[#3d7ec2]">Control</span>
+    <>
+      <main className={`${poppins.className} ${styles.page}`}>
+        <section className={styles.hero}>
+          {HERO_HEXES.map((hex) => (
+            <FigmaHexImage
+              key={hex.src}
+              src={hex.src}
+              alt=""
+              w={hex.size}
+              h={hex.size}
+              radius={hex.radius}
+              stroke={6.56}
+              crop={hex.crop}
+              className={styles.heroHex}
+              style={{ left: cq(hex.x), top: cq(hex.y), width: cq(hex.size), height: cq(hex.size) }}
+            />
+          ))}
+          <h1>
+            Quality <span>Control</span>
           </h1>
-        </div>
-      </section>
+        </section>
 
-      {/* ================= CARDS GRID ================= */}
-      <section className="py-20 bg-white">
-        <div className="max-w-[1400px] mx-auto px-6">
-          <div className="grid gap-10 sm:grid-cols-2 lg:grid-cols-3">
+        <section className={styles.body}>
+          <img src="/images/figma/qc-dna-bg.webp" alt="" className={styles.dna} />
+          <div className={styles.cards}>
             {cards.map((card) => (
-              <div
-                key={card.title}
-                className="rounded-[22px] overflow-hidden bg-[#f3f8fb] flex flex-col hover:shadow-lg transition"
-              >
-                <div className="relative h-[240px]">
-                  <Image
-                    src={card.image}
-                    alt={card.title}
-                    fill
-                    className="object-cover"
-                  />
+              <article key={card.title} className={styles.card}>
+                <div className={styles.cardImage}>
+                  <Image src={card.image} alt={card.title} fill sizes="(min-width: 1024px) 28vw, (min-width: 640px) 50vw, 100vw" className="object-cover" />
                 </div>
-
-                <div className="flex flex-col flex-1 px-7 py-8">
-                  <h3 className="text-[22px] font-semibold text-[#062a4d] mb-3 leading-snug">
-                    {card.title}
-                  </h3>
-
-                  <p className="text-[18px] text-[#2c3e50] leading-relaxed mb-6">
-                    {card.description}
-                  </p>
-
-                  <Link
-                    href={card.link}
-                    className="mt-auto inline-block text-[15px] font-medium text-[#0a73d8] underline underline-offset-4 hover:text-[#084f9d] transition"
-                  >
+                <div className={styles.cardBody}>
+                  <h3>{card.title}</h3>
+                  <p>{card.description}</p>
+                  <Link href={card.link} className={styles.cardLink}>
                     {card.linkText}
                   </Link>
                 </div>
-              </div>
+              </article>
             ))}
           </div>
-        </div>
-      </section>
 
-      {/* ================= CONFIRMATION CTA ================= */}
-      <section className="px-6 pb-20 md:px-14">
-        <div className="mx-auto max-w-[1200px] rounded-[32px] bg-gradient-to-br from-[#0e2248] to-[#060e22] px-6 py-16 text-center md:px-16">
-          <h2 className="font-['Quicksand'] text-[2.2rem] font-bold leading-tight text-white sm:text-[2.8rem] md:text-[3.2rem]">
-            Have a Question or
-            <br />
-            <span className="text-[#5fb8dd]">Need Confirmation?</span>
-          </h2>
-          <p className="mx-auto mt-5 max-w-2xl text-[1.05rem] leading-relaxed text-white/75">
-            Email our team to confirm feasibility, timelines, or documentation. Every inquiry is
-            reviewed internally to ensure expert-level support.
-          </p>
-          <button
-            type="button"
-            onClick={() => setIsModalOpen(true)}
-            className="mt-9 inline-flex items-center gap-4 rounded-lg bg-[#1c3f66] px-8 py-4 text-[1.02rem] font-semibold text-white shadow-[0_16px_28px_rgba(6,14,34,0.4)] transition-colors hover:bg-[#15304f]"
-          >
-            <span>Confirm Availability by Email</span>
-            <span className="border-l border-white/30 pl-3">&rarr;</span>
-          </button>
-        </div>
-      </section>
+          <div className={styles.cta}>
+            <h2>
+              Have a Question or
+              <br />
+              <span>Need Confirmation?</span>
+            </h2>
+            <p>
+              Email our team to confirm feasibility, timelines, or documentation. Every inquiry is
+              reviewed internally to ensure expert-level support.
+            </p>
+            <button type="button" onClick={() => setIsModalOpen(true)} className={styles.button}>
+              Confirm Availability by Email
+              <span className={styles.buttonArrow} aria-hidden="true">
+                <ArrowRight />
+              </span>
+            </button>
+          </div>
+        </section>
 
-      <AvailabilityModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} />
-    </main>
+        <AvailabilityModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} />
+      </main>
+    </>
   );
 }
