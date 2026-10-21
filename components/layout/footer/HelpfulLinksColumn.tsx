@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { FOOTER_HEADING, FOOTER_LINK, FOOTER_LIST } from "./footerStyles";
 
 const links = [
   { label: "Account Login", href: "/my-account" },
@@ -12,17 +13,15 @@ const links = [
 export default function HelpfulLinksColumn() {
   return (
     <div>
-      <h4 className="mb-6 text-[18px] font-bold text-[#10264a]">
+      <h4 className={FOOTER_HEADING}>
         Helpful Links
       </h4>
 
-      <ul className="space-y-4">
+      <ul className={FOOTER_LIST}>
         {links.map((item) => (
           <li key={item.label}>
-            <Link
-              href={item.href}
-              className="text-[16px] text-[#51647c] transition hover:text-[#4f87cb]"
-            >
+            {/* From 1280px the column is as wide as its longest link, so each stays on one line. */}
+            <Link href={item.href} className={`${FOOTER_LINK} xl:whitespace-nowrap`}>
               {item.label}
             </Link>
           </li>
