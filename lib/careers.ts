@@ -38,14 +38,9 @@ type OpenRoleDetailApiResponse = {
   };
 };
 
-export const OPEN_ROLES_FALLBACK: CareerOpenRole[] = [
-  { id: 1, title: "ADMINISTRATION", slug: "administration" },
-  { id: 2, title: "RESEARCH & DEVELOPMENT", slug: "research-development" },
-  { id: 3, title: "FINANCE/ACCOUNTING", slug: "finance-accounting" },
-  { id: 4, title: "OPERATIONS", slug: "operations" },
-  { id: 5, title: "TECHNICAL", slug: "technical" },
-  { id: 6, title: "REGULATORY AFFAIRS", slug: "regulatory-affairs" },
-];
+// No placeholder roles: if the careers API can't be reached, the page shows no open roles
+// rather than department names posing as jobs.
+export const OPEN_ROLES_FALLBACK: CareerOpenRole[] = [];
 
 export const CAREER_DEPARTMENTS_FALLBACK = [
   "ADMINISTRATION",

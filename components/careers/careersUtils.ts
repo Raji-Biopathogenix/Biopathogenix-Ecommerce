@@ -4,6 +4,11 @@ export function normalizeDepartmentKey(value: string) {
   return value.trim().toUpperCase();
 }
 
+// "RESEARCH & DEVELOPMENT" -> "Research & Development", for department labels.
+export function toTitleCase(value: string) {
+  return value.toLowerCase().replace(/(^|[\s/&(-])(\p{L})/gu, (_, sep: string, ch: string) => sep + ch.toUpperCase());
+}
+
 export function roleAnchorId(roleId: number) {
   return `position-${roleId}`;
 }
