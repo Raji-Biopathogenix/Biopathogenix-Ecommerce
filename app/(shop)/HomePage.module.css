@@ -125,15 +125,18 @@
   .page [data-home="qc-button"], .page [data-home="learning-button"], .page [data-home="catalog-button"] { font-size: clamp(14px, 1.1111cqw, 21px); min-height: 4.0972cqw; padding: 1.25cqw 1.9444cqw; }
 
   /* Section boxes from the 1440 x 5774 Figma frame (1px = .069444cqw). */
-  /* Hero: 828 tall below the 97px header; copy at x100 y174, honeycomb at x793 y159. */
+  /* Hero: 828 tall below the 97px header; copy column x100-720, honeycomb 653 x 744 at x720 y135.
+     The copy is centred vertically because the site's heading runs longer than Figma's. */
   .page [data-home="hero"] { padding-block: 0; }
-  .page [data-home="hero-layout"] { grid-template-columns: 48.125cqw 41.1806cqw; gap: 0; align-items: start; min-height: 57.5cqw; }
-  .page [data-home="hero-copy"] { margin-top: 5.3472cqw; }
-  .page [data-home="hero-images"] { margin-top: 4.3056cqw; }
+  .page [data-home="hero-layout"] { grid-template-columns: 43.0556cqw 45.3704cqw; gap: 0; align-items: start; min-height: 57.5cqw; }
+  .page [data-home="hero-copy"] { align-self: center; margin-top: 0; }
+  .page [data-home="hero-images"] { margin-top: 2.6389cqw; }
   /* Shop by Category: cards start 309 below the section top; the arrows end 73 above the DNA section. */
-  .page [data-home="categories"] { min-height: 0; padding-top: 13.3333cqw; padding-bottom: 5.0694cqw; }
-  /* Half a card + three cards + half a card fill the width: four card widths and four gaps. */
-  .page [data-home="category-artwork"] :global(#shop-category-track) > a { width: calc((100cqw - 4.4444cqw) / 4); }
+  .page [data-home="categories"] { min-height: 0; padding-top: 13.3333cqw; padding-bottom: 3.2639cqw; }
+  .page [data-home="category-artwork"] > div:last-child { padding-top: 1.8056cqw; }
+  /* Figma cards: 421 x 560, 30px corners, 18px apart; two in full with part of a card at each edge. */
+  .page [data-home="category-artwork"] :global(#shop-category-track) { gap: 1.25cqw; }
+  .page [data-home="category-artwork"] :global(#shop-category-track) > a { width: 29.2361cqw; aspect-ratio: 421 / 560; border-radius: 30px; }
   /* DNA: 1440 x 856, the image layer covers the whole section. */
   .page [data-home="dna-frame"] > img { width: 100%; }
   .page [data-home="dna-frame"] > div:nth-of-type(2) { display: none; }
@@ -157,6 +160,48 @@
   .page [data-home="background-pattern"] { opacity: .25; width: 240cqw; left: -77.9167cqw; top: 7.8472cqw; transform: none; }
   /* Pathways copy: 485 wide, Poppins 16 / 165%, 1% tracking, #070707. */
   .page [data-home="pathways-copy"] > p { max-width: 33.6806cqw; line-height: 1.65; letter-spacing: .01em; color: #070707; }
+}
+
+/* Figma text styles (node 38038-4, Poppins). Sizes scale from the 1440 frame (1px = .069444cqw);
+   line height and tracking are the Figma percentages. Copy is unchanged. */
+@media (min-width: 1024px) {
+  .page [data-home="hero-copy"] > p:first-child { font-size: clamp(12px, 1.1111cqw, 21px); font-weight: 600; line-height: 1.15; letter-spacing: .1em; color: #012c56; }
+  .page [data-home="hero-copy"] h1 { font-size: clamp(40px, 5.8333cqw, 112px); font-weight: 400; line-height: 1; letter-spacing: -.07em; color: #012c56; }
+  .page [data-home="hero-copy"] h1 span { color: #4398cc; font-weight: 600; }
+  .page [data-home="hero-copy"] h2 { font-size: clamp(18px, 1.8056cqw, 35px); font-weight: 500; line-height: 1.15; letter-spacing: -.02em; color: #012c56; }
+  .page [data-home="hero-copy"] > p:not(:first-child) { font-size: clamp(14px, 1.1111cqw, 21px); line-height: 1.65; letter-spacing: .01em; color: #070707; }
+  .page [data-home="hero-copy"] button { font-size: clamp(16px, 1.3889cqw, 27px); line-height: 1.15; letter-spacing: -.04em; }
+
+  .page [data-home="category-artwork"] > div:first-of-type h2 { font-size: clamp(32px, 4.0278cqw, 78px); font-weight: 400; line-height: 1.05; letter-spacing: -.05em; color: #012c56; }
+  .page [data-home="category-artwork"] > div:first-of-type h2 span { font-weight: 600; color: #4398cc; }
+  .page [data-home="category-artwork"] :global(#shop-category-track) h3 { font-size: clamp(20px, 2.0833cqw, 40px); line-height: 1.05; letter-spacing: -.05em; }
+
+  .page [data-home="dna-copy"] h2, .page [data-home="dna-copy"] h3 { font-size: clamp(32px, 4.0278cqw, 78px); line-height: 1.05; letter-spacing: -.05em; }
+  .page [data-home="dna-copy"] h2 { font-weight: 600; }
+  .page [data-home="dna-copy"] h3 { font-weight: 400; }
+  .page [data-home="dna-copy"] > p, .page [data-home="dna-copy"] li { font-size: clamp(14px, 1.1111cqw, 21px); line-height: 1.65; letter-spacing: .01em; }
+  .page [data-home="dna-copy"] h4 { font-size: clamp(16px, 1.3889cqw, 27px); line-height: 1.65; letter-spacing: -.01em; }
+
+  .page [data-home="pathways-grid"] p { font-size: clamp(16px, 1.3889cqw, 27px); line-height: 1.3; letter-spacing: -.02em; color: #070707; }
+
+  .page [data-home="community-copy"] p, .page [data-home="community-copy"] li { font-size: clamp(14px, 1.1111cqw, 21px); line-height: 1.65; letter-spacing: .01em; color: #070707; }
+  .page [data-home="community-copy"] h3 { font-size: clamp(16px, 1.3889cqw, 27px); line-height: 1.65; letter-spacing: -.01em; color: #012c56; }
+
+  .page [data-home="catalog-copy"] p { font-size: clamp(14px, 1.1111cqw, 21px); line-height: 1.65; letter-spacing: .01em; }
+
+  /* Buttons: SemiBold 20 / 115%, -4% tracking; 59px tall with 8px corners. */
+  .page [data-home="qc-button"], .page [data-home="learning-button"], .page [data-home="catalog-button"] { font-size: clamp(16px, 1.3889cqw, 27px); font-weight: 600; line-height: 1.15; letter-spacing: -.04em; }
+  .page [data-home="learning-button"] { height: 4.0972cqw; min-height: 0; padding-block: 0; }
+  .page [data-home="hero-copy"] button { height: 4.0972cqw; min-height: 0; min-width: 14.8611cqw; padding-inline: 1.9444cqw; border-radius: 8px; justify-content: space-between; }
+
+  /* Pathway cards: 298 x 267 with 16px corners. */
+  .page [data-home="pathways-grid"] > button { border-radius: 16px; }
+}
+
+/* The footer's Figma styling lives in the shared footer; on the homepage its headings sit 111px
+   below the catalog (95px on other pages). */
+@media (min-width: 1024px) {
+  :global(body):has(.page) footer { padding-top: 111px; }
 }
 
 /* Header and footer use the same alignment without depending on API success. */

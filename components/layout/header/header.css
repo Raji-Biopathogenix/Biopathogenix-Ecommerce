@@ -390,7 +390,7 @@
 }
 
 /* Desktop header from the 1440 Figma frame: 8px strip + 89px bar, content 1240 wide (100px gutters),
-   logo 202 wide, menu centred in Poppins 15 medium #0A1C3A, icons 40px navy circles 5px apart. */
+   logo 202 wide, menu centred in Poppins 16 regular #021F3B, icons 40px navy circles 5px apart. */
 @media (min-width: 1024px) {
   .navbar {
     width: calc(100% - 2 * clamp(20px, 6.9444vw, 160px));
@@ -427,10 +427,11 @@
   .navbar__links nav > li > a,
   .navbar__links nav > li > button,
   .nav-item__label {
-    font-size: clamp(13px, 1.0417vw, 20px);
-    font-weight: 500;
-    letter-spacing: 0;
-    color: #0a1c3a;
+    font-size: clamp(13px, 1.1111vw, 21px);
+    font-weight: 400;
+    line-height: 1.1;
+    letter-spacing: -.01em;
+    color: #021f3b;
   }
 
   /* Dropdown triggers get the Figma chevron. */

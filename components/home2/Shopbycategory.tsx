@@ -73,13 +73,16 @@ export default function ShopByCategory({ result: _result }: ShopByCategoryprops)
     scrollTrack(track.scrollLeft + direction * (card.getBoundingClientRect().width + gap));
   };
 
-  // Desktop: centre the row so three cards show in full with half a card at each edge
-  // (card widths are set in HomePage.module.css). Smaller screens start at the first card.
+  // Desktop: as in Figma, a gap sits at the centre of the page so two cards show in full
+  // with part of a card at each edge (card widths are set in HomePage.module.css).
+  // Smaller screens start at the first card.
   useEffect(() => {
     const track = trackRef.current;
     if (!track) return;
-    track.scrollLeft = window.matchMedia("(min-width: 1024px)").matches
-      ? (track.scrollWidth - track.clientWidth) / 2
+    const middleCard = track.children[Math.floor(track.children.length / 2)] as HTMLElement | undefined;
+    const gap = parseFloat(window.getComputedStyle(track).columnGap) || 0;
+    track.scrollLeft = window.matchMedia("(min-width: 1024px)").matches && middleCard
+      ? middleCard.offsetLeft - gap / 2 - track.clientWidth / 2
       : 0;
 
     const updateControls = () => {

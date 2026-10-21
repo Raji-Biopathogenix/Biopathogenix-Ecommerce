@@ -46,7 +46,7 @@ export default async function Home() {
 
   return (
     <main className={`${poppins.className} ${styles.page} min-h-screen bg-white`}>
-      <style>{`body:has(.${styles.page}) .navbar, body:has(.${styles.page}) footer { font-family: ${poppins.style.fontFamily}; --font-body: ${poppins.style.fontFamily}; }`}</style>
+      <style>{`body:has(.${styles.page}) .navbar { font-family: ${poppins.style.fontFamily}; --font-body: ${poppins.style.fontFamily}; }`}</style>
       <HeroCarousel result={hero} />
       <Shopbycategory result={shopByCategory} />
       <div className="relative overflow-hidden">

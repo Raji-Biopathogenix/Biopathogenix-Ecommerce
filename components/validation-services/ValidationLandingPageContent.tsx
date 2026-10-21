@@ -22,8 +22,6 @@ export default function ValidationLandingPageContent() {
 
   return (
     <>
-      {/* The shared footer sits outside this page, so its Figma font is applied by family name. */}
-      <style>{`body:has(.${styles.page}) footer { font-family: ${poppins.style.fontFamily}; }`}</style>
       <HexClipDefs />
       <main className={`${poppins.className} ${styles.page}`}>
         <ValidationLandingHero onOpenForm={() => setIsFormOpen(true)} />

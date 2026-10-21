@@ -1,136 +1,82 @@
 "use client";
 
-import { useId } from "react";
 import { useRouter } from "next/navigation";
 import { ArrowRight } from "lucide-react";
+import FigmaHexImage from "@/components/common/FigmaHexImage";
 import { LandingPageType } from "@/types/header";
 
 interface HeroCarouselprops {
   result?: LandingPageType;
 }
 
-// The honeycomb's bounding box in the 1440-wide Figma frame.
-const HONEYCOMB = { x: 793, y: 159, w: 593, h: 625 };
+// The honeycomb's bounding box in the 1440-wide Figma frame (node 38038-4).
+const HONEYCOMB = { x: 720, y: 135, w: 653.33, h: 743.9 };
 
-// Figma polygons (6 points), in frame coordinates. The top-left tile's numbers
-// weren't shared, so it is measured from the prototype; it has no stroke.
+// Figma polygons (6 points), in frame coordinates. `crop` is the visible part of the
+// photo as Figma's image transform gives it: width, left, height, top (0-1 of the photo).
 const HERO_IMAGES = [
   {
-    // Top Left (small)
-    src: "/fig-preview/images/303490d404583a39e84a9657020d1ad7f04a4966",
-    alt: "Scientist working in a modern laboratory",
-    x: 793,
-    y: 231,
-    w: 241,
-    h: 230,
-    radius: 20,
-    stroke: 0,
-  },
-  {
     // Top Right (large)
-    src: "/fig-preview/images/b8563fa9c06f015706a7c5d6998d6726b96468eg",
+    src: "/images/figma/hex-microscope-laptop.webp",
     alt: "Researcher using a microscope",
-    x: 1012.01,
-    y: 159,
-    w: 316.81,
-    h: 320.9,
+    x: 929.39,
+    y: 135,
+    w: 409.93,
+    h: 409.93,
     radius: 28.19,
     stroke: 8,
+    crop: [0.631, 0.1845, 1, 0],
+  },
+  {
+    // Left (small)
+    src: "/images/figma/hex-orange-tubes.webp",
+    alt: "Scientist working in a modern laboratory",
+    x: 720,
+    y: 263.29,
+    w: 238.88,
+    h: 238.88,
+    radius: 33.83,
+    stroke: 8,
+    crop: [0.3782, 0.2983, 0.7547, 0.2453],
   },
   {
     // Bottom Center (largest)
-    src: "/images/validation%20services/2.png",
+    src: "/images/figma/hex-holding-tubes.webp",
     alt: "Gloved hands holding sample tubes",
-    x: 857.99,
-    y: 428.66,
-    w: 340.17,
-    h: 355.34,
+    x: 740.33,
+    y: 456.03,
+    w: 422.87,
+    h: 422.87,
     radius: 28.19,
     stroke: 8,
+    crop: [0.5011, 0.2956, 1, 0],
   },
   {
     // Bottom Right (small)
-    src: "/fig-preview/images/341d4c17677780e3ffe716da598d5cd49fe71a94",
-    alt: "Scientist writing lab notes beside a microscope",
-    x: 1170.42,
-    y: 441.26,
-    w: 215.34,
-    h: 246.14,
+    // Figma stacks two photos in this polygon; this is the top (visible) one.
+    src: "/images/figma/hex-microscope-woman.webp",
+    alt: "Scientist using a microscope",
+    x: 1134.45,
+    y: 498.69,
+    w: 238.88,
+    h: 238.88,
     radius: 16.92,
     stroke: 8,
+    crop: [0.5455, 0.2772, 0.874, 0.126],
   },
 ] as const;
 
-// Pointy-top hexagon as Figma draws a 6-point polygon in a w x h box: corners on
-// the inscribed ellipse, so the sides sit at 0.866w, not the box edges. Each
-// corner is rounded like Figma's corner radius (tangent length r / tan(60deg)).
-function roundedHexPath(w: number, h: number, r: number) {
-  const side = (w / 2) * (Math.sqrt(3) / 2);
-  const points = [
-    [w / 2, 0],
-    [w / 2 + side, h / 4],
-    [w / 2 + side, (3 * h) / 4],
-    [w / 2, h],
-    [w / 2 - side, (3 * h) / 4],
-    [w / 2 - side, h / 4],
-  ];
-  const t = r / Math.sqrt(3);
-  const along = (from: number[], to: number[]) => {
-    const len = Math.hypot(to[0] - from[0], to[1] - from[1]);
-    return [from[0] + ((to[0] - from[0]) * t) / len, from[1] + ((to[1] - from[1]) * t) / len];
-  };
-
+function HeroImage({ x, y, ...image }: (typeof HERO_IMAGES)[number]) {
   return (
-    points
-      .map((point, i) => {
-        const prev = points[(i + points.length - 1) % points.length];
-        const next = points[(i + 1) % points.length];
-        const start = along(point, prev);
-        const end = along(point, next);
-        return `${i === 0 ? "M" : "L"}${start[0]},${start[1]} Q${point[0]},${point[1]} ${end[0]},${end[1]}`;
-      })
-      .join(" ") + " Z"
-  );
-}
-
-function HeroImage({
-  src,
-  alt,
-  x,
-  y,
-  w,
-  h,
-  radius,
-  stroke,
-}: (typeof HERO_IMAGES)[number]) {
-  // useId output contains ":" which breaks url(#...) references.
-  const clipId = `hex-${useId().replace(/[^\w-]/g, "")}`;
-  const path = roundedHexPath(w, h, radius);
-
-  return (
-    <svg
-      viewBox={`0 0 ${w} ${h}`}
-      role="img"
-      aria-label={alt}
-      className="absolute overflow-visible"
+    <FigmaHexImage
+      {...image}
       style={{
         left: `${((x - HONEYCOMB.x) / HONEYCOMB.w) * 100}%`,
         top: `${((y - HONEYCOMB.y) / HONEYCOMB.h) * 100}%`,
-        width: `${(w / HONEYCOMB.w) * 100}%`,
-        height: `${(h / HONEYCOMB.h) * 100}%`,
+        width: `${(image.w / HONEYCOMB.w) * 100}%`,
+        height: `${(image.h / HONEYCOMB.h) * 100}%`,
       }}
-    >
-      <defs>
-        <clipPath id={clipId}>
-          <path d={path} />
-        </clipPath>
-      </defs>
-      <g clipPath={`url(#${clipId})`}>
-        <image href={src} width={w} height={h} preserveAspectRatio="xMidYMid slice" />
-        {/* Doubled and clipped, so it reads as Figma's inside stroke. */}
-        {stroke > 0 && <path d={path} fill="none" stroke="#fff" strokeWidth={stroke * 2} />}
-      </g>
-    </svg>
+    />
   );
 }
 
@@ -193,7 +139,7 @@ export default function HeroCarousel({ result }: HeroCarouselprops) {
         </div>
 
         <div data-home="hero-images" className="flex w-full justify-center lg:absolute lg:left-[55.07%] lg:top-[68px] lg:w-[41.18%]">
-          <div className="relative aspect-[593/625] w-full max-w-[320px] sm:max-w-[440px] lg:max-w-none">
+          <div className="relative aspect-[653/744] w-full max-w-[320px] sm:max-w-[440px] lg:max-w-none">
             {HERO_IMAGES.map((image) => (
               <HeroImage key={image.src} {...image} />
             ))}

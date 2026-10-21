@@ -200,15 +200,11 @@
 .ctaHeading .lead { max-width: 430px; margin-top: 16px; }
 .ctaCopy .button { margin-top: 40px; }
 
-/* The shared site footer, styled to the design on this page only. */
-:global(body):has(.page) footer { padding: 95px 0 32px; border-top: 0; background: white; }
-:global(body):has(.page) footer > div { max-width: 1272px; padding-inline: 16px; }
-:global(body):has(.page) footer h4 { margin-bottom: 24px; font-size: 20px; font-weight: 600; letter-spacing: 0; color: #012c56; }
-:global(body):has(.page) footer p, :global(body):has(.page) footer li a { font-size: 16px; line-height: 24px; color: #070707; }
-:global(body):has(.page) footer ul > * { margin-block: 0; line-height: 24px; }
-:global(body):has(.page) footer ul > * + * { margin-top: 12px; }
-:global(body):has(.page) footer a[href*='linkedin.com/company'] { font-size: 16px; font-weight: 400; letter-spacing: 0; color: #070707; }
-:global(body):has(.page) footer > div > div:last-child { margin-top: 72px; padding-top: 22px; border-color: #e3e7ee; font-size: 16px; color: #070707; }
+/* The last nav dropdown opens leftwards so it stays on screen. (The footer's Figma
+   styling lives in the shared footer component.) */
+@media (min-width: 1024px) {
+  :global(body):has(.page) :global(.navbar__links) > nav > li:last-child > ul { left: auto; right: 0; }
+}
 
 @media (min-width: 1024px) {
   /* Figma hero frame is 803px tall at 1440px including the 82px nav bar. */
@@ -292,6 +288,30 @@
 .infraCopy > .h2 { width: min(100%, 400px); }
 .partners > .h2 { width: min(100%, 520.86px); margin-inline: auto; }
 .testimonials > .h2 { width: min(100%, 625.26px); margin-inline: auto; font-weight: 400; }
+
+/* Figma text styles (node 38072-13) for the editable sections only; the approved
+   carousels keep their own type. Line height and tracking are the Figma percentages. */
+.eyebrow { line-height: 1.15; letter-spacing: .1em; }
+.heroCopy h1 { font-weight: 400; }
+.heroActions .button, .ctaCopy .button { line-height: 1.15; letter-spacing: -.04em; }
+.ctaCopy .buttonLight { color: var(--button); }
+.infrastructure .banner { line-height: 1.15; letter-spacing: -.04em; }
+.infraCopy h3 { line-height: 1.65; letter-spacing: -.01em; }
+.infraCopy .checkList li, .performance .checkList li { line-height: 1.65; letter-spacing: .01em; }
+.partner h3 { line-height: 1.3; letter-spacing: -.02em; }
+.partner p { line-height: 1.65; letter-spacing: .01em; }
+.quoteCard blockquote { line-height: 1.3; letter-spacing: -.05em; }
+.quoteSource { line-height: 1.3; letter-spacing: -.05em; }
+.ctaHeading h2 { letter-spacing: -.07em; }
+.ctaHeading h2 span { font-weight: 600; }
+
+/* Figma buttons in the editable sections: 8px corners; the hero pair is stacked 15px apart at 451px. */
+.heroActions .button, .ctaCopy .button { border-radius: 8px; }
+.heroActions { flex-direction: column; align-items: center; gap: 15px; }
+.heroActions .button { width: 451px; max-width: 100%; }
+.ctaCopy .button { width: 350px; max-width: 100%; }
+/* Figma rounds all four corners of both 720 x 770 side photos. */
+.infraPhoto, .perfPhoto { border-radius: 40px; }
 
 /* Desktop section spacing from the user's 1440px comparison. Only editable
    parent sections change; approved carousel internals and shared rules do not. */

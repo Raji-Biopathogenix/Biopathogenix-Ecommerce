@@ -46,7 +46,7 @@ export default function HighPerformanceMultiplex() {
           <div data-home="dna-content" className="relative z-10 flex h-full w-full items-center py-6 sm:py-8 md:py-10 lg:py-[110px]">
             <div data-home="dna-copy" className="relative ml-auto w-[76%] min-w-0 pl-2 pr-4 sm:pl-3 sm:pr-6 md:mr-[6%] md:w-[52%] md:px-0 lg:ml-[50.14%] lg:mr-0 lg:w-[43%] lg:max-w-[620px]">
 
-              <h2 className="font-['Quicksand'] text-[clamp(20px,5.2vw,30px)] font-bold leading-[1.08] tracking-[-0.02em] !text-[#92DAFF] drop-shadow-[0_1px_2px_rgba(0,0,0,0.45)] sm:text-[38px] md:leading-[1.05] lg:text-[54px]">
+              <h2 className="font-['Quicksand'] text-[clamp(20px,5.2vw,30px)] font-bold leading-[1.08] tracking-[-0.02em] !text-[#4398CC] drop-shadow-[0_1px_2px_rgba(0,0,0,0.45)] sm:text-[38px] md:leading-[1.05] lg:text-[54px]">
                 High Performance
                 <br />
                 Multiplex qPCR
@@ -58,7 +58,7 @@ export default function HighPerformanceMultiplex() {
                 Modern Laboratories
               </h3>
 
-              <p className="mt-4 max-w-[580px] text-[13px] leading-[1.65] !text-white/85 sm:text-[15px] lg:mt-6 lg:text-[15px]">
+              <p className="mt-4 max-w-[580px] text-[13px] leading-[1.65] !text-white sm:text-[15px] lg:mt-6 lg:text-[15px]">
                 BioPathogenix delivers integrated molecular solutions that empower
                 laboratories working in pathogen research, molecular detection,
                 and nucleic acid analysis.
@@ -72,7 +72,7 @@ export default function HighPerformanceMultiplex() {
                 {CHECKLIST.map((item) => (
                   <li
                     key={item}
-                    className="flex items-start gap-2 text-[13px] leading-[1.5] !text-white/90 sm:gap-3 sm:text-[15px]"
+                    className="flex items-start gap-2 text-[13px] leading-[1.5] !text-white sm:gap-3 sm:text-[15px]"
                   >
                     <CheckIcon />
                     <span>{item}</span>

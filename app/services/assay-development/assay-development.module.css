@@ -116,7 +116,9 @@
 .formCard h3 { margin-bottom: 24px; text-align: center; font-size: clamp(26px, 2.23vw, 32px); font-weight: 600; line-height: 1.05; letter-spacing: -.05em; color: var(--navy); }
 .formCard form { display: grid; width: min(100%, 475px); grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 18px 16px; margin: 0 auto; }
 .formCard form > * { grid-column: 1 / -1; margin: 0; }
-.formCard form > div:nth-child(1), .formCard form > div:nth-child(2) { grid-column: auto; min-width: 0; }
+/* Name and Work Email share a row. Matched by their inputs, not position, because the
+   form-protection script injects hidden fields at the start of the form. */
+.formCard form > div:has(> input[type="email"]), .formCard form > div:has(+ div > input[type="email"]) { grid-column: auto; min-width: 0; }
 .formCard label { display: block; margin-bottom: 8px; font-size: 14px; font-weight: 400; color: var(--ink); }
 .formCard input, .formCard select, .formCard textarea { width: 100%; border: 1px solid #dfe5ee; border-radius: 8px; background: white; font-size: 14px; color: var(--ink); }
 .formCard input, .formCard select { height: 50px; padding: 0 14px; }
@@ -166,7 +168,7 @@
   .button { width: 100%; height: 54px; gap: 16px; padding-inline: 20px; }
   .stack { display: grid; width: 100%; }
   .formCard form { grid-template-columns: 1fr; }
-  .formCard form > div:nth-child(1), .formCard form > div:nth-child(2) { grid-column: 1 / -1; }
+  .formCard form > div:has(> input[type="email"]), .formCard form > div:has(+ div > input[type="email"]) { grid-column: 1 / -1; }
 }
 
 @media (min-width: 1024px) and (max-width: 1279px) {
@@ -174,18 +176,29 @@
   .formCard { padding-inline: 32px; }
 }
 
-/* The shared site footer, styled to the design on this page only. */
-:global(body):has(.body) footer { padding: 95px 0 32px; border-top: 0; background: white; }
-:global(body):has(.body) footer > div { max-width: 1272px; padding-inline: 16px; }
-:global(body):has(.body) footer h4 { margin-bottom: 24px; font-size: 20px; font-weight: 600; letter-spacing: 0; color: #012c56; }
-:global(body):has(.body) footer p, :global(body):has(.body) footer li a { font-size: 16px; line-height: 24px; color: #070707; }
-:global(body):has(.body) footer ul > * { margin-block: 0; line-height: 24px; }
-:global(body):has(.body) footer ul > * + * { margin-top: 12px; }
-:global(body):has(.body) footer a[href*='linkedin.com/company'] { font-size: 16px; font-weight: 400; letter-spacing: 0; color: #070707; }
-:global(body):has(.body) footer > div > div:last-child { margin-top: 72px; padding-top: 22px; border-color: #e3e7ee; font-size: 16px; color: #070707; }
+/* The last nav dropdown opens leftwards so it stays on screen. (The footer's Figma
+   styling lives in the shared footer component.) */
 @media (min-width: 1024px) {
-  :global(body):has(.body) footer > div > div:first-child { grid-template-columns: 478px 319px 241px 1fr; gap: 0; }
+  :global(body):has(.body) :global(.navbar__links) > nav > li:last-child > ul { left: auto; right: 0; }
 }
+
+/* Figma text styles (node 38079-13). Line height and tracking are the Figma percentages. */
+.heroEyebrow, .eyebrow { line-height: 1.15; letter-spacing: .1em; }
+.heroCopy h1 { font-weight: 400; letter-spacing: -.07em; }
+.heroTagline { line-height: 1.15; letter-spacing: -.02em; }
+.button { line-height: 1.15; letter-spacing: -.04em; }
+.badge p { line-height: 1.25; letter-spacing: -.02em; }
+.checkList li { line-height: 1.65; letter-spacing: .01em; }
+.formCard label { line-height: 1.65; letter-spacing: .01em; }
+.cta h2 span { font-weight: 600; }
+
+/* Figma buttons: 59px tall, 8px corners; hero and Standard Assays pairs are stacked 15px apart. */
+.button { border-radius: 8px; }
+.heroActions { flex-direction: column; gap: 15px; }
+.stack { gap: 15px; }
+.heroActions .button, .docCopy .button { width: 356px; max-width: 100%; }
+.stack .button, .contactCopy .button, .cta .button { width: 390px; max-width: 100%; }
+.formCard form button { width: 255px; max-width: 100%; }
 
 /* Desktop alignment pass using the supplied 1440px comparison.
    Keep the verified heading widths/type and smaller-screen layouts intact. */
@@ -201,15 +214,20 @@
   /* 720px column + 67px inset. Centered copy moves down half its added padding. */
   .docCopy { padding-left: 67px; padding-top: 6.5px; }
 
-  /* 1440 - 152 - 581 + 53 = 760px for the 475px form's left edge. */
-  .contact { margin-top: 119px; padding-right: 152px; }
+  /* 1440 - 152 - 581 + 53 = 760px for the 475px form's left edge. The form card
+     (581 x 758, 40px corners) starts 99px below the documentation section, at y3940. */
+  .contact { margin-top: 99px; padding-right: 152px; }
+  .formCard { padding-bottom: 102px; border-radius: 40px; }
+
+  /* Copy sits 12px under its heading, as in Figma. */
+  .standard .lead { margin-top: 5px; }
+  .docCopy .lead { margin-top: 12px; }
   .formCard h3 { width: min(100%, 475px); margin-inline: auto; margin-bottom: 30.4px; }
 
   /* Remove the inline control's baseline/descender gap. Field sizes and the
      form's existing 18px row gaps stay intact; the form can grow with feedback. */
   .formCard textarea { display: block; }
 
-  /* The contact section gains ~14.21px overall after removing the baseline gap.
-     The remaining ~50px belongs to the space before the final CTA. */
-  .cta { margin-top: 170px; }
+  /* Final CTA: 120px below the form card, 1240 x 519, button 360px from its top. */
+  .cta { margin-top: 120px; padding-top: 79px; padding-bottom: 100px; }
 }
