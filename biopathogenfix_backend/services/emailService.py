@@ -47,6 +47,7 @@ def send_graph_email(
     cc_list: Optional[Iterable[str]] = None,
     bcc_list: Optional[Iterable[str]] = None,
     attachments: Optional[Iterable[dict]] = None,
+    reply_to: Optional[Iterable[str]] = None,
 ) -> None:
     if not _graph_enabled():
         raise RuntimeError("Graph email is not configured")
@@ -77,6 +78,9 @@ def send_graph_email(
         },
         "saveToSentItems": "false",
     }
+
+    if reply_to:
+        payload["message"]["replyTo"] = [{"emailAddress": {"address": address}} for address in reply_to]
 
     if attachments:
         payload["message"]["attachments"] = [

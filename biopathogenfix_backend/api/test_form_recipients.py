@@ -1,3 +1,4 @@
+import io
 from types import SimpleNamespace
 from unittest.mock import patch
 
@@ -77,5 +78,26 @@ class WebsiteFormRecipientTests(SimpleTestCase):
         application = SimpleNamespace(role=SimpleNamespace(title="Scientist"), full_name="Jane Doe", email="jane@example.com",
                                       phone="", linkedin_url="", message="Application", created_at=timezone.now(), resume=None)
         send_internal_career_application_email(application)
+        self.assertEqual(mail.outbox[0].to, ["careers@biopathogenix.com"])
+        self.assert_regular_recipients(mail.outbox[0])
+
+    @override_settings(GRAPH_ENABLED=True)
+    @patch("home.career_email_service.send_graph_email")
+    def test_careers_uses_graph_with_resume_and_required_copy(self, graph):
+        resume = SimpleNamespace(name="careers/resumes/cv.pdf", open=lambda mode: io.BytesIO(b"%PDF-1.4"))
+        application = SimpleNamespace(pk=1, role=None, full_name="Jane Doe", email="jane@example.com", phone="",
+                                      linkedin_url="", message="General resume submission", created_at=timezone.now(), resume=resume)
+        send_internal_career_application_email(application)
+        args, kwargs = graph.call_args
+        self.assertEqual(args, (["careers@biopathogenix.com"], "New Career Application - General Application"))
+        self.assertIn("rajeswari.gopu@biopathogenix.com", kwargs["bcc_list"])
+        self.assertEqual(kwargs["reply_to"], ["jane@example.com"])
+        self.assertEqual(kwargs["attachments"], [{"name": "cv.pdf", "content": b"%PDF-1.4", "content_type": "application/pdf"}])
+
+    def test_general_resume_without_a_role_goes_to_careers(self):
+        application = SimpleNamespace(role=None, full_name="Jane Doe", email="jane@example.com", phone="",
+                                      linkedin_url="", message="General resume submission", created_at=timezone.now(), resume=None)
+        send_internal_career_application_email(application)
+        self.assertEqual(mail.outbox[0].subject, "New Career Application - General Application")
         self.assertEqual(mail.outbox[0].to, ["careers@biopathogenix.com"])
         self.assert_regular_recipients(mail.outbox[0])

@@ -71,7 +71,8 @@ class CareerApplicationCreateSerializer(serializers.ModelSerializer):
         read_only_fields = ["id", "created_at"]
 
     def validate_role(self, value):
-        if not value.is_active:
+        # No role means a general resume submission.
+        if value is not None and not value.is_active:
             raise serializers.ValidationError("This role is no longer accepting applications.")
         return value
 

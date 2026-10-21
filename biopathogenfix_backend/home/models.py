@@ -153,7 +153,10 @@ class CareerApplication(models.Model):
         ("rejected", "Rejected"),
     )
 
-    role = models.ForeignKey(CareerOpenRole, on_delete=models.CASCADE, related_name="applications")
+    # Empty for general resume submissions made when no listed role fits.
+    role = models.ForeignKey(
+        CareerOpenRole, on_delete=models.CASCADE, related_name="applications", null=True, blank=True
+    )
     full_name = models.CharField(max_length=150)
     email = models.EmailField()
     phone = models.CharField(max_length=30, blank=True)
@@ -173,8 +176,10 @@ class CareerApplication(models.Model):
         verbose_name = "Career Application"
         verbose_name_plural = "Career Applications"
 
+    GENERAL_APPLICATION_TITLE = "General Application"
+
     def __str__(self):
-        return f"{self.full_name} - {self.role.title}"
+        return f"{self.full_name} - {self.role.title if self.role else self.GENERAL_APPLICATION_TITLE}"
 
     def save(self, *args, **kwargs):
         previous_status = None
