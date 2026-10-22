@@ -8,7 +8,7 @@ const PATHWAY_CARDS = [
     title: "Split Sample\nTesting Services",
     href: "/split-sample-testing",
     icon: (
-      <svg viewBox="0 0 24 24" fill="none" className="h-7 w-7 text-[#3ab5d0]">
+      <svg viewBox="0 0 24 24" fill="none" className="h-7 w-7 text-[#4398cc]">
         <path d="M9 2v6.5L4.5 17a3 3 0 0 0 2.6 4.5h9.8a3 3 0 0 0 2.6-4.5L15 8.5V2" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" />
         <path d="M7 15h10" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" />
         <circle cx="18.5" cy="18.5" r="4" fill="white" stroke="currentColor" strokeWidth="1.6" />
@@ -20,7 +20,7 @@ const PATHWAY_CARDS = [
     title: "A Biobank offering\nover 1,000 Pathogens",
     href: "/contrived-samples",
     icon: (
-      <svg viewBox="0 0 24 24" fill="none" className="h-7 w-7 text-[#3ab5d0]">
+      <svg viewBox="0 0 24 24" fill="none" className="h-7 w-7 text-[#4398cc]">
         <path d="M9 2h6M10 2v5.5c0 .6-.2 1.2-.6 1.7L5.8 14a5 5 0 0 0 4 8h4.4a5 5 0 0 0 4-8l-3.6-4.8a2.7 2.7 0 0 1-.6-1.7V2" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" />
         <path d="M8 15h8" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" />
       </svg>
@@ -30,7 +30,7 @@ const PATHWAY_CARDS = [
     title: "Quality Control\nResources",
     href: "/quality-control",
     icon: (
-      <svg viewBox="0 0 24 24" fill="none" className="h-7 w-7 text-[#3ab5d0]">
+      <svg viewBox="0 0 24 24" fill="none" className="h-7 w-7 text-[#4398cc]">
         <circle cx="12" cy="10" r="7" stroke="currentColor" strokeWidth="1.6" />
         <path d="m9 10 2 2 4-4" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" />
         <path d="M9 16.5 7.5 22l4.5-2 4.5 2-1.5-5.5" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" />
@@ -41,7 +41,7 @@ const PATHWAY_CARDS = [
     title: "Zero Net Loss\nValidation support",
     href: "/services/validation-services",
     icon: (
-      <svg viewBox="0 0 24 24" fill="none" className="h-7 w-7 text-[#3ab5d0]">
+      <svg viewBox="0 0 24 24" fill="none" className="h-7 w-7 text-[#4398cc]">
         <path d="M7 3h7l4 4v11a3 3 0 0 1-3 3H7a3 3 0 0 1-3-3V6a3 3 0 0 1 3-3Z" stroke="currentColor" strokeWidth="1.6" strokeLinejoin="round" />
         <path d="M14 3v4h4" stroke="currentColor" strokeWidth="1.6" strokeLinejoin="round" />
         <path d="M8 18h3.5M15.5 11a2 2 0 0 1 0 4H12l1.5 1.5M8 13h3" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" />
@@ -61,8 +61,9 @@ export default function PrimaryConversionPathways() {
       <div data-home="pathways-layout" className="mx-auto flex max-w-[1240px] flex-col items-center gap-10 md:gap-14 lg:flex-row lg:items-center lg:justify-between lg:gap-16">
         <div data-home="pathways-copy" className="w-full max-w-[580px]">
           <h2 data-home="pathways-heading" className="text-balance font-['Quicksand'] text-[34px] font-semibold leading-[1.1] tracking-[-0.03em] text-[#173963] sm:text-[40px] lg:whitespace-nowrap lg:text-[48px] xl:text-[56px]">
-            <span className="block">Primary Conversion</span>{" "}
-            <span className="block text-[#58A7E8]">Pathways</span>
+            {/* Figma: "Primary" navy, "Conversion Pathways" blue SemiBold (wraps after "Conversion"). */}
+            Primary <span className="text-[#58A7E8]">Conversion</span>{" "}
+            <span className="text-[#58A7E8]">Pathways</span>
           </h2>
 
           <p className="mt-5 max-w-[520px] text-[15px] leading-7 text-[#3a5070] sm:text-[16px] sm:leading-8">

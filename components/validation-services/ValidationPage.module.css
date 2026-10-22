@@ -195,7 +195,8 @@
 .ctaCopy { position: relative; }
 .ctaCopy .eyebrow { color: white; }
 .ctaHeading { position: relative; margin-top: 21px; }
-.ctaHeading h2 { font-size: clamp(38px, 5.35vw, 77px); font-weight: 400; line-height: 1; letter-spacing: -.03em; color: white; }
+/* Site section-heading size (58px at 1440). */
+.ctaHeading h2 { font-size: clamp(34px, 4.03vw, 58px); font-weight: 400; line-height: 1; letter-spacing: -.03em; color: white; }
 .ctaHeading h2 span { color: var(--blue); font-weight: 700; }
 .ctaHeading .lead { max-width: 430px; margin-top: 16px; }
 .ctaCopy .button { margin-top: 40px; }
@@ -232,10 +233,10 @@
   .banner { padding-inline: 12px; white-space: nowrap; letter-spacing: -.025em; }
 
   /* The CTA paragraph sits beside the last heading line ("Design"). */
-  .ctaHeading .lead { position: absolute; bottom: 7px; left: min(260px, 18.06vw); margin: 0; }
-  .ctaCopy .button { margin-top: min(117px, 8.13vw); }
-  /* Figma card: 1240 x 587.57. */
-  .ctaCard { min-height: 587.57px; }
+  .ctaHeading .lead { position: absolute; bottom: 5px; left: min(206px, 14.31vw); margin: 0; }
+  .ctaCopy .button { margin-top: min(64px, 4.44vw); }
+  /* The copy sits in the middle of the card, with equal space above and below. */
+  .ctaCard { display: flex; flex-direction: column; justify-content: center; min-height: min(500px, 34.72vw); }
 }
 
 @media (max-width: 1023px) {
@@ -272,9 +273,11 @@
 
 /* Verified service-page measurements. These selectors intentionally exclude the
    approved Successful Validation and BioPathogenix Different carousels. */
+/* Same title size as the homepage hero (64px at 1440); the width is in em so the lines break as before. */
 .heroCopy h1 {
-  width: min(100%, 672.3px);
-  max-width: 672.3px;
+  width: min(100%, 9.085em);
+  max-width: 9.085em;
+  font-size: clamp(36px, 4.4444vw, 64px);
   letter-spacing: -.07em;
 }
 .infraCopy > .h2,
@@ -298,6 +301,9 @@
 .infrastructure .banner { line-height: 1.15; letter-spacing: -.04em; }
 .infraCopy h3 { line-height: 1.65; letter-spacing: -.01em; }
 .infraCopy .checkList li, .performance .checkList li { line-height: 1.65; letter-spacing: .01em; }
+/* Figma list text boxes (plus the 33px check column): 454 in the infrastructure section, 343 in performance. */
+.infraCopy .checkList { max-width: 487px; }
+.performance .checkList { max-width: 376px; }
 .partner h3 { line-height: 1.3; letter-spacing: -.02em; }
 .partner p { line-height: 1.65; letter-spacing: .01em; }
 .quoteCard blockquote { line-height: 1.3; letter-spacing: -.05em; }
@@ -328,4 +334,11 @@
 
   /* The remaining 0.18px belongs to the testimonials' own upper padding. */
   .testimonials { padding-top: 87.18px; }
+}
+
+/* Wider than the 1440 Figma frame (like the homepage): the copy beside each photo keeps its 1440
+   width next to the page centre instead of stretching. */
+@media (min-width: 1441px) {
+  .infraCopy { justify-self: start; width: 720px; }
+  .perfCopy { justify-self: end; width: 720px; }
 }

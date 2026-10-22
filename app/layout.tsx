@@ -1,4 +1,5 @@
 import { Metadata } from 'next';
+import { Poppins } from "next/font/google";
 import './globals.css'
 import Header from '@/components/layout/header/HeaderWrapper';
 import Footer from '@/components/layout/footer/Footer';
@@ -9,6 +10,9 @@ import { AuthProvider } from "@/context/AuthContext";
 import { ToastProvider } from '@/context/ToastContext';
 
 config.autoAddCss = false;
+
+// The site typeface from the Figma design, used on every page (see --font-brand in globals.css).
+const poppins = Poppins({ subsets: ["latin"], weight: ["400", "500", "600", "700"], display: "swap", variable: "--font-poppins" });
 
 export const metadata: Metadata = {
   title: 'BioPathogenix',
@@ -27,7 +31,7 @@ export default async function RootLayout({
   children: React.ReactNode
 }) {
   return (
-    <html lang="en">
+    <html lang="en" className={poppins.variable}>
       <body className="site-page bg-white text-gray-900 antialiased">
         <AuthProvider>
           <ToastProvider>

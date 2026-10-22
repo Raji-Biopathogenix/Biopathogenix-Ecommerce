@@ -1,14 +1,20 @@
 /* Proportions follow the 1440px reference, measured against the page viewport. */
 .page {
-  --home-gutter: clamp(20px, 6.9444cqw, 160px);
+  /* One Figma pixel of the 1440 frame, capped at 1440 so wider screens keep the Figma sizes;
+     --frame-edge centres that 1440 frame on wider screens. */
+  --cq: min(1cqw, 14.4px);
+  --frame-edge: max(0px, (100cqw - 1440px) / 2);
+  --home-gutter: calc(clamp(20px, 6.9444cqw, 100px) + var(--frame-edge));
   container-type: inline-size;
-  --home-space: clamp(48px, 6cqw, 96px);
+  --home-space: clamp(48px, calc(var(--cq) * 6), 96px);
   width: 100%;
   min-width: 0;
 }
 .page h1, .page h2, .page h3 { font-family: inherit !important; overflow-wrap: normal; }
 .page section { min-width: 0; }
-.page [data-home="background-pattern"] { opacity: .12; }
+/* The pattern ends partway down the pathways section, so its lower edge fades out instead of
+   stopping in a hard line. */
+.page [data-home="background-pattern"] { opacity: .12; mask-image: linear-gradient(#000 55%, transparent); -webkit-mask-image: linear-gradient(#000 55%, transparent); }
 .page [data-home="hero-layout"],
 .page [data-home="category-artwork"],
 .page [data-home="pathways-layout"],
@@ -25,17 +31,17 @@
 .page [data-home="community"], .page [data-home="catalog"] {
   padding-inline: var(--home-gutter);
 }
-.page [data-home="hero"] { padding-block: clamp(64px, 8.1944cqw, 158px); }
-.page [data-home="categories"] { padding-top: clamp(40px, 4.4444cqw, 86px); padding-bottom: clamp(32px, 3.3333cqw, 64px); }
-.page [data-home="pathways"] { padding-top: clamp(56px, 8.2639cqw, 160px); padding-bottom: clamp(32px, 3.3333cqw, 64px); }
-.page [data-home="catalog"] { padding-block: clamp(56px, 6.25cqw, 120px); }
+.page [data-home="hero"] { padding-block: clamp(64px, calc(var(--cq) * 8.1944), 158px); }
+.page [data-home="categories"] { padding-top: clamp(40px, calc(var(--cq) * 4.4444), 86px); padding-bottom: clamp(32px, calc(var(--cq) * 3.3333), 64px); }
+.page [data-home="pathways"] { padding-top: clamp(56px, calc(var(--cq) * 8.2639), 160px); padding-bottom: clamp(32px, calc(var(--cq) * 3.3333), 64px); }
+.page [data-home="catalog"] { padding-block: clamp(56px, calc(var(--cq) * 6.25), 120px); }
 
 /* The photos retain their own proportional hexagon positions, within a grid column. */
-.page [data-home="hero-layout"] { display: grid; grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr); align-items: center; gap: clamp(24px, 4.4444cqw, 86px); min-height: 0; }
+.page [data-home="hero-layout"] { display: grid; grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr); align-items: center; gap: clamp(24px, calc(var(--cq) * 4.4444), 86px); min-height: 0; }
 .page [data-home="hero-copy"] { position: static; width: 100%; max-width: none; padding: 0; min-width: 0; text-align: left; }
-.page [data-home="hero-copy"] h1 { font-size: clamp(32px, 4.4444cqw, 86px); line-height: 1.08; letter-spacing: -.045em; white-space: normal; }
+.page [data-home="hero-copy"] h1 { font-size: clamp(32px, calc(var(--cq) * 4.4444), 86px); line-height: 1.08; letter-spacing: -.045em; white-space: normal; }
 .page [data-home="hero-copy"] h1 br { display: none; }
-.page [data-home="hero-copy"] h2 { font-size: clamp(16px, 1.5cqw, 22px); line-height: 1.4; max-width: none; }
+.page [data-home="hero-copy"] h2 { font-size: clamp(16px, calc(var(--cq) * 1.5), 22px); line-height: 1.4; max-width: none; }
 .page [data-home="hero-copy"] p { max-width: 100%; }
 .page [data-home="hero-images"] { position: relative; inset: auto; width: 100%; min-width: 0; }
 .page [data-home="hero-images"] > div { max-width: 100%; }
@@ -44,60 +50,63 @@
 /* Figma's category photography reaches both page edges; only the gallery scrolls. */
 .page [data-home="categories"] { padding-inline: 0; }
 .page [data-home="category-artwork"] { left: auto; width: 100%; max-width: none; height: auto; }
-.page [data-home="category-artwork"] > h2 { font-size: clamp(64px, 11cqw, 212px); opacity: .035; }
-.page [data-home="category-artwork"] > div:first-of-type { margin-top: clamp(12px, 1.1111cqw, 22px); margin-bottom: clamp(24px, 2.7778cqw, 40px); }
-.page [data-home="category-artwork"] > div:first-of-type h2 { font-size: clamp(28px, 3.3333cqw, 64px); }
+.page [data-home="category-artwork"] > h2 { font-size: clamp(64px, calc(var(--cq) * 11), 212px); opacity: .035; }
+.page [data-home="category-artwork"] > div:first-of-type { margin-top: clamp(12px, calc(var(--cq) * 1.1111), 22px); margin-bottom: clamp(24px, calc(var(--cq) * 2.7778), 40px); }
+.page [data-home="category-artwork"] > div:first-of-type h2 { font-size: clamp(28px, calc(var(--cq) * 3.3333), 64px); }
 .page [data-home="category-artwork"] > div:last-child { top: auto; }
 .page [data-home="category-artwork"] :global(#shop-category-track) { padding-inline: 0; }
-.page [data-home="category-artwork"] :global(#shop-category-track) > a { width: clamp(260px, 29.8611cqw, 574px); }
+.page [data-home="category-artwork"] :global(#shop-category-track) > a { width: clamp(260px, calc(var(--cq) * 29.8611), 574px); }
 
 /* Restore the full-width, rounded DNA composition and its photographic fade.
    Absolute positioning is confined to artwork inside this naturally sized section. */
 .page [data-home="dna"] { padding: 0; background: white; }
 .page [data-home="dna"] > div { width: 100%; max-width: none; padding-inline: 0; }
-.page [data-home="dna-frame"] { display: block; min-height: 0; overflow: hidden; border-radius: clamp(24px, 2.7778cqw, 40px); background: #090b35; }
+.page [data-home="dna-frame"] { display: block; min-height: 0; overflow: hidden; border-radius: clamp(24px, calc(var(--cq) * 2.7778), 40px); background: #090b35; }
 .page [data-home="dna-frame"] > img { position: absolute; inset-block: 0; left: 0; width: 56%; height: 100%; object-fit: cover; object-position: left center; }
 .page [data-home="dna-frame"] > div:not([data-home="dna-content"]) { display: none; }
 .page [data-home="dna-frame"] > div:nth-of-type(2) { display: block; width: 56%; background: linear-gradient(to right, transparent 40%, #090b35); }
-.page [data-home="dna-content"] { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); width: calc(100% - 2 * var(--home-gutter)); height: auto; margin-inline: auto; padding-block: clamp(80px, 10.5556cqw, 203px); }
+.page [data-home="dna-content"] { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); width: calc(100% - 2 * var(--home-gutter)); height: auto; margin-inline: auto; padding-block: clamp(80px, calc(var(--cq) * 10.5556), 203px); }
 .page [data-home="dna-copy"] { grid-column: 2; width: 100%; max-width: none; margin: 0; padding: 0 0 0 2px; }
-.page [data-home="dna-copy"] h2, .page [data-home="dna-copy"] h3 { font-size: clamp(28px, 3.75cqw, 72px); line-height: 1.05; }
-.page [data-home="dna-copy"] h4 { width: auto; max-width: 100%; font-size: clamp(16px, 1.3cqw, 20px); }
+.page [data-home="dna-copy"] h2, .page [data-home="dna-copy"] h3 { font-size: clamp(28px, calc(var(--cq) * 3.75), 72px); line-height: 1.05; }
+.page [data-home="dna-copy"] h4 { width: auto; max-width: 100%; font-size: clamp(16px, calc(var(--cq) * 1.3), 20px); }
 
-.page [data-home="pathways-layout"] { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 1.3889cqw; align-items: center; }
+.page [data-home="pathways-layout"] { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: calc(var(--cq) * 1.3889); align-items: center; }
 .page [data-home="pathways-copy"] { max-width: none; min-width: 0; }
-.page [data-home="pathways-heading"] { width: 100%; max-width: 37.1528cqw; height: auto; font-size: clamp(32px, 4.0278cqw, 78px); font-weight: 400; line-height: 1.05; letter-spacing: -.05em; color: #012c56; white-space: normal; }
+.page [data-home="pathways-heading"] { width: 100%; max-width: calc(var(--cq) * 37.1528); height: auto; font-size: clamp(32px, calc(var(--cq) * 4.0278), 78px); font-weight: 400; line-height: 1.05; letter-spacing: -.05em; color: #012c56; white-space: normal; }
 .page [data-home="pathways-heading"] > span { display: inline; }
-.page [data-home="pathways-heading"] > span:last-child { color: #4398cc; font-weight: 600; }
-.page [data-home="pathways-grid"] { width: 100%; max-width: none; grid-template-columns: repeat(2, minmax(0, 1fr)); column-gap: .9722cqw; row-gap: .9028cqw; }
-.page [data-home="pathways-grid"] > button { width: 100%; height: auto; min-height: clamp(210px, 18.5417cqw, 356px); padding: clamp(20px, 2cqw, 32px); }
-.page [data-home="pathways-grid"] p { font-size: clamp(16px, 1.5cqw, 22px); }
+.page [data-home="pathways-heading"] > span { color: #4398cc; font-weight: 600; }
+.page [data-home="pathways-grid"] { width: 100%; max-width: none; grid-template-columns: repeat(2, minmax(0, 1fr)); column-gap: calc(var(--cq) * .9722); row-gap: calc(var(--cq) * .9028); }
+.page [data-home="pathways-grid"] > button { width: 100%; height: auto; min-height: clamp(210px, calc(var(--cq) * 18.5417), 356px); padding: clamp(20px, calc(var(--cq) * 2), 32px); }
+.page [data-home="pathways-grid"] p { font-size: clamp(16px, calc(var(--cq) * 1.5), 22px); }
 .page [data-home="qc-button"], .page [data-home="learning-button"], .page [data-home="catalog-button"] { width: fit-content; max-width: 100%; height: auto; min-height: 59px; padding: 18px 28px; border-radius: 8px; gap: 20px; line-height: 1.45; white-space: normal; }
 .page [data-home="qc-button"] > span, .page [data-home="learning-button"] > span:last-child, .page [data-home="catalog-button"] > span { margin: 0; padding: 0; border: 0; }
 .page [data-home="qc-button"] > span, .page [data-home="learning-button"] > span:last-child, .page [data-home="catalog-button"] > span:last-child { flex-shrink: 0; }
 
-.page [data-home="community"] { padding: clamp(16px, 1.6667cqw, 32px) 0 0; background: linear-gradient(to bottom, white calc(100% - 40px), #012c56 calc(100% - 40px)); }
+.page [data-home="community"] { padding: clamp(16px, calc(var(--cq) * 1.6667), 32px) 0 0; background: linear-gradient(to bottom, white calc(100% - 40px), #012c56 calc(100% - 40px)); }
 .page [data-home="community"] > div { padding-inline: 0; }
-.page [data-home="community-frame"] { width: 100%; max-width: none; background-color: #f3f8fc; border-radius: clamp(24px, 3cqw, 40px); }
+.page [data-home="community-frame"] { width: 100%; max-width: none; background-color: #f3f8fc; border-radius: clamp(24px, calc(var(--cq) * 3), 40px); }
 .page [data-home="community-frame"] > div:first-child { background-color: rgb(255 255 255 / 40%); }
 .page [data-home="community-grid"] { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); min-height: 0; }
 .page [data-home="community-grid"] > div:first-child { display: grid; min-width: 0; padding: 0; aspect-ratio: 720 / 770; }
-.page [data-home="community-photo"] { position: relative; height: 100%; border-radius: clamp(24px, 3cqw, 40px); }
+.page [data-home="community-photo"] { position: relative; height: 100%; border-radius: clamp(24px, calc(var(--cq) * 3), 40px); }
 .page [data-home="community-photo"] > img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
-.page [data-home="community-copy"] { padding: clamp(40px, 6.6667cqw, 128px) clamp(24px, 1.6667cqw, 32px) 48px clamp(32px, 6.6667cqw, 128px); }
-.page [data-home="community-heading"] { width: 100%; max-width: 27.7778cqw; height: auto; font-size: clamp(32px, 4.0278cqw, 78px); font-weight: 400; line-height: 1.05; letter-spacing: -.05em; color: #012c56; }
+.page [data-home="community-copy"] { padding: clamp(40px, calc(var(--cq) * 6.6667), 128px) clamp(24px, calc(var(--cq) * 1.6667), 32px) 48px clamp(32px, calc(var(--cq) * 6.6667), 128px); }
+.page [data-home="community-heading"] { width: 100%; max-width: calc(var(--cq) * 27.7778); height: auto; font-size: clamp(32px, calc(var(--cq) * 4.0278), 78px); font-weight: 400; line-height: 1.05; letter-spacing: -.05em; color: #012c56; }
 .page [data-home="community-heading"] span { color: #4398cc; font-weight: 600; }
-.page [data-home="community-copy"] h3 { font-size: clamp(17px, 1.5cqw, 22px); line-height: 1.4; }
+.page [data-home="community-copy"] h3 { font-size: clamp(17px, calc(var(--cq) * 1.5), 22px); line-height: 1.4; }
 .page [data-home="community-copy"] p, .page [data-home="community-copy"] h3 { margin-top: 16px; }
 .page [data-home="community-copy"] ul { display: grid; gap: 8px; margin-top: 12px; }
 .page [data-home="community-copy"] li { margin: 0; }
-.page [data-home="learning-button"] { font-size: clamp(14px, 1.2cqw, 18px); }
+.page [data-home="learning-button"] { font-size: clamp(14px, calc(var(--cq) * 1.2), 18px); }
 .page [data-home="learning-button"] { margin-top: 16px; }
 
-.page [data-home="catalog"] { border-radius: 0 0 clamp(24px, 2.7778cqw, 40px) clamp(24px, 2.7778cqw, 40px); }
-.page [data-home="catalog-layout"] { display: grid; grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr); gap: clamp(32px, 5cqw, 107px); align-items: center; min-height: 0; padding: 0; }
+.page [data-home="catalog"] { border-radius: 0 0 clamp(24px, calc(var(--cq) * 2.7778), 40px) clamp(24px, calc(var(--cq) * 2.7778), 40px); }
+.page [data-home="catalog-layout"] { display: grid; grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr); gap: clamp(32px, calc(var(--cq) * 5), 107px); align-items: center; min-height: 0; padding: 0; }
 .page [data-home="catalog-copy"] { width: 100%; max-width: none; min-width: 0; padding: 0; }
-.page [data-home="catalog-heading"] { width: 100%; max-width: 43.5417cqw; height: auto; font-size: clamp(36px, 5.8333cqw, 112px); line-height: 1; font-weight: 400; letter-spacing: -.07em; white-space: normal; color: #fff !important; }
+/* Same scale as the other homepage section headings (58px / 105%, -5% tracking), not Figma's 84px. */
+.page [data-home="catalog-heading"] { width: 100%; max-width: calc(var(--cq) * 43.5417); height: auto; font-size: clamp(32px, calc(var(--cq) * 4.0278), 58px); line-height: 1.05; font-weight: 400; letter-spacing: -.05em; white-space: normal; color: #fff !important; }
+/* Three lines as in Figma: "Explore the" / "BioPathogenix" / "Product Catalog". */
+.page [data-home="catalog-heading"] > span { display: block; }
 .page [data-home="catalog-heading"] > span:first-of-type { color: #4398cc !important; }
 .page [data-home="catalog-heading"] > span:last-of-type { color: #fff !important; }
 .page [data-home="catalog-artwork"] { position: static; width: 100%; height: auto; min-width: 0; justify-content: center; }
@@ -105,97 +114,126 @@
 
 /* Keep secondary copy and details in proportion with the section artwork. */
 @media (min-width: 1024px) {
-  .page [data-home="hero-copy"] > p:first-child { font-size: clamp(12px, 1.0417cqw, 20px); }
-  .page [data-home="hero-copy"] > p:not(:first-child) { font-size: clamp(15px, 1.1806cqw, 23px); max-width: 34.7222cqw; }
-  .page [data-home="hero-copy"] h2 { font-size: clamp(17px, 1.5278cqw, 29px); }
-  .page [data-home="hero-copy"] button { font-size: clamp(16px, 1.3889cqw, 27px); min-height: 4.0278cqw; }
-  .page [data-home="dna-copy"] > p, .page [data-home="dna-copy"] li { font-size: clamp(14px, 1.0417cqw, 20px); }
-  .page [data-home="dna-copy"] > p, .page [data-home="dna-copy"] ul { max-width: 40.2778cqw; }
-  .page [data-home="dna-copy"] h4 { font-size: clamp(16px, 1.25cqw, 24px); }
-  .page [data-home="category-artwork"] :global(#shop-category-track) { gap: 1.1111cqw; }
-  .page [data-home="category-artwork"] :global(#shop-category-track) h3 { max-width: 18.0556cqw; font-size: clamp(20px, 1.8056cqw, 35px); }
-  .page [data-home="pathways-copy"] > p { max-width: 36.1111cqw; font-size: clamp(15px, 1.1111cqw, 21px); line-height: 2; }
-  .page [data-home="pathways-grid"] p { max-width: 100%; font-size: clamp(16px, 1.5278cqw, 29px); }
-  .page [data-home="pathways-grid"] > button > span { width: 5.5556cqw; height: 5.5556cqw; }
-  .page [data-home="pathways-grid"] svg { width: 1.9444cqw; height: 1.9444cqw; }
+  .page [data-home="hero-copy"] > p:first-child { font-size: clamp(12px, calc(var(--cq) * 1.0417), 20px); }
+  .page [data-home="hero-copy"] > p:not(:first-child) { font-size: clamp(15px, calc(var(--cq) * 1.1806), 23px); max-width: calc(var(--cq) * 34.7222); }
+  .page [data-home="hero-copy"] h2 { font-size: clamp(17px, calc(var(--cq) * 1.5278), 29px); }
+  .page [data-home="hero-copy"] button { font-size: clamp(16px, calc(var(--cq) * 1.3889), 27px); min-height: calc(var(--cq) * 4.0278); }
+  .page [data-home="dna-copy"] > p, .page [data-home="dna-copy"] li { font-size: clamp(14px, calc(var(--cq) * 1.0417), 20px); }
+  .page [data-home="dna-copy"] > p, .page [data-home="dna-copy"] ul { max-width: calc(var(--cq) * 40.2778); }
+  .page [data-home="dna-copy"] h4 { font-size: clamp(16px, calc(var(--cq) * 1.25), 24px); }
+  .page [data-home="category-artwork"] :global(#shop-category-track) { gap: calc(var(--cq) * 1.1111); }
+  .page [data-home="category-artwork"] :global(#shop-category-track) h3 { max-width: calc(var(--cq) * 18.0556); font-size: clamp(20px, calc(var(--cq) * 1.8056), 35px); }
+  .page [data-home="pathways-copy"] > p { max-width: calc(var(--cq) * 36.1111); font-size: clamp(15px, calc(var(--cq) * 1.1111), 21px); line-height: 2; }
+  .page [data-home="pathways-grid"] p { max-width: 100%; font-size: clamp(16px, calc(var(--cq) * 1.5278), 29px); }
+  /* Figma: 100px #EFF6FB circles holding 48px #4398CC icons. */
+  .page [data-home="pathways-grid"] > button > span { width: calc(var(--cq) * 6.9444); height: calc(var(--cq) * 6.9444); background: #eff6fb; }
+  .page [data-home="pathways-grid"] svg { width: calc(var(--cq) * 3.3333); height: calc(var(--cq) * 3.3333); }
   .page [data-home="community-copy"] > div { max-width: none; }
-  .page [data-home="community-copy"] p, .page [data-home="community-copy"] li { font-size: clamp(15px, 1.25cqw, 24px); }
-  .page [data-home="community-copy"] h3 { font-size: clamp(17px, 1.5278cqw, 29px); }
-  .page [data-home="catalog-copy"] p { max-width: 29.8611cqw; font-size: clamp(14px, 1.0417cqw, 20px); line-height: 1.8667; }
-  .page [data-home="qc-button"], .page [data-home="learning-button"], .page [data-home="catalog-button"] { font-size: clamp(14px, 1.1111cqw, 21px); min-height: 4.0972cqw; padding: 1.25cqw 1.9444cqw; }
+  .page [data-home="community-copy"] p, .page [data-home="community-copy"] li { font-size: clamp(15px, calc(var(--cq) * 1.25), 24px); }
+  .page [data-home="community-copy"] h3 { font-size: clamp(17px, calc(var(--cq) * 1.5278), 29px); }
+  .page [data-home="catalog-copy"] p { max-width: calc(var(--cq) * 29.8611); font-size: clamp(14px, calc(var(--cq) * 1.0417), 20px); line-height: 1.8667; }
+  .page [data-home="qc-button"], .page [data-home="learning-button"], .page [data-home="catalog-button"] { font-size: clamp(14px, calc(var(--cq) * 1.1111), 21px); min-height: calc(var(--cq) * 4.0972); padding: calc(var(--cq) * 1.25) calc(var(--cq) * 1.9444); }
 
-  /* Section boxes from the 1440 x 5774 Figma frame (1px = .069444cqw). */
+  /* Section boxes from the 1440 x 5774 Figma frame (1px = calc(var(--cq) * .069444)). */
   /* Hero: 828 tall below the 97px header; copy column x100-720, honeycomb 653 x 744 at x720 y135.
      The copy is centred vertically because the site's heading runs longer than Figma's. */
   .page [data-home="hero"] { padding-block: 0; }
-  .page [data-home="hero-layout"] { grid-template-columns: 43.0556cqw 45.3704cqw; gap: 0; align-items: start; min-height: 57.5cqw; }
+  .page [data-home="hero-layout"] { grid-template-columns: calc(var(--cq) * 43.0556) calc(var(--cq) * 45.3704); gap: 0; align-items: start; min-height: calc(var(--cq) * 57.5); }
   .page [data-home="hero-copy"] { align-self: center; margin-top: 0; }
-  .page [data-home="hero-images"] { margin-top: 2.6389cqw; }
+  .page [data-home="hero-images"] { margin-top: calc(var(--cq) * 2.6389); }
   /* Shop by Category: cards start 309 below the section top; the arrows end 73 above the DNA section. */
-  .page [data-home="categories"] { min-height: 0; padding-top: 13.3333cqw; padding-bottom: 3.2639cqw; }
-  .page [data-home="category-artwork"] > div:last-child { padding-top: 1.8056cqw; }
+  .page [data-home="categories"] { min-height: 0; padding-top: calc(var(--cq) * 13.3333); padding-bottom: calc(var(--cq) * 3.2639); }
+  .page [data-home="category-artwork"] > div:last-child { padding-top: calc(var(--cq) * 1.8056); }
   /* Figma cards: 421 x 560, 30px corners, 18px apart; two in full with part of a card at each edge. */
-  .page [data-home="category-artwork"] :global(#shop-category-track) { gap: 1.25cqw; }
-  .page [data-home="category-artwork"] :global(#shop-category-track) > a { width: 29.2361cqw; aspect-ratio: 421 / 560; border-radius: 30px; }
+  .page [data-home="category-artwork"] :global(#shop-category-track) { gap: calc(var(--cq) * 1.25); }
+  .page [data-home="category-artwork"] :global(#shop-category-track) > a { width: calc(var(--cq) * 29.2361); aspect-ratio: 421 / 560; border-radius: 30px; }
   /* DNA: 1440 x 856, the image layer covers the whole section. */
   .page [data-home="dna-frame"] > img { width: 100%; }
   .page [data-home="dna-frame"] > div:nth-of-type(2) { display: none; }
-  .page [data-home="dna-content"] { min-height: 59.4444cqw; align-content: center; padding-block: 4.4444cqw; }
+  .page [data-home="dna-content"] { min-height: calc(var(--cq) * 59.4444); align-content: center; padding-block: calc(var(--cq) * 4.4444); }
+  /* Past 1440 the image keeps its 1440 size inside the centred frame (instead of zooming in) and its
+     sides fade into the card colour. */
+  @media (min-width: 1441px) {
+    .page [data-home="dna-frame"] > img { left: var(--frame-edge); width: 1440px; mask-image: linear-gradient(to right, transparent, #000 12%, #000 88%, transparent); -webkit-mask-image: linear-gradient(to right, transparent, #000 12%, #000 88%, transparent); }
+  }
   /* Pathways: 865 tall, cards start 158 below the DNA section and end 160 above the next. */
-  .page [data-home="pathways"] { padding-top: 10.9722cqw; padding-bottom: 11.1111cqw; }
+  .page [data-home="pathways"] { padding-top: calc(var(--cq) * 10.9722); padding-bottom: calc(var(--cq) * 11.1111); }
   /* Community: 1440 x 770 directly below the pathways, photo 720 x 770 at x0. */
   .page [data-home="community"] { padding-top: 0; }
-  .page [data-home="community-copy"] { padding-block: 4.4444cqw; }
+  .page [data-home="community-copy"] { padding-block: calc(var(--cq) * 4.4444); }
   /* Catalog: 867 tall; heading 627 wide, artwork frame 843 x 687 at x789 y99, bleeding past the right edge. */
-  .page [data-home="catalog"] { padding-top: 6.875cqw; padding-bottom: 5.625cqw; }
-  .page [data-home="catalog-layout"] { grid-template-columns: 43.5417cqw 58.5417cqw; gap: 4.3056cqw; }
-  .page [data-home="catalog-artwork"] { height: 47.7083cqw; }
+  .page [data-home="catalog"] { padding-top: calc(var(--cq) * 6.875); padding-bottom: calc(var(--cq) * 5.625); }
+  .page [data-home="catalog-layout"] { grid-template-columns: calc(var(--cq) * 43.5417) calc(var(--cq) * 58.5417); gap: calc(var(--cq) * 4.3056); }
+  .page [data-home="catalog-artwork"] { height: calc(var(--cq) * 47.7083); }
   /* The brochure sits at the left of the frame; the empty part of the frame runs past the page edge. */
   .page [data-home="catalog-artwork"] > img { width: 100%; max-width: none; height: 100%; object-position: left center; }
   /* Buttons: conversion 432 x 59, catalog 331 x 59; the arrow glyph must not grow the line box. */
   .page [data-home="qc-button"] > span, .page [data-home="catalog-button"] > span:last-child { line-height: 1; }
-  .page [data-home="qc-button"] { min-width: 30cqw; justify-content: space-between; }
-  .page [data-home="catalog-button"] { min-width: 22.9861cqw; justify-content: space-between; }
+  .page [data-home="qc-button"] { min-width: calc(var(--cq) * 30); justify-content: space-between; }
+  .page [data-home="catalog-button"] { min-width: calc(var(--cq) * 22.9861); justify-content: space-between; }
   /* Background DNA pattern: 3456 x 1344 at 25% opacity, x -1122, 113 below the DNA section top. */
-  .page [data-home="background-pattern"] { opacity: .25; width: 240cqw; left: -77.9167cqw; top: 7.8472cqw; transform: none; }
+  .page [data-home="background-pattern"] { opacity: .25; width: calc(var(--cq) * 240); left: calc(var(--cq) * -77.9167 + var(--frame-edge)); top: calc(var(--cq) * 7.8472); transform: none; }
   /* Pathways copy: 485 wide, Poppins 16 / 165%, 1% tracking, #070707. */
-  .page [data-home="pathways-copy"] > p { max-width: 33.6806cqw; line-height: 1.65; letter-spacing: .01em; color: #070707; }
+  .page [data-home="pathways-copy"] > p { max-width: calc(var(--cq) * 33.6806); line-height: 1.65; letter-spacing: .01em; color: #070707; }
 }
 
-/* Figma text styles (node 38038-4, Poppins). Sizes scale from the 1440 frame (1px = .069444cqw);
+/* Figma text styles (node 38038-4, Poppins). Sizes scale from the 1440 frame (1px = calc(var(--cq) * .069444));
    line height and tracking are the Figma percentages. Copy is unchanged. */
 @media (min-width: 1024px) {
-  .page [data-home="hero-copy"] > p:first-child { font-size: clamp(12px, 1.1111cqw, 21px); font-weight: 600; line-height: 1.15; letter-spacing: .1em; color: #012c56; }
-  .page [data-home="hero-copy"] h1 { font-size: clamp(40px, 5.8333cqw, 112px); font-weight: 400; line-height: 1; letter-spacing: -.07em; color: #012c56; }
+  .page [data-home="hero-copy"] > p:first-child { font-size: clamp(12px, calc(var(--cq) * 1.1111), 21px); font-weight: 600; line-height: 1.15; letter-spacing: .1em; color: #012c56; }
+  /* 64px (not Figma's 84px): the site's longer heading then takes three lines, so the hero fits a desktop screen. */
+  .page [data-home="hero-copy"] h1 { font-size: clamp(40px, calc(var(--cq) * 4.4444), 64px); font-weight: 400; line-height: 1; letter-spacing: -.07em; color: #012c56; }
   .page [data-home="hero-copy"] h1 span { color: #4398cc; font-weight: 600; }
-  .page [data-home="hero-copy"] h2 { font-size: clamp(18px, 1.8056cqw, 35px); font-weight: 500; line-height: 1.15; letter-spacing: -.02em; color: #012c56; }
-  .page [data-home="hero-copy"] > p:not(:first-child) { font-size: clamp(14px, 1.1111cqw, 21px); line-height: 1.65; letter-spacing: .01em; color: #070707; }
-  .page [data-home="hero-copy"] button { font-size: clamp(16px, 1.3889cqw, 27px); line-height: 1.15; letter-spacing: -.04em; }
+  .page [data-home="hero-copy"] h2 { font-size: clamp(18px, calc(var(--cq) * 1.5278), 22px); font-weight: 500; line-height: 1.15; letter-spacing: -.02em; color: #012c56; }
+  .page [data-home="hero-copy"] > p:not(:first-child) { font-size: clamp(14px, calc(var(--cq) * 1.1111), 21px); line-height: 1.65; letter-spacing: .01em; color: #070707; }
+  .page [data-home="hero-copy"] button { font-size: clamp(16px, calc(var(--cq) * 1.3889), 27px); line-height: 1.15; letter-spacing: -.04em; }
 
-  .page [data-home="category-artwork"] > div:first-of-type h2 { font-size: clamp(32px, 4.0278cqw, 78px); font-weight: 400; line-height: 1.05; letter-spacing: -.05em; color: #012c56; }
+  .page [data-home="category-artwork"] > div:first-of-type h2 { font-size: clamp(32px, calc(var(--cq) * 4.0278), 78px); font-weight: 400; line-height: 1.05; letter-spacing: -.05em; color: #012c56; }
   .page [data-home="category-artwork"] > div:first-of-type h2 span { font-weight: 600; color: #4398cc; }
-  .page [data-home="category-artwork"] :global(#shop-category-track) h3 { font-size: clamp(20px, 2.0833cqw, 40px); line-height: 1.05; letter-spacing: -.05em; }
+  .page [data-home="category-artwork"] :global(#shop-category-track) h3 { font-size: clamp(20px, calc(var(--cq) * 2.0833), 40px); line-height: 1.05; letter-spacing: -.05em; }
 
-  .page [data-home="dna-copy"] h2, .page [data-home="dna-copy"] h3 { font-size: clamp(32px, 4.0278cqw, 78px); line-height: 1.05; letter-spacing: -.05em; }
+  .page [data-home="dna-copy"] h2, .page [data-home="dna-copy"] h3 { font-size: clamp(32px, calc(var(--cq) * 4.0278), 78px); line-height: 1.05; letter-spacing: -.05em; }
   .page [data-home="dna-copy"] h2 { font-weight: 600; }
   .page [data-home="dna-copy"] h3 { font-weight: 400; }
-  .page [data-home="dna-copy"] > p, .page [data-home="dna-copy"] li { font-size: clamp(14px, 1.1111cqw, 21px); line-height: 1.65; letter-spacing: .01em; }
-  .page [data-home="dna-copy"] h4 { font-size: clamp(16px, 1.3889cqw, 27px); line-height: 1.65; letter-spacing: -.01em; }
+  .page [data-home="dna-copy"] > p, .page [data-home="dna-copy"] li { font-size: clamp(14px, calc(var(--cq) * 1.1111), 21px); line-height: 1.65; letter-spacing: .01em; }
+  /* Figma: 20px below the paragraph. */
+  .page [data-home="dna-copy"] h4 { margin-top: calc(var(--cq) * 1.3889); font-size: clamp(16px, calc(var(--cq) * 1.3889), 27px); line-height: 1.65; letter-spacing: -.01em; }
 
-  .page [data-home="pathways-grid"] p { font-size: clamp(16px, 1.3889cqw, 27px); line-height: 1.3; letter-spacing: -.02em; color: #070707; }
+  .page [data-home="pathways-grid"] p { font-size: clamp(16px, calc(var(--cq) * 1.3889), 27px); line-height: 1.3; letter-spacing: -.02em; color: #070707; }
 
-  .page [data-home="community-copy"] p, .page [data-home="community-copy"] li { font-size: clamp(14px, 1.1111cqw, 21px); line-height: 1.65; letter-spacing: .01em; color: #070707; }
-  .page [data-home="community-copy"] h3 { font-size: clamp(16px, 1.3889cqw, 27px); line-height: 1.65; letter-spacing: -.01em; color: #012c56; }
+  .page [data-home="community-copy"] p, .page [data-home="community-copy"] li { font-size: clamp(14px, calc(var(--cq) * 1.1111), 21px); line-height: 1.65; letter-spacing: .01em; color: #070707; }
+  .page [data-home="community-copy"] h3 { font-size: clamp(16px, calc(var(--cq) * 1.3889), 27px); line-height: 1.65; letter-spacing: -.01em; color: #012c56; }
 
-  .page [data-home="catalog-copy"] p { font-size: clamp(14px, 1.1111cqw, 21px); line-height: 1.65; letter-spacing: .01em; }
+  /* Figma's catalog copy box is 505 wide. */
+  .page [data-home="catalog-copy"] p { max-width: calc(var(--cq) * 35.0694); font-size: clamp(14px, calc(var(--cq) * 1.1111), 21px); line-height: 1.65; letter-spacing: .01em; }
 
   /* Buttons: SemiBold 20 / 115%, -4% tracking; 59px tall with 8px corners. */
-  .page [data-home="qc-button"], .page [data-home="learning-button"], .page [data-home="catalog-button"] { font-size: clamp(16px, 1.3889cqw, 27px); font-weight: 600; line-height: 1.15; letter-spacing: -.04em; }
-  .page [data-home="learning-button"] { height: 4.0972cqw; min-height: 0; padding-block: 0; }
-  .page [data-home="hero-copy"] button { height: 4.0972cqw; min-height: 0; min-width: 14.8611cqw; padding-inline: 1.9444cqw; border-radius: 8px; justify-content: space-between; }
+  .page [data-home="qc-button"], .page [data-home="learning-button"], .page [data-home="catalog-button"] { font-size: clamp(16px, calc(var(--cq) * 1.3889), 27px); font-weight: 600; line-height: 1.15; letter-spacing: -.04em; }
+  .page [data-home="learning-button"] { height: calc(var(--cq) * 4.0972); min-height: 0; padding-block: 0; }
+  .page [data-home="hero-copy"] button { height: calc(var(--cq) * 4.0972); min-height: 0; min-width: calc(var(--cq) * 14.8611); padding-inline: calc(var(--cq) * 1.9444); border-radius: 8px; justify-content: space-between; }
 
   /* Pathway cards: 298 x 267 with 16px corners. */
   .page [data-home="pathways-grid"] > button { border-radius: 16px; }
+
+  /* "Categories" watermark: Poppins 220 as in Figma, its top 117px above the "Shop By Category"
+     heading. Navy at 12% fading to 1.8% (Figma's 6% to 0 read too faint on screen). */
+  .page [data-home="category-artwork"] > h2 {
+    top: calc(var(--cq) * -8.125); translate: -50% 0; opacity: 1;
+    font-size: calc(var(--cq) * 15.2778); font-weight: 400; line-height: 1.05; letter-spacing: -.04em;
+    color: transparent; background: linear-gradient(rgb(1 44 86 / .12), rgb(1 44 86 / .018)); -webkit-background-clip: text; background-clip: text;
+    mask-image: none; -webkit-mask-image: none;
+  }
+
+  /* Community copy from Figma: paragraph 420 wide; list lines 8px apart with 18.9px #4398CC
+     check circles 14px before the text, centred on the first line. */
+  .page [data-home="community-copy"] p { max-width: calc(var(--cq) * 29.1667); }
+  .page [data-home="community-copy"] li { gap: 14px; }
+  .page [data-home="community-copy"] li > span:first-child { width: 18.9px; height: 18.9px; margin-top: 3.75px; background: #4398cc; }
+  .page [data-home="community-copy"] li > span:first-child svg { width: 10px; height: 10px; }
+
+  /* The community panel runs edge to edge as in Figma; past 1440 the photo half keeps
+     Figma's 770 height and crops instead of growing taller. */
+  .page [data-home="community-grid"] > div:first-child { aspect-ratio: auto; height: calc(var(--cq) * 53.4722); }
 }
 
 /* The footer's Figma styling lives in the shared footer; on the homepage its headings sit 111px
@@ -205,9 +243,9 @@
 }
 
 /* Header and footer use the same alignment without depending on API success. */
-:global(body):has(.page) :global(.navbar), :global(body):has(.page) footer > div { width: calc(100% - 2 * clamp(20px, 6.9444vw, 160px)); max-width: none; padding-inline: 0; margin-inline: auto; }
+:global(body):has(.page) :global(.navbar), :global(body):has(.page) footer > div { width: min(1240px, calc(100% - 2 * clamp(20px, 6.9444vw, 100px))); max-width: none; padding-inline: 0; margin-inline: auto; }
 /* Figma: header + hero is 925 (8px top strip + 89px navbar + 828px hero); nav links have 36px gaps. */
-:global(body):has(.page) :global(.navbar) { position: relative; height: auto; min-height: clamp(80px, 6.1806vw, 142px); padding-block: 16px; gap: 16px; }
+:global(body):has(.page) :global(.navbar) { position: relative; height: auto; min-height: clamp(80px, 6.1806vw, 89px); padding-block: 16px; gap: 16px; }
 /* Header sizes (logo, menu font, icons) come from the shared header.css so every page matches. */
 :global(body):has(.page) :global(.navbar__links) > nav > a, :global(body):has(.page) :global(.navbar__links) > nav > li > a, :global(body):has(.page) :global(.navbar__links) > nav > li > button { white-space: nowrap; }
 :global(body):has(.page) :global(.navbar__links) > nav > li > ul { left: auto; right: 0; max-width: calc(100vw - 2 * var(--home-gutter, 40px)); }

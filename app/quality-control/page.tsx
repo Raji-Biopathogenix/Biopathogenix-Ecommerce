@@ -12,8 +12,13 @@ import styles from "./quality-control.module.css";
 // The Figma design's typeface.
 const poppins = Poppins({ subsets: ["latin"], weight: ["400", "500", "600", "700"], display: "swap" });
 
-// Figma px on the 1440 frame, as page-width units.
-const cq = (px: number) => `${(px / 14.4).toFixed(4)}cqw`;
+// Figma px on the 1440 frame, in the page's capped unit (--cq in quality-control.module.css is
+// 1% of the frame, so one Figma px is --cq / 14.4).
+const cq = (px: number) => `calc(var(--cq) * ${(px / 14.4).toFixed(4)})`;
+
+// Hexagons on the right half are placed from the right edge, so they stay at the edge on wide screens.
+const hexPosition = (x: number, size: number) =>
+  x + size / 2 > 720 ? { right: cq(1440 - x - size) } : { left: cq(x) };
 
 // Hero hexagons (Figma polygons; y is measured from the hero's top, below the 97px header).
 const HERO_HEXES = [
@@ -68,7 +73,7 @@ export default function QualityControlPage() {
               stroke={6.56}
               crop={hex.crop}
               className={styles.heroHex}
-              style={{ left: cq(hex.x), top: cq(hex.y), width: cq(hex.size), height: cq(hex.size) }}
+              style={{ ...hexPosition(hex.x, hex.size), top: cq(hex.y), width: cq(hex.size), height: cq(hex.size) }}
             />
           ))}
           <h1>

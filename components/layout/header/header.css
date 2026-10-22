@@ -8,8 +8,8 @@
   --nav-hover-bg: rgba(79, 135, 203, 0.08);
   --nav-dropdown-bg: rgba(255, 255, 255, 0.98);
   --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
-  --font-body: "Plus Jakarta Sans", "Manrope", Arial, Helvetica, sans-serif;
-  --font-display: "Plus Jakarta Sans", "Manrope", Arial, Helvetica, sans-serif;
+  --font-body: var(--font-brand);
+  --font-display: var(--font-brand);
 }
 
 .navbar_container {
@@ -20,8 +20,8 @@
   background: #ffffff;
   border-bottom: 1px solid #dfe8f2;
   backdrop-filter: none;
-  --font-body: var(--font-header), "Plus Jakarta Sans", "Manrope", Arial, Helvetica, sans-serif;
-  --font-display: var(--font-header), "Plus Jakarta Sans", "Manrope", Arial, Helvetica, sans-serif;
+  --font-body: var(--font-header), var(--font-brand);
+  --font-display: var(--font-header), var(--font-brand);
 }
 
 .navbar_container::before {
@@ -390,12 +390,13 @@
 }
 
 /* Desktop header from the 1440 Figma frame: 8px strip + 89px bar, content 1240 wide (100px gutters),
-   logo 202 wide, menu centred in Poppins 16 regular #021F3B, icons 40px navy circles 5px apart. */
+   logo 202 wide, menu centred in Poppins 16 regular #021F3B, icons 40px navy circles 5px apart.
+   Sizes scale down below 1440 and stop at the Figma sizes above it, with the content centred. */
 @media (min-width: 1024px) {
   .navbar {
-    width: calc(100% - 2 * clamp(20px, 6.9444vw, 160px));
+    width: min(1240px, calc(100% - 2 * clamp(20px, 6.9444vw, 100px)));
     height: auto;
-    min-height: clamp(80px, 6.1806vw, 142px);
+    min-height: clamp(80px, 6.1806vw, 89px);
     padding-inline: 0;
   }
 
@@ -415,11 +416,11 @@
 
   .navbar__links,
   .navbar__links > nav {
-    gap: clamp(12px, 2.2222vw, 40px);
+    gap: clamp(12px, 2.2222vw, 32px);
   }
 
   .navbar__logo img {
-    width: clamp(145px, 14.0278vw, 270px);
+    width: clamp(145px, 14.0278vw, 202px);
     height: auto;
   }
 
@@ -427,7 +428,7 @@
   .navbar__links nav > li > a,
   .navbar__links nav > li > button,
   .nav-item__label {
-    font-size: clamp(13px, 1.1111vw, 21px);
+    font-size: clamp(13px, 1.1111vw, 16px);
     font-weight: 400;
     line-height: 1.1;
     letter-spacing: -.01em;

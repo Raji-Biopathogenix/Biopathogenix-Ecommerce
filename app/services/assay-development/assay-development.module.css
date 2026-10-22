@@ -127,7 +127,8 @@
 .formCard form button { justify-self: start; margin-top: 6px; }
 
 .cta { margin: 120px 16px 0; padding: 62px 24px 111px; border-radius: 40px; background: linear-gradient(110deg, #000c38 0%, #002052 100%); text-align: center; color: white; }
-.cta h2 { width: min(100%, 729.52px); margin-inline: auto; font-size: clamp(38px, 5.36vw, 77.05px); line-height: 1; letter-spacing: -.07em; color: white; }
+/* Site section-heading size (58px at 1440); the width is in em so the lines break as before. */
+.cta h2 { width: min(100%, 9.468em); margin-inline: auto; font-size: clamp(34px, 4.03vw, 58px); line-height: 1; letter-spacing: -.07em; color: white; }
 .cta h2 span { font-weight: 700; }
 .cta .lead { max-width: 590px; margin: 34px auto 41px; }
 
@@ -150,7 +151,7 @@
 }
 
 @media (min-width: 1280px) {
-  .cta h2 { font-size: 77.05px; letter-spacing: -5.39px; }
+  .cta h2 { font-size: 58px; letter-spacing: -.07em; }
 }
 
 @media (max-width: 1023px) {
@@ -184,7 +185,8 @@
 
 /* Figma text styles (node 38079-13). Line height and tracking are the Figma percentages. */
 .heroEyebrow, .eyebrow { line-height: 1.15; letter-spacing: .1em; }
-.heroCopy h1 { font-weight: 400; letter-spacing: -.07em; }
+/* Same title size as the homepage hero (64px at 1440); the width is in em so the lines break as before. */
+.heroCopy h1 { max-width: 8.92em; font-size: clamp(36px, 4.4444vw, 64px); font-weight: 400; letter-spacing: -.07em; }
 .heroTagline { line-height: 1.15; letter-spacing: -.02em; }
 .button { line-height: 1.15; letter-spacing: -.04em; }
 .badge p { line-height: 1.25; letter-spacing: -.02em; }
@@ -206,7 +208,7 @@
 @media (min-width: 1280px) {
   /* The right column starts at 720px at the comparison width. The asymmetric
      vertical padding moves centered copy down 1.75px without growing the panel. */
-  .custom .splitCopy { padding-left: 69px; padding-top: 3.5px; }
+  .custom .splitCopy { padding-left: 80px; padding-top: 3.5px; }
 
   /* Move Standard Assays content down 27.81px while retaining the section's
      total padding, so the following sections do not inherit that offset. */
@@ -231,4 +233,16 @@
 
   /* Final CTA: 120px below the form card, 1240 x 519, button 360px from its top. */
   .cta { margin-top: 120px; padding-top: 79px; padding-bottom: 100px; }
+}
+
+/* Wider than the 1440 Figma frame (like the homepage): each copy block keeps its 1440 width beside
+   the page centre, and the badge row, contact block and final CTA stay in a centred 1440 frame.
+   Photos and backgrounds still run edge to edge. */
+@media (min-width: 1441px) {
+  .badges { padding-inline: calc((100% - 1280px) / 2); }
+  .custom .splitCopy, .docCopy { justify-self: start; width: 720px; }
+  .custom .splitCopy { padding-right: 36px; }
+  .support .splitCopy { justify-self: end; width: 720px; padding-inline: 100px; }
+  .contact { padding-left: calc(50% - 561px); padding-right: calc(50% - 568px); }
+  .cta { max-width: 1240px; margin-inline: auto; }
 }

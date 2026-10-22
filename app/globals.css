@@ -1,7 +1,8 @@
-@import url("https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Manrope:wght@400;500;600;700;800&display=swap");
 @import "tailwindcss";
 
 :root {
+  /* The one site typeface (Poppins, loaded in app/layout.tsx). */
+  --font-brand: var(--font-poppins), system-ui, sans-serif;
   --background: #f6f9fc;
   --foreground: #10264a;
   --surface: #ffffff;
@@ -18,7 +19,7 @@
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: "Plus Jakarta Sans", "Manrope", system-ui, sans-serif;
+  --font-sans: var(--font-brand);
   --font-mono: var(--font-geist-mono);
 }
 
@@ -31,7 +32,7 @@ body {
     radial-gradient(circle at 50% 0%, rgba(255, 255, 255, 0.95), rgba(246, 249, 252, 0.82) 34%, rgba(246, 249, 252, 0.6) 100%),
     var(--background);
   color: var(--foreground);
-  font-family: "Plus Jakarta Sans", "Manrope", system-ui, sans-serif;
+  font-family: var(--font-brand);
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
@@ -49,6 +50,29 @@ body {
     color: var(--navy);
     letter-spacing: -0.04em;
   }
+}
+
+/* Site type scale from the Figma pages, for content pages built with Tailwind sizes. Their route
+   layouts wrap them in .type-scale (components/layout/TypeScale.tsx). Rules are unlayered, so they
+   replace Tailwind's size utilities, but :where() gives them no specificity, so page and module
+   styles (the Figma pages) still win. Headings go by role: the page title, large section headings
+   (Tailwind 30px and up), and every other heading as a mid heading. */
+.type-scale { display: contents; }
+:where(.type-scale) :where(h1) { font-size: clamp(40px, 4.4444vw, 64px); font-weight: 400; line-height: 1; letter-spacing: -.07em; }
+:where(.type-scale) :where(h2, h3):where([class*="text-3xl"], [class*="text-4xl"], [class*="text-5xl"], [class*="text-6xl"], [class*="text-[3"], [class*="text-[4"], [class*="text-[5"], [class*="text-[6"]) {
+  font-size: clamp(30px, 4.0278vw, 58px); font-weight: 400; line-height: 1.05; letter-spacing: -.05em;
+}
+:where(.type-scale) :where(h2, h3, h4, h5):where(:not([class*="text-3xl"], [class*="text-4xl"], [class*="text-5xl"], [class*="text-6xl"], [class*="text-[3"], [class*="text-[4"], [class*="text-[5"], [class*="text-[6"])) {
+  font-size: 20px; font-weight: 600; line-height: 1.65; letter-spacing: -.01em;
+}
+:where(.type-scale) :where(p, li):where(:not([class*="text-xs"], [class*="text-[10"], [class*="text-[11"], [class*="text-[12"], [class*="text-[13"])) {
+  font-size: 16px; line-height: 1.65; letter-spacing: .01em;
+}
+/* Main call-to-action buttons: 59 tall, Poppins SemiBold 20, 8px corners. Buttons inside cards,
+   lists and tables keep their compact size. */
+:where(.type-scale) :where(a, button):where([class*="bg-[#"], [class*="bg-blue"], [class*="bg-sky"], [class*="bg-white"], [class*="border-white"], [class*="border-[#"]):where([class*="px-5"], [class*="px-6"], [class*="px-7"], [class*="px-8"], [type="submit"]):where(:not(article *, li *, td *, [class*="card"] *)) {
+  min-height: 59px; padding-block: 0; display: inline-flex; align-items: center; justify-content: center; border-radius: 8px;
+  font-size: 20px; font-weight: 600; line-height: 1.15; letter-spacing: -.04em;
 }
 
 /* Keep assay banner titles readable above the dark image background. */
@@ -74,7 +98,7 @@ button {
 
 .font-\[\'Quicksand\'\],
 .font-\[\'Poppins\'\] {
-  font-family: "Plus Jakarta Sans", "Manrope", system-ui, sans-serif !important;
+  font-family: var(--font-brand) !important;
 }
 
 .site-page {
@@ -135,7 +159,7 @@ button {
 
 .bpx-chat-panel,
 .bpx-chat-panel * {
-  font-family: "Plus Jakarta Sans", "Manrope", "IBM Plex Sans", "Segoe UI", sans-serif;
+  font-family: var(--font-brand);
 }
 
 .bpx-chat-panel {
@@ -168,7 +192,7 @@ button {
 
 .spec-section.product-overview {
   padding: 40px 0;
-  font-family: "Plus Jakarta Sans", "Manrope", system-ui, sans-serif;
+  font-family: var(--font-brand);
   line-height: 1.7;
 }
 

@@ -1,10 +1,13 @@
 /* Careers page. Desktop sizes follow the Figma frame (node 38466-4403): --px is one Figma pixel
    of the 1440 frame, so every value below reads as calc(var(--px) * <Figma px>). */
-.page { --px: calc(100cqw / 1440); --navy: #012c56; --ink: #070707; --blue: #4398cc; --button: #0c558a; container-type: inline-size; overflow-x: clip; background: white; color: var(--ink); }
+.page {
+  /* One Figma pixel of the 1440 frame, capped at 1px so wider screens keep the Figma sizes;
+     --edge centres the 1440 frame on wider screens. */
+  --px: min(100cqw / 1440, 1px); --edge: max(0px, (100cqw - 1440px) / 2); --navy: #012c56; --ink: #070707; --blue: #4398cc; --button: #0c558a; container-type: inline-size; overflow-x: clip; background: white; color: var(--ink); }
 .page h1, .page h2, .page h3, .page p { margin: 0; }
 
 .eyebrow { font-size: 16px; font-weight: 600; line-height: 1.15; letter-spacing: .1em; text-transform: uppercase; color: var(--navy); }
-.h2 { font-size: clamp(34px, 4.0278cqw, 78px); font-weight: 400; line-height: 1.05; letter-spacing: -.05em; color: var(--navy); }
+.h2 { font-size: clamp(34px, calc(var(--px) * 58), 58px); font-weight: 400; line-height: 1.05; letter-spacing: -.05em; color: var(--navy); }
 .h2 span { font-weight: 600; color: var(--blue); }
 .copy { font-size: 16px; line-height: 1.65; letter-spacing: .01em; }
 .button { display: inline-flex; align-items: center; justify-content: space-between; gap: 14px; max-width: 100%; height: 59px; padding: 0 24px 0 28px; border: 1px solid var(--button); border-radius: 8px; background: var(--button); color: white; font-size: 20px; font-weight: 600; line-height: 1.15; letter-spacing: -.04em; white-space: nowrap; transition: background .2s, color .2s; }
@@ -27,7 +30,7 @@
 .hero::before, .hero::after { content: ""; position: absolute; z-index: -1; inset-block: 0; width: 50%; background: url('/images/validation%20services/bg1.jpeg') right center / auto 115% no-repeat; opacity: .7; pointer-events: none; }
 .hero::before { left: 0; transform: scaleX(-1); }
 .hero::after { right: 0; }
-.hero h1 { margin-top: 20px; font-size: clamp(44px, 5.1389cqw, 99px); font-weight: 400; line-height: 1; letter-spacing: -.07em; color: var(--navy); }
+.hero h1 { margin-top: 20px; font-size: clamp(40px, calc(var(--px) * 64), 64px); font-weight: 400; line-height: 1; letter-spacing: -.07em; color: var(--navy); }
 .hero h1 span { font-weight: 600; color: var(--blue); }
 .hero h1 + .copy { max-width: 610px; margin-top: 16px; }
 .heroActions { display: flex; flex-wrap: wrap; gap: 15px; margin-top: 24px; }
@@ -85,6 +88,8 @@
 .cardIcon svg { width: 38px; height: 38px; }
 .card h3 { margin-top: 29.2px; font-size: 18px; font-weight: 600; line-height: 1.65; letter-spacing: .01em; color: var(--navy); }
 .card p { max-width: 345px; margin-top: 5.7px; font-size: 16px; line-height: 1.4; letter-spacing: .01em; }
+/* Figma's High Standards copy box is 307.5 wide. */
+.card:nth-child(3) p { max-width: 307.5px; }
 
 .life { display: grid; gap: 40px; padding: 72px 20px 48px; border-radius: 40px; background: linear-gradient(to bottom left, #002159, #00021b), #000725; color: white; scroll-margin-top: 112px; }
 .life .eyebrow { color: var(--blue); }
@@ -101,15 +106,17 @@
 .step { position: relative; display: flex; flex-direction: column; align-items: center; }
 .stepNumber { display: flex; align-items: center; justify-content: center; width: 157.8px; height: 157.8px; border: .5px solid var(--navy); border-radius: 50%; font-size: 58px; line-height: 1.05; letter-spacing: -.05em; color: var(--navy); }
 .stepMuted .stepNumber { opacity: .3; }
+/* Figma step copy boxes are 203 wide, except "Conversation" at 223. */
+.step:nth-child(2) p { max-width: 223px; }
 .step h3 { margin-top: 21px; font-size: 18px; font-weight: 600; line-height: 1.65; letter-spacing: .01em; color: var(--navy); }
-.step p { max-width: 223px; margin-top: 6px; font-size: 16px; line-height: 1.4; letter-spacing: .01em; }
+.step p { max-width: 203px; margin-top: 6px; font-size: 16px; line-height: 1.4; letter-spacing: .01em; }
 
 /* ---- Don't see your role? ---- */
 .cta { position: relative; overflow: hidden; margin: 0 20px; padding: 64px 24px; border-radius: 40px; background: linear-gradient(to bottom left, #002159, #00021b); color: white; }
 .ctaImage { position: absolute; inset: 0 0 0 auto; width: 79.7%; border-radius: 40px; overflow: hidden; opacity: .35; }
 .cta > div:last-child { position: relative; }
 .cta .eyebrow { color: white; }
-.cta h2 { max-width: 743px; margin-top: 26px; font-size: clamp(40px, 5.3472cqw, 103px); font-weight: 400; line-height: 1; letter-spacing: -.07em; color: white; }
+.cta h2 { max-width: 743px; margin-top: 26px; font-size: clamp(40px, calc(var(--px) * 77), 77px); font-weight: 400; line-height: 1; letter-spacing: -.07em; color: white; }
 .cta h2 span { font-weight: 600; color: var(--blue); }
 .cta .copy { max-width: 562px; margin-top: 12px; }
 .cta .button { width: 316px; margin-top: 32px; }
@@ -151,7 +158,7 @@
 
 @media (min-width: 1024px) {
   /* Hero: copy at x100 (eyebrow 132 below the header), photo 544 x 552 at x796 y46. */
-  .hero { grid-template-columns: calc(var(--px) * 672.3) calc(var(--px) * 544); justify-content: space-between; gap: 0; align-items: start; min-height: calc(var(--px) * 740); padding: 0 calc(var(--px) * 100); }
+  .hero { grid-template-columns: calc(var(--px) * 672.3) calc(var(--px) * 544); justify-content: space-between; gap: 0; align-items: start; min-height: calc(var(--px) * 740); padding: 0 calc(var(--px) * 100 + var(--edge)); }
   .hero > div:first-child { padding-top: calc(var(--px) * 132); }
   .hero h1 { margin-top: calc(var(--px) * 19.6); }
   .hero h1 + .copy { margin-top: calc(var(--px) * 15.9); }
@@ -160,7 +167,7 @@
   .heroPhoto { margin-top: calc(var(--px) * 45.7); }
 
   /* Open positions: 1440 wide from y761 (76 over the hero); cards 2 x 604 at y1186. */
-  .positions { margin-top: calc(var(--px) * -76); padding: calc(var(--px) * 80.8) calc(var(--px) * 100); }
+  .positions { margin-top: calc(var(--px) * -76); padding: calc(var(--px) * 80.8) calc(var(--px) * 100 + var(--edge)); }
   .positions .h2 { margin-top: calc(var(--px) * 13.7); }
   .positions .h2 + .copy { margin-top: calc(var(--px) * 14.1); }
   /* Search and department pills share one row in Figma; more departments wrap onto extra rows. */
@@ -170,26 +177,26 @@
   .positionsFoot { margin-top: calc(var(--px) * 28.1); }
 
   /* Why: from y1667, eyebrow at 187.5, cards 406 x 280 at 390; 165 below the cards. */
-  .why { padding: calc(var(--px) * 187.5) calc(var(--px) * 100) calc(var(--px) * 164.9); }
+  .why { padding: calc(var(--px) * 187.5) calc(var(--px) * 100 + var(--edge)) calc(var(--px) * 164.9); }
   .why .h2 { margin-top: calc(var(--px) * 13.7); }
   .cards { grid-template-columns: repeat(3, calc(var(--px) * 406.4)); justify-content: space-between; gap: 0; max-width: none; margin-top: calc(var(--px) * 48.4); }
   .card { min-height: calc(var(--px) * 279.8); }
   /* DNA strands: Figma transforms, measured from the band's top (y1667). */
   .bandDna { top: calc(var(--px) * 93.8); width: calc(var(--px) * 1319.9); height: calc(var(--px) * 1166.8); }
-  .bandDna:first-of-type { left: calc(var(--px) * 558); transform: matrix(.8025, -.5967, .5967, .8025, 0, 0); }
-  .bandDna:nth-of-type(2) { left: calc(var(--px) * 882); transform: matrix(-.8025, -.5967, -.5967, .8025, 0, 0); }
-  .bandBallStick { left: calc(var(--px) * -1121.3); top: calc(var(--px) * 923.1); width: calc(var(--px) * 3456); height: calc(var(--px) * 1024.3); }
-  .bandGlow { left: calc(var(--px) * -78.5); top: calc(var(--px) * 227.7); width: calc(var(--px) * 1597.6); height: calc(var(--px) * 647); }
+  .bandDna:first-of-type { left: calc(var(--px) * 558 + var(--edge)); transform: matrix(.8025, -.5967, .5967, .8025, 0, 0); }
+  .bandDna:nth-of-type(2) { left: calc(var(--px) * 882 + var(--edge)); transform: matrix(-.8025, -.5967, -.5967, .8025, 0, 0); }
+  .bandBallStick { left: calc(var(--px) * -1121.3 + var(--edge)); top: calc(var(--px) * 923.1); width: calc(var(--px) * 3456); height: calc(var(--px) * 1024.3); }
+  .bandGlow { left: calc(var(--px) * -78.5 + var(--edge)); top: calc(var(--px) * 227.7); width: calc(var(--px) * 1597.6); height: calc(var(--px) * 647); }
 
   /* Life at BPX: 1440 x 770, photo 720 x 585 at x720 y93. */
-  .life { grid-template-columns: calc(var(--px) * 720) calc(var(--px) * 720); gap: 0; align-items: center; padding: calc(var(--px) * 92.8) 0 calc(var(--px) * 92.1); }
+  .life { grid-template-columns: calc(var(--px) * 720) calc(var(--px) * 720); gap: 0; align-items: center; padding: calc(var(--px) * 92.8) var(--edge) calc(var(--px) * 92.1); }
   .life > div:first-child { padding-left: calc(var(--px) * 100); }
   .life .h2 { margin-top: calc(var(--px) * 18.6); }
   .life .copy { margin-top: calc(var(--px) * 30.1); }
   .life .checks { margin-top: calc(var(--px) * 22.3); }
 
   /* Hiring process: eyebrow 110 below the Life panel, circles 158 wide every 317.5 from x165. */
-  .process { padding: calc(var(--px) * 110.1) calc(var(--px) * 100) calc(var(--px) * 157.1); }
+  .process { padding: calc(var(--px) * 110.1) calc(var(--px) * 100 + var(--edge)) calc(var(--px) * 157.1); }
   .process .h2 { margin-top: calc(var(--px) * 13.7); }
   .steps { grid-template-columns: repeat(4, calc(var(--px) * 317.5)); gap: 0; margin: calc(var(--px) * 56.8) 0 0 calc(var(--px) * -14.8); }
   /* Connectors run between neighbouring circles at their centre line; only the first is solid. */
@@ -197,7 +204,7 @@
   .step:first-child::after { opacity: 1; }
 
   /* CTA: 1240 x 658 at x100; artwork 988 wide on the right; copy at x177, eyebrow 120 down. */
-  .cta { min-height: calc(var(--px) * 658.1); margin: 0 calc(var(--px) * 100); padding: calc(var(--px) * 120.1) calc(var(--px) * 77.4) calc(var(--px) * 106.6); }
+  .cta { min-height: calc(var(--px) * 658.1); margin: 0 calc(var(--px) * 100 + var(--edge)); padding: calc(var(--px) * 120.1) calc(var(--px) * 77.4) calc(var(--px) * 106.6); }
   .ctaImage { width: calc(var(--px) * 988.4); opacity: 1; }
   .cta h2 { width: calc(var(--px) * 742.9); max-width: none; margin-top: calc(var(--px) * 26.2); }
   .cta .copy { margin: calc(var(--px) * 12.1) 0 0 calc(var(--px) * 7.6); }
