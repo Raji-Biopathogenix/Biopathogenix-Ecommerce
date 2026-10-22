@@ -123,7 +123,7 @@ export default async function BlogLearningCenterPage() {
               No blog posts yet
             </p>
             <p className="mt-3 text-sm leading-7 text-[#4B6375]">
-              Add your first blog post in the Django admin and it will appear here.
+              Explore our product sheets and protocols, or contact our team for help with your laboratory needs.
             </p>
           </div>
         )}

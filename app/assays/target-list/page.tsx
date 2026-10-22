@@ -23,7 +23,7 @@ export default async function TargetListPreviewPage({ searchParams }: Props) {
         <section className="mx-auto max-w-5xl rounded-md border border-[#d7e5ee] bg-white p-8">
           <p className="text-sm font-bold uppercase text-[#1582b8]">Target list</p>
           <h1 className="mt-3 text-3xl font-extrabold text-[#0b2e59]">Target list not found</h1>
-          <p className="mt-4 text-[#526b7c]">Please check that the uploaded target document is active in the admin panel.</p>
+          <p className="mt-4 text-[#526b7c]">This target list is currently unavailable. Browse our assays or contact our team for assistance.</p>
           <Link href="/assays/respiratory" className="mt-6 inline-flex rounded-md bg-[#0b2e59] px-5 py-3 font-bold text-white">
             Back to assays
           </Link>
@@ -40,7 +40,7 @@ export default async function TargetListPreviewPage({ searchParams }: Props) {
             <p className="text-sm font-bold uppercase text-[#1582b8]">Target list</p>
             <h1 className="mt-2 text-3xl font-extrabold text-[#0b2e59]">{preview.title}</h1>
             <p className="mt-2 text-[#526b7c]">
-              {preview.sheet_name ? `${preview.sheet_name} sheet` : "Uploaded target document"}
+              {preview.sheet_name ? `${preview.sheet_name} sheet` : "Assay target document"}
               {preview.target_count ? ` // ${preview.target_count} targets` : ""}
             </p>
           </div>
@@ -52,7 +52,7 @@ export default async function TargetListPreviewPage({ searchParams }: Props) {
               rel="noopener noreferrer"
               className="rounded-md border border-[#236fa6] px-5 py-3 text-center font-bold text-[#236fa6] hover:bg-white"
             >
-              Open uploaded file
+              Open target list
             </a>
           ) : null}
         </div>
@@ -85,7 +85,7 @@ export default async function TargetListPreviewPage({ searchParams }: Props) {
             </div>
             {preview.truncated ? (
               <p className="border-t border-[#e2edf4] bg-[#f7fbfd] px-4 py-3 text-sm text-[#526b7c]">
-                Showing the first 200 rows. Open the uploaded file to review the full list.
+                Showing the first 200 rows. Open the target list to review the full document.
               </p>
             ) : null}
           </div>
@@ -93,7 +93,7 @@ export default async function TargetListPreviewPage({ searchParams }: Props) {
           <div className="rounded-md border border-[#d7e5ee] bg-white p-8">
             <h2 className="text-2xl font-extrabold text-[#0b2e59]">Preview is not available</h2>
             <p className="mt-3 text-[#526b7c]">
-              {preview.message || "Open the uploaded file to view this target list."}
+              Open the target list to view the full document.
             </p>
           </div>
         )}

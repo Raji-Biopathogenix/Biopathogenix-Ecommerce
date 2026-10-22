@@ -15,7 +15,7 @@ export default function AssayTargetDownloads({ documents }: Props) {
         <div className="mx-auto max-w-7xl rounded-md border border-dashed border-[#c9dbe8] bg-[#f7fbfd] p-7">
           <h2 className="text-2xl font-extrabold text-[#0b2e59]">Target lists</h2>
           <p className="mt-2 text-[#526b7c]">
-            Add PDF, Word, or Excel target lists from Assay Target Documents in the admin panel.
+            Contact our team for target lists and help finding the right assay for your laboratory.
           </p>
         </div>
       </section>

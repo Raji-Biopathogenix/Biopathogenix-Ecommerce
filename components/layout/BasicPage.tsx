@@ -19,9 +19,9 @@ export default function BasicPage({ title, description }: BasicPageProps) {
 
       <div className="max-w-[1400px] mx-auto px-6 py-12">
         <div className="rounded-xl border border-dashed border-gray-200 bg-white p-10 text-center">
-          <p className="text-lg font-semibold text-[#0b2e59]">Content coming soon</p>
+          <p className="text-lg font-semibold text-[#0b2e59]">Need more information?</p>
           <p className="mt-2 text-sm text-gray-500">
-            This section is managed in the admin and will be published soon.
+            Contact our team for details and assistance with your laboratory needs.
           </p>
         </div>
       </div>

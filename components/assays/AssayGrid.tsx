@@ -16,13 +16,13 @@ export default function AssayGrid({ products, label }: Props) {
             <h2 className="text-3xl font-extrabold text-[#0b2e59]">{label}</h2>
           </div>
           <p className="max-w-xl text-base leading-relaxed text-[#526b7c]">
-            Open any assay product to reveal its related details, target coverage, and supporting files in an inline dropdown.
+            Explore each assay for product details, pathogen coverage, and supporting documents.
           </p>
         </div>
 
         {products.length === 0 ? (
           <div className="rounded-md border border-dashed border-[#b8cfdd] bg-white px-6 py-12 text-center">
-            <p className="text-[#526b7c]">No assays found yet. Add products and assay details from the admin.</p>
+            <p className="text-[#526b7c]">No assays are currently listed. Contact our team for assay availability and product guidance.</p>
           </div>
         ) : (
           <div className="grid grid-cols-1 gap-6 md:grid-cols-2 xl:grid-cols-3">

@@ -16,17 +16,17 @@ export default function AssayInsights({ config }: Props) {
       <div className="mx-auto max-w-7xl">
         <div className="mb-10">
           <p className="mb-2 text-sm font-semibold uppercase text-[#a4e1d8]">Resources</p>
-          <h2 className="text-3xl font-extrabold">Latest {config.label.replace(" Assays", "")} resources</h2>
+          <h2 className="text-3xl font-extrabold text-white">Latest {config.label.replace(" Assays", "")} resources</h2>
         </div>
 
         <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
           <article className="rounded-md border border-white/15 bg-white/10 p-7">
             <p className="mb-3 text-xs font-semibold uppercase text-[#a4e1d8]">Assay support</p>
             <h3 className="mb-3 text-xl font-bold leading-snug text-white">
-              Product pages now connect assay details, targets, and documents.
+              Explore assay details, pathogen targets, and supporting documents.
             </h3>
             <p className="mb-6 text-sm leading-relaxed text-[#cfe4ee]">
-              Use the admin panel to attach pathogen targets and upload PDF, Word, or Excel target lists for each product.
+              Find target coverage and product resources to help you select the right assay for your laboratory.
             </p>
             <Link
               href="/resources/blog-learning-center"

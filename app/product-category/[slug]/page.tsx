@@ -90,7 +90,7 @@ export default async function CategoryPage({
           <div className="rounded-xl border border-dashed border-gray-200 bg-white p-10 text-center">
             <p className="text-lg font-semibold text-[#0b2e59]">No products yet</p>
             <p className="mt-2 text-sm text-gray-500">
-              Add products to this category in the admin and they will show here.
+              Contact our team for product availability and help finding what you need.
             </p>
           </div>
         )}
