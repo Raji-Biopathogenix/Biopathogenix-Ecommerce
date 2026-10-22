@@ -227,7 +227,7 @@ const giConfig: AssayTypeConfig = {
   eyebrow: "BPX qPLEX Gastrointestinal",
   heroTitle: "Gastrointestinal assays for organized pathogen review",
   heroSubtitle:
-    "Give GI assay products their own page with product links, pathogen targets, and admin-managed target documents.",
+    "Run gastrointestinal assays for bacterial, viral, and parasitic targets with product details, target lists, and downloadable support documents in one place.",
   ctaTitle: "Need a different GI target?",
   ctaBody:
     "If your assay needs a different organism or target list, our team can help review the right next step.",
