@@ -101,7 +101,8 @@ export default function HeroCarousel({ result }: HeroCarouselprops) {
         <div data-home="hero-copy" className="relative w-full max-w-[760px] text-center sm:text-left lg:flex lg:w-[54%] lg:max-w-none lg:flex-col lg:pb-[80px] lg:pl-[104px] lg:pt-[87px]">
           {/* Top Label */}
           <p className="mx-auto mb-4 w-fit rounded-full border border-[#c8dcea] bg-white/70 px-3 py-2 text-[9px] font-bold uppercase tracking-[0.12em] text-[#153B67] sm:mx-0 sm:mb-5 sm:w-auto sm:rounded-none sm:border-0 sm:bg-transparent sm:p-0 sm:text-[13px] sm:tracking-[0.22em] lg:mb-[22px] lg:text-[15px] lg:tracking-[0.14em]">
-            ADVANCED MULTIPLEX QPCR SUPPLIER
+            {/* The label is set in capitals, but qPCR keeps its own lower-case q. */}
+            ADVANCED MULTIPLEX <span className="normal-case">qPCR</span> SUPPLIER
           </p>
 
           {/* Heading */}
