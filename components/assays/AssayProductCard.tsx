@@ -28,7 +28,6 @@ export default function AssayProductCard({ product }: Props) {
   const detail = product.assay_detail;
   const productHref = getProductDetailHref(product);
   const imageSrc = getProductImageSrc(product);
-  const targetCount = detail?.target_count ?? 0;
   const catalogNumber = detail?.catalog_number?.trim() || "";
 
   return (
@@ -84,10 +83,6 @@ export default function AssayProductCard({ product }: Props) {
             <div className="grid grid-cols-[1fr_auto] gap-4">
               <p className="font-extrabold text-[#1a1f26]">Reaction Format</p>
               <p className="text-right font-medium text-[#2d3138]">{detail?.reaction_format || "Product format"}</p>
-            </div>
-            <div className="grid grid-cols-[1fr_auto] gap-4">
-              <p className="font-extrabold text-[#1a1f26]">Targets</p>
-              <p className="text-right font-medium text-[#2d3138]">{targetCount || 0} Targets</p>
             </div>
           </div>
 
