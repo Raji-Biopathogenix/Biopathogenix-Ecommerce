@@ -1,4 +1,5 @@
 import csv
+from contextlib import contextmanager
 import io
 import posixpath
 import re
@@ -35,8 +36,22 @@ def _xlsx_text(element):
     return "".join(element.itertext()).strip()
 
 
+@contextmanager
+def _read_document(field_file):
+    """Leave an incoming upload open so FileField can still store its bytes."""
+    was_closed = field_file.closed
+    position = field_file.tell() if not was_closed else None
+    try:
+        yield field_file.open("rb")
+    finally:
+        if was_closed:
+            field_file.close()
+        elif not field_file.closed:
+            field_file.seek(position)
+
+
 def extract_xlsx_rows(field_file, max_rows=5000, max_columns=30):
-    with field_file.open("rb") as file_handle:
+    with _read_document(field_file) as file_handle:
         with zipfile.ZipFile(file_handle) as archive:
             shared_strings = []
             if "xl/sharedStrings.xml" in archive.namelist():
@@ -131,7 +146,7 @@ def extract_target_text_from_file(field_file):
             return normalize_target_text(" ".join(parts))
 
         if extension == "csv":
-            with field_file.open("rb") as file_handle:
+            with _read_document(field_file) as file_handle:
                 raw_text = file_handle.read().decode("utf-8", errors="ignore")
             reader = csv.reader(io.StringIO(raw_text))
             return normalize_target_text(" ".join(cell for row in reader for cell in row))
