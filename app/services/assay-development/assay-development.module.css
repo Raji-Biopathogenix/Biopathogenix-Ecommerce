@@ -192,9 +192,10 @@
 .formCard label { line-height: 1.65; letter-spacing: .01em; }
 .cta h2 span { font-weight: 600; }
 
-/* Figma buttons: 59px tall, 8px corners; hero and Standard Assays pairs are stacked 15px apart. */
+/* Figma buttons: 59px tall, 8px corners; the hero pair sits side by side and the Standard Assays
+   pair is stacked, 15px apart. */
 .button { border-radius: 8px; }
-.heroActions { flex-direction: column; gap: 15px; }
+.heroActions { gap: 15px; }
 .stack { gap: 15px; }
 .heroActions .button, .docCopy .button { width: 356px; max-width: 100%; }
 .stack .button, .contactCopy .button, .cta .button { width: 390px; max-width: 100%; }

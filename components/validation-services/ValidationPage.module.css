@@ -305,10 +305,9 @@
 .ctaHeading h2 { letter-spacing: -.07em; }
 .ctaHeading h2 span { font-weight: 600; }
 
-/* Figma buttons in the editable sections: 8px corners; the hero pair is stacked 15px apart at 451px. */
+/* Figma buttons in the editable sections: 8px corners; the hero pair sits side by side, 15px apart. */
 .heroActions .button, .ctaCopy .button { border-radius: 8px; }
-.heroActions { flex-direction: column; align-items: center; gap: 15px; }
-.heroActions .button { width: 451px; max-width: 100%; }
+.heroActions { gap: 15px; }
 .ctaCopy .button { width: 350px; max-width: 100%; }
 /* Figma rounds all four corners of both 720 x 770 side photos. */
 .infraPhoto, .perfPhoto { border-radius: 40px; }
