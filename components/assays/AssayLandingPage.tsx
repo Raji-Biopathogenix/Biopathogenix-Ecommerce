@@ -1,5 +1,4 @@
 import type { AssayPanelTargetDocument, AssayProduct, AssayTypeConfig } from "@/lib/assays";
-import AssayHero from "./AssayHero";
 import AssayPanelLinks from "./AssayPanelLinks";
 import AssayGrid from "./AssayGrid";
 import AssayTargetDownloads from "./AssayTargetDownloads";
@@ -17,7 +16,6 @@ interface Props {
 export default function AssayLandingPage({ config, products, panelDocuments }: Props) {
   return (
     <main className="bg-white">
-      <AssayHero config={config} />
       <AssayPanelLinks current={config} />
       <AssayGrid products={products} label={config.label} />
       <AssayTargetDownloads documents={panelDocuments} />
