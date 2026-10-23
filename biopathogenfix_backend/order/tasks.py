@@ -19,6 +19,14 @@ ACTIVE_STATUSES = [
     InternalStatus.IN_TRANSIT,
 ]
 
+# How far along each status is; tracking updates only ever move a shipment forward.
+STATUS_RANK = {
+    InternalStatus.LABEL_CREATED: 0,
+    InternalStatus.PICKED_UP:     1,
+    InternalStatus.IN_TRANSIT:    2,
+    InternalStatus.DELIVERED:     3,
+}
+
 # Notify customer when the shipment reaches one of these statuses
 NOTIFY_ON_STATUSES = {
     InternalStatus.PICKED_UP,
@@ -99,8 +107,9 @@ def track_single_shipment(self,shipment_id, tracking_number, current_status, ord
     print(f"[UPS] Order {order_id}: {current_status} -> {new_status}")
     print(f"[UPS] Last activity: {ups_desc} at {ups_location}")
 
-    # Skip DB write if nothing changed
-    if new_status == current_status:
+    # Skip DB write if nothing changed. Never move backwards either (e.g. a shipment already marked
+    # picked up going back to label created) -- that would only send the customer a confusing email.
+    if new_status == current_status or STATUS_RANK.get(new_status, 0) < STATUS_RANK.get(current_status, 0):
         print(f"[UPS] Order {order_id} unchanged ({current_status})")
         # Still record the check, so admins can see the 30-minute poll is running.
         Order.objects.filter(id=order_id).update(ups_last_synced_at=now())

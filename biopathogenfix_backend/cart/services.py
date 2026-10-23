@@ -541,23 +541,30 @@ class UPSService:
             timeout=10,
         )
 
-        if response.status_code == 404:
-            raise Exception("Tracking number not found")
+        # Unknown or malformed numbers won't fix themselves, so report "no data" instead of retrying.
+        if response.status_code == 404 or (response.status_code == 400 and "TV1002" in response.text):
+            logger.warning("UPS cannot track %s: %s %s", tracking_number, response.status_code, response.text[:200])
+            return None
 
         if response.status_code != 200:
             logger.error(f"UPS tracking failed: {response.status_code} {response.text}")
             raise Exception(f"UPS tracking error: {response.text}")
 
         data = response.json()
-        shipment = data["trackResponse"]["shipment"][0]
-        package = shipment["package"][0]
-        activity = package.get("activity", [])
+        shipments = data.get("trackResponse", {}).get("shipment") or [{}]
+        packages = shipments[0].get("package") or []
+        if not packages:
+            # UPS knows the number but has no package details yet (e.g. label just created).
+            logger.warning("UPS has no package details yet for %s: %s", tracking_number, shipments[0].get("warnings"))
+            return None
+        package = packages[0]
+        activity = package.get("activity") or []
 
         return {
             "tracking_number": tracking_number,
             "status": package.get("currentStatus", {}).get("description", "Unknown"),
             "status_code": package.get("currentStatus", {}).get("code", ""),
-            "scheduled_delivery": package.get("deliveryDate", [{}])[0].get("date"),
+            "scheduled_delivery": (package.get("deliveryDate") or [{}])[0].get("date"),
             "activity": [
                 {
                     "date": a.get("date"),

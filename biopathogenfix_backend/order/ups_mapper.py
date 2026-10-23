@@ -43,13 +43,17 @@ UPS_DESCRIPTION_MAP = {
 
 
 def map_ups_status(tracking_response: dict) -> str:
+    # A label UPS hasn't scanned yet must not count as shipped, whatever code comes with it.
+    status_desc = tracking_response.get("status", "").lower()
+    if "shipper created a label" in status_desc or "ups has not received" in status_desc:
+        return InternalStatus.LABEL_CREATED
+
     # Try status_code first
     status_code = tracking_response.get("status_code", "")
     if status_code in UPS_CODE_MAP:
         return UPS_CODE_MAP[status_code]
 
     # Fall back to description matching
-    status_desc = tracking_response.get("status", "").lower()
     for key, value in UPS_DESCRIPTION_MAP.items():
         if key in status_desc:
             return value

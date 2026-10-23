@@ -1,5 +1,6 @@
+import json
 from decimal import Decimal
-from unittest.mock import patch
+from unittest.mock import Mock, patch
 
 from django.contrib.auth import get_user_model
 from django.core import mail
@@ -56,8 +57,50 @@ class UpsTrackingTests(TestCase):
         self.assertIsNotNone(self.order.ups_last_synced_at)
         self.assertEqual(len(mail.outbox), 0)
 
+    def test_fresh_label_with_code_003_stays_label_created(self):
+        self.track(ups_response('003', 'Shipper created a label, UPS has not received the package yet.'))
+        self.assertEqual(self.shipment.status, 'label_created')
+        self.assertEqual(len(mail.outbox), 0)
+
+    def test_status_never_moves_backwards(self):
+        # Order 104 was wrongly marked picked up from a fresh label; correcting the mapping must not
+        # bounce it back to label created and email the customer again.
+        Shipment.objects.filter(id=self.shipment.id).update(status='picked_up')
+        self.shipment.refresh_from_db()
+        self.track(ups_response('003', 'Shipper created a label, UPS has not received the package yet.'))
+        self.assertEqual(self.shipment.status, 'picked_up')
+        self.assertEqual(len(mail.outbox), 0)
+
     def test_poll_runs_every_30_minutes(self):
         from django.conf import settings
         schedule = settings.CELERY_BEAT_SCHEDULE['ups-poll-every-30-min']
         self.assertEqual(schedule['task'], 'order.poll_all_active_orders')
         self.assertEqual(schedule['schedule']._orig_minute, '*/30')
+
+
+class UpsTrackingResponseTests(TestCase):
+    """track_shipment must not crash on the replies UPS gives for new or unknown numbers."""
+
+    def call(self, status_code, body):
+        from cart.services import UPSService
+        response = Mock(status_code=status_code, text=json.dumps(body), json=Mock(return_value=body))
+        service = UPSService()
+        with patch('cart.services.requests.get', return_value=response), \
+                patch.object(UPSService, '_headers', return_value={}):
+            return service.track_shipment('1ZTEST')
+
+    def test_label_without_delivery_date_is_parsed(self):
+        body = {"trackResponse": {"shipment": [{"package": [{
+            "currentStatus": {"code": "003", "description": "Shipper created a label, UPS has not received the package yet."},
+            "deliveryDate": [], "activity": []}]}]}}
+        result = self.call(200, body)
+        self.assertEqual(result["status_code"], "003")
+        self.assertIsNone(result["scheduled_delivery"])
+
+    def test_shipment_without_packages_returns_none(self):
+        body = {"trackResponse": {"shipment": [{"warnings": [{"code": "TW0001", "message": "Tracking Information Not Found"}]}]}}
+        self.assertIsNone(self.call(200, body))
+
+    def test_invalid_number_returns_none_instead_of_retrying(self):
+        body = {"response": {"errors": [{"code": "TV1002", "message": "Invalid inquiry number"}]}}
+        self.assertIsNone(self.call(400, body))
