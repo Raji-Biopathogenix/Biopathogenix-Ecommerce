@@ -1,14 +1,17 @@
 ﻿from __future__ import annotations
 import os
 import re
+import threading
 from pathlib import Path
 from typing import Any
+from chromadb.api.shared_system_client import SharedSystemClient
 from dotenv import load_dotenv
 from langchain_chroma import Chroma
 from langchain_core.documents import Document
 from langchain_core.messages import AIMessage, BaseMessage, HumanMessage, SystemMessage
 from langchain_openai import ChatOpenAI, OpenAIEmbeddings
 
+from .ingest import INGEST_STAMP_FILE
 from .intake import IntakeFormPayload, get_intake_form_intent
 
 
@@ -45,6 +48,8 @@ MAX_QUERY_CHARS = _int_env("RAG_MAX_QUERY_CHARS", 1200)
 MAX_DOC_CHARS = _int_env("RAG_MAX_DOC_CHARS", 1300)
 MAX_CONTEXT_CHARS = _int_env("RAG_MAX_CONTEXT_CHARS", 6000)
 MAX_OUTPUT_TOKENS = _int_env("RAG_MAX_OUTPUT_TOKENS", 280)
+OPENAI_TIMEOUT_SECONDS = _int_env("RAG_OPENAI_TIMEOUT_SECONDS", 20)
+OPENAI_MAX_RETRIES = _int_env("RAG_OPENAI_MAX_RETRIES", 3, minimum=0)
 
 SYSTEM_PROMPT = """
 You are a knowledgeable, friendly assistant representing the company BioPathogenix.
@@ -146,34 +151,58 @@ OFF_TOPIC_KEYWORDS = (
 
 _retriever = None
 _llm = None
+_clients_stamp = None
+_clients_lock = threading.Lock()
+
+
+def _ingest_stamp() -> int | None:
+    try:
+        return INGEST_STAMP_FILE.stat().st_mtime_ns
+    except OSError:
+        return None
 
 
 def _get_clients():
-    global _retriever, _llm
+    global _retriever, _llm, _clients_stamp
 
-    if _retriever is not None and _llm is not None:
-        return _retriever, _llm
+    with _clients_lock:
+        stamp = _ingest_stamp()
+        if _retriever is not None and _llm is not None and stamp == _clients_stamp:
+            return _retriever, _llm
 
-    _load_env()
-    if not os.getenv("OPENAI_API_KEY"):
-        raise RuntimeError(
-            "OPENAI_API_KEY is not set. If your .env is outside this project, "
-            "set ENV_FILE_PATH to the absolute path of that file before starting Django."
+        _load_env()
+        if not os.getenv("OPENAI_API_KEY"):
+            raise RuntimeError(
+                "OPENAI_API_KEY is not set. If your .env is outside this project, "
+                "set ENV_FILE_PATH to the absolute path of that file before starting Django."
+            )
+
+        if _retriever is not None:
+            # The knowledge base was re-ingested, possibly by another worker process.
+            # Chroma caches the index in memory per process, so drop that cache to
+            # make the new client read the updated index from disk.
+            SharedSystemClient.clear_system_cache()
+
+        embeddings = OpenAIEmbeddings(
+            model=EMBEDDING_MODEL,
+            timeout=OPENAI_TIMEOUT_SECONDS,
+            max_retries=OPENAI_MAX_RETRIES,
         )
-
-    embeddings = OpenAIEmbeddings(model=EMBEDDING_MODEL)
-    vectorstore = Chroma(
-        collection_name=COLLECTION_NAME,
-        persist_directory=DB_NAME,
-        embedding_function=embeddings,
-    )
-    _retriever = vectorstore.as_retriever(search_kwargs={"k": RETRIEVAL_K})
-    _llm = ChatOpenAI(
-        temperature=0,
-        model=MODEL,
-        model_kwargs={"max_tokens": MAX_OUTPUT_TOKENS},
-    )
-    return _retriever, _llm
+        vectorstore = Chroma(
+            collection_name=COLLECTION_NAME,
+            persist_directory=DB_NAME,
+            embedding_function=embeddings,
+        )
+        _retriever = vectorstore.as_retriever(search_kwargs={"k": RETRIEVAL_K})
+        _llm = ChatOpenAI(
+            temperature=0,
+            model=MODEL,
+            model_kwargs={"max_tokens": MAX_OUTPUT_TOKENS},
+            timeout=OPENAI_TIMEOUT_SECONDS,
+            max_retries=OPENAI_MAX_RETRIES,
+        )
+        _clients_stamp = stamp
+        return _retriever, _llm
 
 
 def _normalize_reply(text: str) -> str:

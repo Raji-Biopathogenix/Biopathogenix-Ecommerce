@@ -47,6 +47,7 @@ next-env.d.ts
 
 # Local databases and sandbox/debug artifacts
 db.sqlite3
+/biopathogenfix_backend/preprocessed_db/last_ingest.txt
 /quickbooks-sandbox-*.json
 /resp.json
 /ppt_dump.txt

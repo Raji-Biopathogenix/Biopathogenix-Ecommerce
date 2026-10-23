@@ -2,6 +2,7 @@ from __future__ import annotations
 import hashlib
 import os
 from collections import defaultdict
+from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any, cast
 from dotenv import load_dotenv
@@ -23,6 +24,8 @@ _load_env()
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 DB_DIR = BASE_DIR / "preprocessed_db"
+# Rewritten after every ingestion so running chat workers know to reopen the index.
+INGEST_STAMP_FILE = DB_DIR / "last_ingest.txt"
 EMBEDDING_MODEL = os.getenv("RAG_EMBEDDING_MODEL", "text-embedding-3-large")
 COLLECTION_NAME = os.getenv("RAG_COLLECTION_NAME", "docs")
 KB_ENTRY_SOURCE_PREFIX = "db://chatbot/knowledgebaseentry/"
@@ -167,6 +170,8 @@ def create_embeddings(chunks):
 
         vectorstore.add_documents(source_chunks, ids=ids)
         total_added += len(source_chunks)
+
+    INGEST_STAMP_FILE.write_text(datetime.now(timezone.utc).isoformat(), encoding="utf-8")
 
     count = vectorstore._collection.count()
     print(

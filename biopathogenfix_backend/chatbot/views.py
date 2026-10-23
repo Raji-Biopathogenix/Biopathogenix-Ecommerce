@@ -73,9 +73,11 @@ class ChatView(APIView):
                 {"reply": reply, "intakeForm": intake_form},
                 status=status.HTTP_200_OK,
             )
-        except Exception as exc:
+        except Exception:
+            # Full traceback goes to the server log; customers only see a generic message.
+            logger.exception("Chat request failed")
             return Response(
-                {"reply": "Sorry - AI service failed.", "error": str(exc)},
+                {"reply": "Sorry - the AI service is temporarily unavailable. Please try again in a moment."},
                 status=status.HTTP_500_INTERNAL_SERVER_ERROR,
             )
 
