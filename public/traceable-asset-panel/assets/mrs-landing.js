@@ -78,6 +78,11 @@
       var el = form.elements;
       var name = el.name.value.trim(), email = el.email.value.trim(), org = el.org.value.trim();
       var details = el.message.value.trim();
+      // Optional extra fields marked data-detail="Label" are sent as "Label: value" lines in the message.
+      var extra = Array.prototype.slice.call(form.querySelectorAll('[data-detail]')).map(function (f) {
+        return f.value.trim() ? f.dataset.detail + ': ' + f.value.trim() : '';
+      }).filter(Boolean);
+      if (extra.length) details = extra.join('\n') + (details ? '\n\n' + details : '');
       if (!name || !/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) {
         show('warn', 'Please add your name and a valid work email so we can reply.');
         return;

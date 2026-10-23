@@ -59,6 +59,13 @@ REQUEST_COPY_BY_SOURCE = {
         "message_label": "Details & Comments",
         "confirmation_subject": "We've received your BioPathogenix custom assay quote request",
     },
+    "qpcr-assays": {
+        "source_label": "Custom qPCR Assays landing page",
+        "request_kind": "Custom qPCR Assay",
+        "interest_label": "Interested In",
+        "message_label": "Targets & Details",
+        "confirmation_subject": "We've received your BioPathogenix custom qPCR assay request",
+    },
     "molecular-research-solutions": {
         "source_label": "Molecular Research Solutions landing page",
         "request_kind": "Custom Assay Quote",
