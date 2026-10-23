@@ -2,10 +2,10 @@
 <html>
   <head>
     <meta charset="utf-8" />
-    <title>New Free Panel Assessment Request</title>
+    <title>New {{ request_kind }} Request</title>
   </head>
   <body style="font-family: Arial, sans-serif; color: #1d3557; line-height: 1.6;">
-    <h2 style="margin-bottom: 8px;">New Free Panel Assessment Request</h2>
+    <h2 style="margin-bottom: 8px;">New {{ request_kind }} Request</h2>
     <p style="margin-top: 0;">A new request has been submitted from the {{ source_label }}.</p>
 
     <table cellpadding="6" cellspacing="0" border="0" style="border-collapse: collapse;">
@@ -26,11 +26,11 @@
         <td>{{ phone }}</td>
       </tr>
       <tr>
-        <td><strong>Application Area:</strong></td>
+        <td><strong>{{ interest_label }}:</strong></td>
         <td>{{ interest }}</td>
       </tr>
       <tr>
-        <td><strong>Targets &amp; Multiplex Format:</strong></td>
+        <td><strong>{{ message_label }}:</strong></td>
         <td>{{ message|linebreaksbr }}</td>
       </tr>
     </table>

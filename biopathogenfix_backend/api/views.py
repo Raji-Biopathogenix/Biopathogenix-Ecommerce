@@ -35,6 +35,25 @@ PANEL_ASSESSMENT_SOURCES = {
     "custom-assay-development": "Custom Assay Development page",
 }
 
+# Wording for the shared panel-assessment emails. Sources listed here keep the standard
+# routing (support@ with the internal BCC), not the order-inbox routing above.
+DEFAULT_REQUEST_COPY = {
+    "source_label": "Traceable Pathogen panel landing page",
+    "request_kind": "Free Panel Assessment",
+    "interest_label": "Application Area",
+    "message_label": "Targets & Multiplex Format",
+    "confirmation_subject": "We've received your BioPathogenix panel assessment request",
+}
+REQUEST_COPY_BY_SOURCE = {
+    "lyophilized-qpcr-plates": {
+        "source_label": "Lyophilized qPCR Plates landing page",
+        "request_kind": "Lyophilized qPCR Plate Quote",
+        "interest_label": "Interested In",
+        "message_label": "Format & Details",
+        "confirmation_subject": "We've received your BioPathogenix plate quote request",
+    },
+}
+
 
 def get_or_none(classmodel, **kwargs):
     try:
@@ -292,17 +311,20 @@ class PanelAssessmentView(APIView):
                 "content_type": target_file.content_type,
             })
 
+        copy = {**DEFAULT_REQUEST_COPY, **REQUEST_COPY_BY_SOURCE.get(fields["source"], {})}
+        if fields["source"] in PANEL_ASSESSMENT_SOURCES:
+            copy["source_label"] = PANEL_ASSESSMENT_SOURCES[fields["source"]]
         context = {
             **fields,
+            **copy,
             "org": fields["org"] or "N/A",
             "phone": fields["phone"] or "N/A",
-            "source_label": PANEL_ASSESSMENT_SOURCES.get(fields["source"], "Traceable Pathogen panel landing page"),
         }
 
         try:
             _send_html_email(
                 LANDING_PAGE_RECIPIENTS if fields["source"] in PANEL_ASSESSMENT_SOURCES else FORM_RECIPIENTS,
-                f"New Free Panel Assessment Request - {fields['name']}",
+                f"New {copy['request_kind']} Request - {fields['name']}",
                 render_to_string("emails/panel_assessment_request.html", context),
                 render_to_string("emails/panel_assessment_request.txt", context),
                 bcc=PANEL_ASSESSMENT_BCC if fields["source"] in PANEL_ASSESSMENT_SOURCES else FORM_BCC,
@@ -319,7 +341,7 @@ class PanelAssessmentView(APIView):
         try:
             _send_html_email(
                 [fields["email"]],
-                "We've received your BioPathogenix panel assessment request",
+                copy["confirmation_subject"],
                 render_to_string("emails/panel_assessment_confirmation.html", context),
                 render_to_string("emails/panel_assessment_confirmation.txt", context),
             )

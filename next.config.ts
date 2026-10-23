@@ -13,7 +13,7 @@ const nextConfig: NextConfig = {
       // The live site's Our Story URL (/about/ourstory) shows the About page.
       { source: "/about/ourstory", destination: "/about" },
       {
-        source: "/traceable-asset-panel/:page(general-value-prop|custom-assay-landing-page|custom-assay-development|bpx-thank-you|bpx-thank-you-custom-assay)",
+        source: "/traceable-asset-panel/:page(general-value-prop|custom-assay-landing-page|custom-assay-development|bpx-thank-you|bpx-thank-you-custom-assay|lyophilized-qpcr-plates)",
         destination: "/traceable-asset-panel/:page.html",
       },
     ];

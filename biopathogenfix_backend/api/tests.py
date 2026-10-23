@@ -52,6 +52,33 @@ class PanelAssessmentViewTests(TestCase):
                 ) else FORM_RECIPIENTS)
                 self.assertEqual(mail.outbox[1].bcc, [])
 
+    def test_lyo_plate_quote_goes_to_support_with_internal_bcc_and_plate_wording(self):
+        response = self.client.post(self.url, {
+            **self.payload,
+            "interest": "Standard plates, Bulk supply",
+            "message": "Plate format: 96-well\nRole: Lab manager",
+            "source": "lyophilized-qpcr-plates",
+        }, format="json")
+        self.assertEqual(response.status_code, 200)
+        notification, confirmation = mail.outbox
+        self.assertEqual(notification.to, ["support@biopathogenix.com"])
+        self.assertEqual(notification.bcc, ["rajeswari.gopu@biopathogenix.com"])
+        self.assertEqual(notification.subject, "New Lyophilized qPCR Plate Quote Request - Jane Doe")
+        self.assertIn("Lyophilized qPCR Plates landing page", notification.body)
+        self.assertIn("Interested In: Standard plates, Bulk supply", notification.body)
+        self.assertNotIn("Panel Assessment", notification.body)
+        self.assertEqual(confirmation.to, ["jane@lab.example"])
+        self.assertEqual(confirmation.subject, "We've received your BioPathogenix plate quote request")
+        self.assertIn("Lyophilized qPCR Plate Quote request", confirmation.body)
+
+    def test_existing_pages_keep_panel_assessment_wording(self):
+        self.client.post(self.url, self.payload, format="json")
+        notification, confirmation = mail.outbox
+        self.assertEqual(notification.subject, "New Free Panel Assessment Request - Jane Doe")
+        self.assertIn("Application Area: AMR / ABR", notification.body)
+        self.assertEqual(confirmation.subject, "We've received your BioPathogenix panel assessment request")
+        self.assertIn("Free Panel Assessment request", confirmation.body)
+
     def test_development_form_attachment_is_in_team_email_only(self):
         response = self.client.post(self.url, {
             **self.payload,
