@@ -71,6 +71,27 @@ class PanelAssessmentViewTests(TestCase):
         self.assertEqual(confirmation.subject, "We've received your BioPathogenix plate quote request")
         self.assertIn("Lyophilized qPCR Plate Quote request", confirmation.body)
 
+    def test_figma_landing_quotes_go_to_support_with_internal_bcc(self):
+        for source, label in (
+            ("custom-assays", "Custom Assays landing page"),
+            ("molecular-research-solutions", "Molecular Research Solutions landing page"),
+        ):
+            with self.subTest(source=source):
+                mail.outbox.clear()
+                response = self.client.post(self.url, {
+                    **self.payload, "interest": "Custom assay development", "source": source,
+                }, format="json")
+                self.assertEqual(response.status_code, 200)
+                notification, confirmation = mail.outbox
+                self.assertEqual(notification.to, ["support@biopathogenix.com"])
+                self.assertEqual(notification.bcc, ["rajeswari.gopu@biopathogenix.com"])
+                self.assertEqual(notification.subject, "New Custom Assay Quote Request - Jane Doe")
+                self.assertIn(label, notification.body)
+                self.assertNotIn("Panel Assessment", notification.body)
+                self.assertEqual(confirmation.to, ["jane@lab.example"])
+                self.assertEqual(confirmation.bcc, [])
+                self.assertEqual(confirmation.subject, "We've received your BioPathogenix custom assay quote request")
+
     def test_existing_pages_keep_panel_assessment_wording(self):
         self.client.post(self.url, self.payload, format="json")
         notification, confirmation = mail.outbox

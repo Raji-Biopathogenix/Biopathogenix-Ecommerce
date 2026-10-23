@@ -52,6 +52,20 @@ REQUEST_COPY_BY_SOURCE = {
         "message_label": "Format & Details",
         "confirmation_subject": "We've received your BioPathogenix plate quote request",
     },
+    "custom-assays": {
+        "source_label": "Custom Assays landing page",
+        "request_kind": "Custom Assay Quote",
+        "interest_label": "Interested In",
+        "message_label": "Details & Comments",
+        "confirmation_subject": "We've received your BioPathogenix custom assay quote request",
+    },
+    "molecular-research-solutions": {
+        "source_label": "Molecular Research Solutions landing page",
+        "request_kind": "Custom Assay Quote",
+        "interest_label": "Interested In",
+        "message_label": "Details & Comments",
+        "confirmation_subject": "We've received your BioPathogenix custom assay quote request",
+    },
 }
 
 
