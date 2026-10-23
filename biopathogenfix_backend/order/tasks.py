@@ -96,25 +96,25 @@ def track_single_shipment(self,shipment_id, tracking_number, current_status, ord
     ups_desc      = latest.get("description", "") if latest else ""
     ups_time      = parse_ups_datetime(latest["date"], latest["time"]) if latest else None
 
-    print(f"[UPS] Order {order_id}: {current_status} → {new_status}")
+    print(f"[UPS] Order {order_id}: {current_status} -> {new_status}")
     print(f"[UPS] Last activity: {ups_desc} at {ups_location}")
 
     # Skip DB write if nothing changed
     if new_status == current_status:
         print(f"[UPS] Order {order_id} unchanged ({current_status})")
+        # Still record the check, so admins can see the 30-minute poll is running.
+        Order.objects.filter(id=order_id).update(ups_last_synced_at=now())
         return
 
-    Shipment.objects.filter(id=shipment_id).update(
-        status           = new_status,
-        ups_last_location= ups_location,
-        ups_last_event_at= ups_time,
+    Shipment.objects.filter(id=shipment_id).update(status=new_status, updated_at=now())
+    # The UPS tracking details live on Order; Shipment has no ups_* columns.
+    Order.objects.filter(id=order_id).update(
+        ups_status_desc   = (tracking_response.get("status") or "")[:255],
+        ups_status_code   = (tracking_response.get("status_code") or "")[:10],
+        ups_last_location = ups_location,
+        ups_last_event_at = ups_time,
         ups_last_synced_at= now(),
     )
-
-    if new_status == 'delivered':
-        shipment = Shipment.objects.get(id=shipment_id)
-        shipment.items.update(status='delivered')
-        print(f"[UPS] Items in shipment {shipment_id} marked delivered")
 
     # Recompute the Order's own status from shipment/item state — this
     # is what actually sends the customer notification email, via

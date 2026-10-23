@@ -319,8 +319,8 @@ CELERY_BEAT_SCHEDULE = {
         "schedule": crontab(minute="*/5"),
     },
     "ups-poll-every-30-min": {
-    "task":     "order.poll_all_active_orders",
-        "schedule": crontab(minute="*/1"),  # every 30 minutes
+        "task":     "order.poll_all_active_orders",
+        "schedule": crontab(minute="*/30"),
     },
 }
 

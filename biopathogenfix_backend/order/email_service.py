@@ -9,7 +9,6 @@ from django.utils import timezone
 from config.settings import configSettings
 from datetime import datetime, timezone as datetime_timezone
 from django.utils.dateparse import parse_datetime, parse_date
-from users.models import CustomUser
 from services.emailService import send_graph_email
 
 logger = logging.getLogger(__name__)
@@ -112,11 +111,8 @@ def send_order_confirmation_emails(order):
 
 
 def _get_order_recipients(order):
-    to_email = [order.user.email]
-    if order.user.laboratory:
-        lab_users = CustomUser.objects.filter(laboratory=order.user.laboratory).exclude(id=order.user.id)
-        to_email += [lab_user.email for lab_user in lab_users]
-    return list(dict.fromkeys(filter(None, to_email)))
+    # Order emails go only to the customer who placed the order, not to the rest of their laboratory.
+    return [order.user.email] if order.user.email else []
 
 
 def _get_related_products(order, limit: int = 4):
