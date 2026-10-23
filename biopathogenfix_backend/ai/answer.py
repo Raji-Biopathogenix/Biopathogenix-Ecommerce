@@ -37,7 +37,11 @@ def _int_env(name: str, default: int, minimum: int = 1) -> int:
     return max(value, minimum)
 
 
-MODEL = os.getenv("RAG_CHAT_MODEL", "gpt-4.1-nano")
+# gpt-4.1-nano was shut down on 2026-10-23; gpt-5.6-luna is OpenAI's listed replacement.
+MODEL = os.getenv("RAG_CHAT_MODEL", "gpt-5.6-luna")
+# gpt-5.6-luna is a reasoning model. "none" keeps replies fast, leaves the whole token
+# budget for the answer, and is required for temperature=0. Set empty for older models.
+REASONING_EFFORT = os.getenv("RAG_REASONING_EFFORT", "none") or None
 EMBEDDING_MODEL = os.getenv("RAG_EMBEDDING_MODEL", "text-embedding-3-large")
 DB_NAME = str(Path(__file__).resolve().parent.parent / "preprocessed_db")
 COLLECTION_NAME = os.getenv("RAG_COLLECTION_NAME", "docs")
@@ -197,6 +201,7 @@ def _get_clients():
         _llm = ChatOpenAI(
             temperature=0,
             model=MODEL,
+            reasoning_effort=REASONING_EFFORT,
             model_kwargs={"max_tokens": MAX_OUTPUT_TOKENS},
             timeout=OPENAI_TIMEOUT_SECONDS,
             max_retries=OPENAI_MAX_RETRIES,
