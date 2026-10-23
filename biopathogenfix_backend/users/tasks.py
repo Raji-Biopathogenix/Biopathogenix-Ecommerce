@@ -6,11 +6,13 @@ from django.template.loader import render_to_string
 from django.conf import settings
 from django.core.mail import EmailMultiAlternatives, send_mail
 from config.settings import configSettings
+from utils.form_recipients import ORDER_INBOX, FORM_BCC
 
 logger = logging.getLogger(__name__)
 
-# Copied on every new-registration verification email.
-REGISTRATION_CC = ["order@biopathogenix.com"]
+# Admin "New User Registration" alert: sent to the order inbox, blind-copied internally.
+REGISTRATION_ADMIN_TO = [ORDER_INBOX]
+REGISTRATION_ADMIN_BCC = FORM_BCC
 
 
 @shared_task(bind=True, max_retries=3, default_retry_delay=60)
@@ -22,14 +24,11 @@ def send_verification_email(self, email, context):
         html_message = render_to_string("verification_email.html", context)
         plain_message = render_to_string("welcome.txt", context)
         from_email = getattr(settings, "DEFAULT_FROM_EMAIL", "example@example.com")
-        cc_list = [cc for cc in REGISTRATION_CC if cc.lower() != str(email).lower()]
 
         if getattr(settings, "GRAPH_ENABLED", False):
-            send_graph_email([email], subject, html_body=html_message, text_body=plain_message, from_email=from_email, cc_list=cc_list)
+            send_graph_email([email], subject, html_body=html_message, text_body=plain_message, from_email=from_email)
         else:
-            message = EmailMultiAlternatives(subject, plain_message, from_email, [email], cc=cc_list)
-            message.attach_alternative(html_message, "text/html")
-            message.send(fail_silently=False)
+            send_mail(subject, plain_message, from_email, [email], html_message=html_message, fail_silently=False)
 
         logger.info("Verification email sent to %s", email)
         return {"status": "sent", "to": email}
@@ -52,11 +51,15 @@ def send_activation_admin_email(self, email, context):
         html_message = render_to_string("admin_verified_mail.html", context)
         plain_message = render_to_string("admin_verified_mail.txt", context)
         from_email = getattr(settings, "DEFAULT_FROM_EMAIL", "example@example.com")
+        to_list = [email]
+        bcc_list = [bcc for bcc in REGISTRATION_ADMIN_BCC if bcc.lower() != str(email).lower()]
 
         if getattr(settings, "GRAPH_ENABLED", False):
-            send_graph_email([email], subject, html_body=html_message, text_body=plain_message, from_email=from_email)
+            send_graph_email(to_list, subject, html_body=html_message, text_body=plain_message, from_email=from_email, bcc_list=bcc_list)
         else:
-            send_mail(subject, plain_message, from_email, [email], html_message=html_message, fail_silently=False)
+            message = EmailMultiAlternatives(subject, plain_message, from_email, to_list, bcc=bcc_list)
+            message.attach_alternative(html_message, "text/html")
+            message.send(fail_silently=False)
 
         logger.info("Verification email sent to %s", email)
         return {"status": "sent", "to": email}

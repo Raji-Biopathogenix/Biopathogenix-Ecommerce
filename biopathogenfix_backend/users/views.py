@@ -15,7 +15,7 @@ from rest_framework_simplejwt.tokens import AccessToken
 
 from .models import CustomUser,Roles,UserRole
 
-from .tasks import send_welcome_email,send_verification_email,send_activation_admin_email,send_activation_user_email
+from .tasks import send_welcome_email,send_verification_email,send_activation_admin_email,send_activation_user_email,REGISTRATION_ADMIN_TO
 from .serializers import UserSerializer, UserListSerializer
 # from google.oauth2 import id_token
 # from google.auth.transport import requests
@@ -184,14 +184,7 @@ def VerificationEmail(request):
             return Response({"status":"success","message":"Your email already Verifed!","result":{"verified":custom.is_staff,"is_active":custom.is_active,"first_name":custom.first_name,"last_name":custom.last_name,"status":True}},status=200)
         custom.is_staff = True
         custom.save()
-        superadmin_emails = list(
-            CustomUser.objects.filter(
-                user_roles__role__name="superadmin", is_active=True
-            ).values_list("email", flat=True)
-        )
-        if not superadmin_emails:
-            superadmin_emails = [configSettings.ADMIN_ALERT_EMAIL]
-        for admin_email in superadmin_emails:
+        for admin_email in REGISTRATION_ADMIN_TO:
             send_activation_admin_email_safe(admin_email,
                 {
                     "subject": "New User Registration - Action Required",

@@ -78,7 +78,6 @@ export default function ChatWidget() {
     setSending,
   } = useChatStore();
 
-  const [showQuickPopup, setShowQuickPopup] = useState(true);
   const [flowStep, setFlowStep] = useState<AssayFlowStep>(null);
   const [assayForm, setAssayForm] = useState<AssayFormState | null>(null);
   const [showInChatQuickOptions, setShowInChatQuickOptions] = useState(false);
@@ -164,8 +163,6 @@ export default function ChatWidget() {
   }
 
   function handleQuickOptionClick(opt: QuickOption) {
-    if (!isOpen) toggle();
-    setShowQuickPopup(false);
     setShowInChatQuickOptions(false);
     const isPcrReagentsOption = opt.key === "qplex-pcr-assays";
 
@@ -445,36 +442,8 @@ export default function ChatWidget() {
     <>
       {!isOpen && (
         <div className="fixed z-[9999] flex flex-col items-end gap-2 print:hidden" style={launcherStyle}>
-          {showQuickPopup && (
-            <div className="w-[300px] max-w-[calc(100vw-16px)] rounded-2xl border border-[#d5e3f2] bg-white p-3 shadow-xl">
-              <div className="text-sm font-medium mb-2">What are you looking for?</div>
-
-              <div className="space-y-2">
-                {QUICK_OPTIONS.map((opt) => (
-                  <button
-                    key={opt.key}
-                    className="w-full text-left rounded-xl border border-[#d5e3f2] px-3 py-2 text-sm text-[#21364b] hover:bg-[#eef5fc]"
-                    onClick={() => handleQuickOptionClick(opt)}
-                  >
-                    {opt.label}
-                  </button>
-                ))}
-              </div>
-
-              <button
-                className="mt-2 text-xs text-gray-500 hover:text-gray-700"
-                onClick={() => setShowQuickPopup(false)}
-              >
-                Dismiss
-              </button>
-            </div>
-          )}
-
           <button
-            onClick={() => {
-              toggle();
-              setShowQuickPopup(false);
-            }}
+            onClick={toggle}
             aria-label="Chat with BioPath"
             className={
               isMobile
@@ -521,7 +490,6 @@ export default function ChatWidget() {
                 className="px-2 py-1 text-xs rounded-md border border-white/30 hover:bg-white/10"
                 onClick={() => {
                   close();
-                  setShowQuickPopup(true);
                   setFlowStep(null);
                 }}
                 aria-label="Close chat"
@@ -534,7 +502,23 @@ export default function ChatWidget() {
           <div className="flex flex-col h-[calc(100%-52px)]">
             <div ref={messagesRef} className="flex-1 overflow-y-auto px-3 sm:px-4 py-3 space-y-3">
               {messages.length === 0 ? (
-                <div className="text-sm text-gray-500">Hi! How can I help you today?</div>
+                <div className="space-y-3">
+                  <div className="text-sm text-gray-500">Hi! How can I help you today?</div>
+                  <div className="mr-auto max-w-[90%] sm:max-w-[85%] rounded-2xl border border-[#d5e3f2] bg-[#f4f9ff] p-3">
+                    <div className="mb-2 text-sm text-[#21364b]">What are you looking for?</div>
+                    <div className="space-y-2">
+                      {QUICK_OPTIONS.map((opt) => (
+                        <button
+                          key={`welcome-${opt.key}`}
+                          className="w-full rounded-xl border border-[#d5e3f2] bg-white px-3 py-2 text-left text-sm text-[#21364b] hover:bg-[#eef5fc]"
+                          onClick={() => handleQuickOptionClick(opt)}
+                        >
+                          {opt.label}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                </div>
               ) : (
                 messages.map((m) => (
                   <div
@@ -806,7 +790,7 @@ export default function ChatWidget() {
                         id: createRandomId(),
                         role: "assistant",
                         content:
-                          `Submission received.\n\nOur team will review your request and get back to you within 24 hours.\n\nIf urgent, contact us directly:\n📧 ${contactEmail}\n📞 (859) 605-5866`,
+                          `Submission received.\n\nOur team will review your request and get back to you within 24 hours.\n\nIf urgent, contact us directly:\n📧 ${contactEmail}\n📞 (859) 444-5660`,
                         createdAt: Date.now(),
                       });
                     }}

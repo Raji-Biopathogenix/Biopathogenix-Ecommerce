@@ -40,7 +40,6 @@ export default function AboutPage() {
       <section className={styles.hero}>
         <div className={styles.heroDna} aria-hidden="true" />
         <div className={styles.heroGlow} aria-hidden="true" />
-        <p className={styles.eyebrow}>Validation Services</p>
         <h1>
           About
           <br />
