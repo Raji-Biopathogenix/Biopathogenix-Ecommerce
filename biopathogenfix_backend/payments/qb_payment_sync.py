@@ -156,21 +156,16 @@ def _validate_payment(payment, customer_id, invoice_id, amount, charge_id):
     linked_amount = sum((_money(line.get('Amount')) for line in lines
         if any(str(link.get('TxnId')) == str(invoice_id) and link.get('TxnType') == 'Invoice'
                for link in line.get('LinkedTxn', []))), Decimal('0'))
-    response = payment.get('CreditCardPayment', {}).get('CreditChargeResponse', {})
-    # QBO can omit CreditChargeResponse even when it accepted the payment.
-    # Confirm accounting using the exact reference, customer, amount and invoice;
-    # TxnSource identifies an Intuit payment when the optional response is absent.
-    # Never treat a conflicting processor reference as a successful sync.
+    response = (payment.get('CreditCardPayment') or {}).get('CreditChargeResponse') or {}
+    # Live and sandbox QBO accept CreditChargeResponse but may omit it on read.
+    # PaymentRefNum carries the exact charge ID, so it plus customer, amount and
+    # invoice confirms the record. A conflicting processor reference never does.
     returned_charge_id = response.get('CCTransId')
-    processor_confirmed = (
-        str(returned_charge_id) == str(charge_id) if returned_charge_id is not None
-        else payment.get('TxnSource') == 'IntuitPayment'
-    )
     if (not payment.get('Id') or str(payment.get('CustomerRef', {}).get('value')) != str(customer_id)
             or _money(payment.get('TotalAmt')) != amount or linked_amount != amount
             or payment.get('CurrencyRef', {}).get('value', 'USD') != 'USD'
             or str(payment.get('PaymentRefNum')) != str(charge_id)
-            or not processor_confirmed):
+            or (returned_charge_id is not None and str(returned_charge_id) != str(charge_id))):
         raise ValueError('QuickBooks payment linkage is unconfirmed. Accounting review required.')
 
 

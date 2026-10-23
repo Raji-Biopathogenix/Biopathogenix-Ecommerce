@@ -12,7 +12,8 @@ from order.packing_slips import packing_items
 from order.views import CancelOrderItemView, RefundOrderView, CreateOutboundShipmentView
 
 
-@override_settings(GRAPH_ENABLED=False, EMAIL_BACKEND='django.core.mail.backends.locmem.EmailBackend')
+@override_settings(GRAPH_ENABLED=False, EMAIL_BACKEND='django.core.mail.backends.locmem.EmailBackend',
+                   QB_INTUIT_PAYMENT_LINKING_ENABLED=False)
 class ItemCancellationTests(TestCase):
     def setUp(self):
         self.user = get_user_model().objects.create(email='customer@example.com', is_active=True)

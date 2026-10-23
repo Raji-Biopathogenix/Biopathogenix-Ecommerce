@@ -49,8 +49,9 @@ def _env_bool(name: str, default: str = "False") -> bool:
     return os.getenv(name, default).lower() in ("1", "true", "yes", "on")
 
 
-# Enable only after sandbox verification and a controlled merchant-settlement test.
-QB_INTUIT_PAYMENT_LINKING_ENABLED = _env_bool('QB_INTUIT_PAYMENT_LINKING_ENABLED')
+# Marks site-recorded payments and refunds as QuickBooks Payments transactions
+# so payouts can match them. Set the variable to false to turn it off.
+QB_INTUIT_PAYMENT_LINKING_ENABLED = _env_bool('QB_INTUIT_PAYMENT_LINKING_ENABLED', 'True')
 
 
 # Application definition

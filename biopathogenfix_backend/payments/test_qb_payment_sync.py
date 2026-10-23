@@ -158,9 +158,22 @@ class CapturedPaymentTests(SimpleTestCase):
 
     @patch('payments.qb_payment_sync.requests.post')
     @patch('payments.qb_payment_sync.requests.get')
-    def test_existing_payment_with_wrong_link_or_missing_charge_id_blocks_recreation(self, get, post):
+    def test_live_payment_without_returned_charge_response_is_confirmed(self, get, post):
+        # Live QBO stores PaymentRefNum but may omit CreditChargeResponse on read.
+        for card in ({}, {'CreditChargeInfo': {}}, None):
+            with self.subTest(card=card):
+                payment = {**self.payment, 'CreditCardPayment': card}
+                get.side_effect = [self.response(self.charge),
+                    self.response({'QueryResponse': {'Payment': [payment]}})]
+                self.assertEqual(self.record()['Id'], 'payment-1')
+        post.assert_not_called()
+
+    @patch('payments.qb_payment_sync.requests.post')
+    @patch('payments.qb_payment_sync.requests.get')
+    def test_existing_payment_with_wrong_link_or_charge_id_blocks_recreation(self, get, post):
         original = deepcopy(self.payment)
-        for updates in ({'CustomerRef': {'value': 'other'}}, {'CreditCardPayment': {}},
+        for updates in ({'CustomerRef': {'value': 'other'}}, {'PaymentRefNum': None},
+                        {'CreditCardPayment': {'CreditChargeResponse': {'CCTransId': 'other'}}},
                         {'Line': []}, {'TotalAmt': 10}, {'CurrencyRef': {'value': 'CAD'}}):
             with self.subTest(updates=updates):
                 payment = {**original, **updates}

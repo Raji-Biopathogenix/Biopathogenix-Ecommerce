@@ -6,6 +6,12 @@ from django.db import transaction
 logger = logging.getLogger(__name__)
 
 
+def _reason(exc):
+    """Short failure reason for logs. Card data is never part of these errors;
+    HTTP errors include only the status and URL (charge and invoice IDs)."""
+    return f'{type(exc).__name__}: {str(exc)[:300]}'
+
+
 @shared_task(name='payments.retry_pending_qb_payments')
 def retry_pending_qb_payments():
     from order.models import Order
@@ -26,14 +32,14 @@ def retry_pending_qb_payments():
                     try:
                         sync_order_payment(order, token)
                         synced += 1
-                    except Exception:
+                    except Exception as exc:
                         # Preserve invoice/customer progress even if recording
                         # the payment fails after a successful invoice request.
-                        logger.warning('QuickBooks payment sync pending for order %s', order_id)
-        except Exception:
-            # Keep the pending flag for the next scheduled attempt; do not
-            # expose provider responses/card details in task logs.
-            logger.warning('QuickBooks payment sync pending for order %s', order_id)
+                        logger.warning('QuickBooks payment sync pending for order %s: %s',
+                                       order_id, _reason(exc))
+        except Exception as exc:
+            # Keep the pending flag for the next scheduled attempt.
+            logger.warning('QuickBooks payment sync pending for order %s: %s', order_id, _reason(exc))
     return synced
 
 

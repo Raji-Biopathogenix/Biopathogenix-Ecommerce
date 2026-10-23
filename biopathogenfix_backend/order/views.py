@@ -559,10 +559,11 @@ def _create_order(
                     sync_order_payment(order, access_token)
                 else:
                     create_qb_invoice(access_token, order, order.items.all(), payment_method, user)
-            except Exception:
+            except Exception as exc:
                 logger.error(
-                    "QB accounting synchronization pending for Order #%s; invoice=%s",
+                    "QB accounting synchronization pending for Order #%s; invoice=%s; %s: %s",
                     order.pk, order.qb_invoice_id or 'unavailable',
+                    type(exc).__name__, str(exc)[:300],
                 )
     else:
         logger.warning(f"QB Invoice skipped for Order #{order.id} — no access token")
