@@ -29,7 +29,8 @@ def _limited(kind, identity, limit, seconds):
     if cache.add(key, 1, timeout=seconds + 1):
         return False
     try:
-        return cache.incr(key) > limit
+        # incr gives None if the cache is unreachable; don't block real people over a cache outage.
+        return (cache.incr(key) or 0) > limit
     except ValueError:
         return not cache.add(key, 1, timeout=seconds + 1)
 

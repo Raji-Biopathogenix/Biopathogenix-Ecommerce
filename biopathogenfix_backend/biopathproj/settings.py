@@ -326,10 +326,16 @@ CELERY_BEAT_SCHEDULE = {
 
 
 if USE_REDIS_CACHE:
+    # django-redis (not Django's built-in backend) so product/signals.py can clear keys by pattern.
+    # IGNORE_EXCEPTIONS: if Redis hiccups, requests fall back to the database instead of failing.
     CACHES = {
         "default": {
-            "BACKEND": "django.core.cache.backends.redis.RedisCache",
+            "BACKEND": "django_redis.cache.RedisCache",
             "LOCATION": os.getenv("REDIS_URL", default="redis://localhost:6379/0"),
+            "OPTIONS": {
+                "CLIENT_CLASS": "django_redis.client.DefaultClient",
+                "IGNORE_EXCEPTIONS": True,
+            },
         }
     }
 else:
